@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:aisnippets/business/fs.dart';
+import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
+import 'package:aisnippets/dialogs/createSnippet.dart';
 import 'package:aisnippets/providers/currentPath.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:flutter/material.dart';
@@ -31,14 +33,61 @@ class AppDrawer extends StatelessWidget {
           CurrentSnippetPath(),
           DrawerHeader(),
           Expanded(child: SnippetList()),
-          Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: ElevatedButton(
-              child: const Text('Crear snippet'),
-              onPressed: () {},
-            ),
-          ),
+          CreateSnippetButton(),
         ],
+      ),
+    );
+  }
+}
+
+class CreateSnippetButton extends ConsumerWidget {
+  const CreateSnippetButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var sl = ref.watch(snippetListProvider);
+    var activeSnippet = ref.watch(activeSnippetProvider);
+    var saved = ref.watch(savedProvider);
+
+    continueIfNotSaved() async {
+      if (!saved && activeSnippet != null) {
+        var confirmed = await confirm(
+          context: context,
+          content: const Text(
+            '¿Seguro que quieres salir? Los cambios no guardados se perderan',
+          ),
+        );
+        if (!confirmed)
+          return false;
+        else {
+          ref.read(savedProvider.notifier).setSaved(true);
+          await Future.delayed(Duration(milliseconds: 100));
+          return true;
+        }
+      }
+      return true;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: ElevatedButton(
+        child: const Text('Crear snippet'),
+        onPressed: () async {
+          if (!(await continueIfNotSaved())) {
+            return;
+          }
+          if (!context.mounted) return;
+
+          var snippet = await createSnippet(context: context);
+          if (snippet == null) {
+            Navigator.of(context).pop();
+            return;
+          }
+
+          print("creando snippet");
+          Navigator.of(context).pop();
+          ref.read(snippetListProvider.notifier).addToList(snippet);
+        },
       ),
     );
   }
@@ -54,8 +103,25 @@ class SnippetList extends ConsumerWidget {
     var theme = Theme.of(context);
     var pc = theme.primaryColor;
     var saved = ref.watch(savedProvider);
-    var currentPath = ref.watch(currentPathProvider);
-    var currentFile = ref.watch(activeSnippetFileProvider);
+
+    continueIfNotSaved() async {
+      if (!saved && activeSnippet != null) {
+        var confirmed = await confirm(
+          context: context,
+          content: const Text(
+            '¿Seguro que quieres salir? Los cambios no guardados se perderan',
+          ),
+        );
+        if (!confirmed)
+          return false;
+        else {
+          ref.read(savedProvider.notifier).setSaved(true);
+          await Future.delayed(Duration(milliseconds: 100));
+          return true;
+        }
+      }
+      return true;
+    }
 
     return ListView.separated(
       itemCount: sl.length,
@@ -65,29 +131,59 @@ class SnippetList extends ConsumerWidget {
       itemBuilder: (c, i) {
         var snippet = sl[i];
         var itemActive = snippet.key == activeSnippet?.key;
-        return ListTile(
-          leading: Icon(
-            Icons.circle,
-            color: itemActive ? pc : Colors.transparent,
-          ),
-          title: Text(snippet.prefix),
-          subtitle: Text(snippet.description),
+        return SnippetTile(
+          snippet: snippet,
+          itemActive: itemActive,
+          onRemove: () {
+            ref.read(snippetListProvider.notifier).removeFromList(snippet);
+            ref.read(savedProvider.notifier).setSaved(false);
+            ref.read(activeSnippetProvider.notifier).setActiveSnippet(null);
+          },
           onTap: () async {
-            if (!saved && activeSnippet != null) {
-              var confirmed = await confirm(
-                context: context,
-                content: const Text('¿Seguro que quieres salir? Los cambios no guardados se perderan')
-              );
-              if (!confirmed) return;
-              else {
-                ref.read(savedProvider.notifier).setSaved(true);
-                await Future.delayed(Duration(milliseconds: 100));
-              }
-            }
+            if (!(await continueIfNotSaved())) return;
             ref.read(activeSnippetProvider.notifier).setActiveSnippet(snippet);
           },
         );
       },
+    );
+  }
+}
+
+class SnippetTile extends StatefulWidget {
+  final Snippet snippet;
+  final bool itemActive;
+  final Function() onTap;
+  final Function() onRemove;
+
+  const SnippetTile({
+    super.key,
+    required this.snippet,
+    required this.itemActive,
+    required this.onTap, required this.onRemove,
+  });
+
+  @override
+  State<SnippetTile> createState() => _SnippetTileState();
+}
+
+class _SnippetTileState extends State<SnippetTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    var pc = Theme.of(context).primaryColor;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ListTile(
+        leading: Icon(Icons.circle, color: widget.itemActive ? pc : Colors.transparent),
+        trailing: IconButton(onPressed: () {
+          widget.onRemove();
+        }, icon: Icon(Icons.delete, color: _isHovered ? Colors.red : Colors.transparent)) ,
+        title: Text(widget.snippet.prefix),
+        subtitle: Text(widget.snippet.description),
+        onTap: widget.onTap,
+      ),
     );
   }
 }

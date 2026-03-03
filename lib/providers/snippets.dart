@@ -46,7 +46,7 @@ class SnippetList extends _$SnippetList {
   updateSnippet(Snippet snippet) {
     var news = [
       for (final s in state)
-        if (s.key == snippet.key) snippet else s
+        if (s.key == snippet.key) snippet else s,
     ];
     state = news;
     return news;
@@ -54,6 +54,29 @@ class SnippetList extends _$SnippetList {
 
   setList(List<Snippet> list) {
     state = list;
+  }
+
+  List<Snippet> addToList(Snippet snippet) {
+    final hasSameKey = state.any((s) => s.key == snippet.key);
+
+    state = hasSameKey
+        ? [
+            for (final s in state)
+              if (s.key == snippet.key) snippet else s,
+          ]
+        : [...state, snippet];
+
+    return state; // optional – returns the updated list
+  }
+
+  List<Snippet> removeFromList(Snippet snippet) {
+    // Create a new list without the snippet that has the same key.
+    state = [
+      for (final s in state)
+        if (s.key != snippet.key) s,
+    ];
+
+    return state; // optional – returns the updated list
   }
 }
 
@@ -64,7 +87,7 @@ class ActiveSnippet extends _$ActiveSnippet {
     return null;
   }
 
-  setActiveSnippet (Snippet snippet) {
+  setActiveSnippet(Snippet? snippet) {
     state = snippet;
   }
 }
@@ -76,8 +99,7 @@ class Saved extends _$Saved {
     return true;
   }
 
-  setSaved (bool saved) {
+  setSaved(bool saved) {
     state = saved;
   }
 }
-

@@ -26,17 +26,19 @@ class SaveButton extends ConsumerWidget {
     return IconButton(
       icon: Icon(Icons.save, color: saved ? Colors.white : Colors.red),
       onPressed: () async {
-        if (currentSnippet == null) return;
-        var state = ref
-            .read(snippetListProvider.notifier)
-            .updateSnippet(
-              Snippet(
-                prefix: currentSnippet.prefix,
-                description: currentSnippet.description,
-                body: currentSnippet.body,
-                key: currentSnippet.key,
-              ),
-            );
+        var state = ref.read(snippetListProvider);
+        if (currentSnippet != null) {
+          state = ref
+              .read(snippetListProvider.notifier)
+              .updateSnippet(
+                Snippet(
+                  prefix: currentSnippet.prefix,
+                  description: currentSnippet.description,
+                  body: currentSnippet.body,
+                  key: currentSnippet.key,
+                ),
+              );
+        }
         var file = p.join(currentPath, currentFile);
         await saveSnippetList(file, state);
         ref.read(savedProvider.notifier).setSaved(true);

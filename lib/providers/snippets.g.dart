@@ -145,7 +145,7 @@ final class SnippetListProvider
   }
 }
 
-String _$snippetListHash() => r'a1f65c4025477dabc80a54cbe55fc19cdc024309';
+String _$snippetListHash() => r'1e6dbfa4424de0eb6052302709f157fd95cf1fb7';
 
 abstract class _$SnippetList extends $Notifier<List<Snippet>> {
   List<Snippet> build();
@@ -197,7 +197,7 @@ final class ActiveSnippetProvider
   }
 }
 
-String _$activeSnippetHash() => r'2b2413f2a8780b9c25446617a20f96cba09b0460';
+String _$activeSnippetHash() => r'6f1d2b2119c1518a21951a4a82a32d8f1c63feda';
 
 abstract class _$ActiveSnippet extends $Notifier<Snippet?> {
   Snippet? build();
