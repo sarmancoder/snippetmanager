@@ -145,7 +145,7 @@ final class SnippetListProvider
   }
 }
 
-String _$snippetListHash() => r'ab4c7529573278bff2577811eb17c36818ff6a11';
+String _$snippetListHash() => r'a1f65c4025477dabc80a54cbe55fc19cdc024309';
 
 abstract class _$SnippetList extends $Notifier<List<Snippet>> {
   List<Snippet> build();
@@ -210,6 +210,57 @@ abstract class _$ActiveSnippet extends $Notifier<Snippet?> {
             as $ClassProviderElement<
               AnyNotifier<Snippet?, Snippet?>,
               Snippet?,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(Saved)
+final savedProvider = SavedProvider._();
+
+final class SavedProvider extends $NotifierProvider<Saved, bool> {
+  SavedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedHash();
+
+  @$internal
+  @override
+  Saved create() => Saved();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$savedHash() => r'9778df1b0b13bdccfe5f59c8ffd09c1af6323ed2';
+
+abstract class _$Saved extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
               Object?,
               Object?
             >;

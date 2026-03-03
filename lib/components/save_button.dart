@@ -6,49 +6,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
-
-class SaveButton extends ConsumerStatefulWidget {
+class SaveButton extends ConsumerWidget {
   const SaveButton({super.key});
 
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _SaveButtonState();
-}
-
-class _SaveButtonState extends ConsumerState<SaveButton> {
-  bool saved = true;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var saved = ref.watch(savedProvider);
     var currentPath = ref.watch(currentPathProvider);
     var currentFile = ref.watch(activeSnippetFileProvider);
     var currentSnippet = ref.watch(activeSnippetProvider);
 
-    ref.listen(activeSnippetProvider, (c, s) async {
-      setState(() {
-        saved = false;
-      });
+    ref.listen(activeSnippetProvider, (prev, curr) async {
+      if (prev == null || curr == null) return;
+      if (prev.isEmpty() || curr.isEmpty()) return;
+      if (prev.equals(curr)) return;
+      if (prev.key != curr.key) return;
+      ref.read(savedProvider.notifier).setSaved(false);
     });
 
     return IconButton(
-      icon: Icon(Icons.save, color: saved ? Colors.white : Colors.red,),
+      icon: Icon(Icons.save, color: saved ? Colors.white : Colors.red),
       onPressed: () async {
         if (currentSnippet == null) return;
-        var state = ref.read(snippetListProvider.notifier).updateSnippet(
-          Snippet(
-            prefix: currentSnippet.prefix,
-            description: currentSnippet.description,
-            body: currentSnippet.body,
-            key: currentSnippet.key
-          )
-        );
+        var state = ref
+            .read(snippetListProvider.notifier)
+            .updateSnippet(
+              Snippet(
+                prefix: currentSnippet.prefix,
+                description: currentSnippet.description,
+                body: currentSnippet.body,
+                key: currentSnippet.key,
+              ),
+            );
         var file = p.join(currentPath, currentFile);
         await saveSnippetList(file, state);
-        setState(() {
-          saved = true;
-        });
+        ref.read(savedProvider.notifier).setSaved(true);
       },
       tooltip: 'salvar',
     );
   }
 }
-

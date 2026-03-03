@@ -68,3 +68,16 @@ class ActiveSnippet extends _$ActiveSnippet {
     state = snippet;
   }
 }
+
+@riverpod
+class Saved extends _$Saved {
+  @override
+  bool build() {
+    return true;
+  }
+
+  setSaved (bool saved) {
+    state = saved;
+  }
+}
+

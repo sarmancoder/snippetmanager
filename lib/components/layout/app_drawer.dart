@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
+import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/currentPath.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +53,10 @@ class SnippetList extends ConsumerWidget {
     var activeSnippet = ref.watch(activeSnippetProvider);
     var theme = Theme.of(context);
     var pc = theme.primaryColor;
+    var saved = ref.watch(savedProvider);
+    var currentPath = ref.watch(currentPathProvider);
+    var currentFile = ref.watch(activeSnippetFileProvider);
+
     return ListView.separated(
       itemCount: sl.length,
       separatorBuilder: (c, p) {
@@ -59,10 +66,24 @@ class SnippetList extends ConsumerWidget {
         var snippet = sl[i];
         var itemActive = snippet.key == activeSnippet?.key;
         return ListTile(
-          leading: Icon(Icons.circle, color: itemActive ? pc : Colors.transparent,),
+          leading: Icon(
+            Icons.circle,
+            color: itemActive ? pc : Colors.transparent,
+          ),
           title: Text(snippet.prefix),
           subtitle: Text(snippet.description),
-          onTap: () {
+          onTap: () async {
+            if (!saved && activeSnippet != null) {
+              var confirmed = await confirm(
+                context: context,
+                content: const Text('¿Seguro que quieres salir? Los cambios no guardados se perderan')
+              );
+              if (!confirmed) return;
+              else {
+                ref.read(savedProvider.notifier).setSaved(true);
+                await Future.delayed(Duration(milliseconds: 100));
+              }
+            }
             ref.read(activeSnippetProvider.notifier).setActiveSnippet(snippet);
           },
         );
@@ -102,7 +123,10 @@ class DrawerHeader extends ConsumerWidget {
 
     ref.listen(activeSnippetFileProvider, (prev, next) async {
       var currentPath = ref.read(currentPathProvider);
-      var file = SnippetFile(path: currentPath, name: ref.read(activeSnippetFileProvider));
+      var file = SnippetFile(
+        path: currentPath,
+        name: ref.read(activeSnippetFileProvider),
+      );
       var snippets = await getFileSnippets(file);
       ref.read(snippetListProvider.notifier).setList(snippets);
     });

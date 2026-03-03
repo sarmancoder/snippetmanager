@@ -14,5 +14,13 @@ class Snippet {
   /*static Snippet fromContentFile(String fileContent) async {
     var json = JSON5.parse(fileContent);
   }*/
+  
+  bool equals(Snippet snippet) {
+    return snippet.body == body && snippet.prefix == prefix && snippet.description == description;
+  }
+
+  bool isEmpty() {
+    return body.isEmpty && prefix.isEmpty && description.isEmpty;
+  }
 
 }
