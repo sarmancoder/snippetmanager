@@ -1,0 +1,1 @@
+un componente de react que haga export default de un componente, quiero que el componente tenga el nombre del archivo, y quiero que reciba props que este tipado con typescript, el nombre del typo quiero que sea el <nombredelarchivo>Props
