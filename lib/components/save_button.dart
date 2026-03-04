@@ -35,6 +35,7 @@ class SaveButton extends ConsumerWidget {
                   prefix: currentSnippet.prefix,
                   description: currentSnippet.description,
                   body: currentSnippet.body,
+                  scope: currentSnippet.scope,
                   key: currentSnippet.key,
                 ),
               );

@@ -85,6 +85,7 @@ class _SnippetCreatorState extends ConsumerState<SnippetCreator> {
               var snippet = Snippet(
                 prefix: prefixController.text,
                 description: descController.text,
+                scope: "",
                 body: "",
                 key: '${prefixController.text}-${getUid()}'
               );

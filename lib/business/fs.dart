@@ -39,6 +39,7 @@ Future<List<Snippet>> getFileSnippets(SnippetFile file) async {
       Snippet(
         key: key,
         prefix: value['prefix'],
+        scope: value['scope'] ?? "",
         description: value['description'],
         body: value['body'].join('\n'),
       ),
@@ -50,11 +51,15 @@ Future<List<Snippet>> getFileSnippets(SnippetFile file) async {
 Future saveSnippetList(String pathFile, List<Snippet> list) async {
   var snippets = {};
   for (var i = 0; i < list.length; i++) {
-    snippets[list[i].key] = {
-      "prefix": list[i].prefix,
-      "description": list[i].description,
-      "body": list[i].body.split("\n"),
+    var currSnip = list[i];
+    snippets[currSnip.key] = {
+      "prefix": currSnip.prefix,
+      "description": currSnip.description,
+      "body": currSnip.body.split("\n"),
     };
+    if (currSnip.key.isNotEmpty) {
+      snippets[currSnip.key]['scope'] = currSnip.scope;
+    }
   }
   var encoder = const JsonEncoder.withIndent('  '); // Dos espacios de sangría
   String prettyprint = encoder.convert(snippets);
