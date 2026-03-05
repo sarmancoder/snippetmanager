@@ -90,6 +90,14 @@ class ActiveSnippet extends _$ActiveSnippet {
   setActiveSnippet(Snippet? snippet) {
     state = snippet;
   }
+
+  bool isNull() {
+    return state == null;
+  }
+
+  Snippet? getCurrent() {
+    return state;
+  }
 }
 
 @riverpod

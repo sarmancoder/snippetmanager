@@ -77,7 +77,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
                   if (currentSnippet == null) return;
                   var newSnippet = Snippet(
                     prefix: snippet['prefix'],
-                    scope: snippet['scope'],
+                    scope: snippet['scope'] ?? "",
                     description: snippet['description'],
                     body: snippet['body'].join('\n'),
                     key: currentSnippet.key,
