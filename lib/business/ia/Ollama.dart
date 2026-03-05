@@ -9,19 +9,17 @@ class AiAgentOllama extends AiAgent {
   
 
   @override
-  Future<String> ask(List<Message> instructions, String prompt, int tries) async {
+  Future<String> ask(List<String> instructions, String prompt, int tries) async {
     if (tries < numMaxTries) {
       print("Intento numero ${numMaxTries - tries}/$numMaxTries");
     }
-
-    print("Intento 0");
 
     final generated = await client.generateChatCompletion(
       request: GenerateChatCompletionRequest(
         model: modelName,
         messages: [
           for (var i = 0; i< instructions.length; i++)
-            instructions[i],
+            Message(content: instructions[i], role: MessageRole.user),
           Message(role: MessageRole.user, content: prompt)
         ]
       )

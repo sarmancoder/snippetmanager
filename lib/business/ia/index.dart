@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:aisnippets/business/ia/Ollama.dart';
+import 'package:aisnippets/business/ia/OpenRouter.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:ollama_dart/ollama_dart.dart';
 
@@ -30,17 +31,15 @@ abstract class AiAgent {
 
   AiAgent({required this.modelName});
 
-  static AiAgent getInstance ({required String modelName}) {
+  static AiAgent getInstance ({required String modelName, required bool online}) {
+    if (online) {
+      return OpenRouterAgent(modelName: modelName);
+    }
     return AiAgentOllama(modelName: modelName);
   }
 
   Future<String> prompt(AskMode mode, String prompt, Snippet? currentSnippet) async {
-    List<Message> messages = [
-      Message(
-        role: MessageRole.user,
-        content: instructionsTXT
-      )
-    ];
+    List<String> messages = [ instructionsTXT ];
 
     if (mode == AskMode.modify && currentSnippet != null) {
       var snippetJson = {
@@ -49,14 +48,11 @@ abstract class AiAgent {
         "body": currentSnippet.body,
         "scope": currentSnippet.scope
       };
-      messages.add(Message(
-        role: MessageRole.user,
-        content: "Mi actual snippet es el siguiente: ${jsonEncode(snippetJson)}. Quiero que me lo modifiques para: "
-      ));
+      messages.add("Mi actual snippet es el siguiente: ${jsonEncode(snippetJson)}. Quiero que me lo modifiques para: ");
     }
 
     return await ask(messages, prompt, numMaxTries);
   }
 
-  Future<String> ask(List<Message> messages, String prompt, int tries);
+  Future<String> ask(List<String> messages, String prompt, int tries);
 }

@@ -7,6 +7,7 @@ environment:
   sdk: ^3.11.0
 
 dependencies:
+  dart_openai: ^6.1.1
   file_picker: ^10.3.10
   flutter:
     sdk: flutter

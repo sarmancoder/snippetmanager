@@ -19,24 +19,18 @@ class HomePage extends ConsumerWidget {
     var activeSnippet = ref.watch(activeSnippetProvider);
 
     if (activeSnippet == null) {
-      return AppLayout(content: Center(
-        child: Text("Seleccione un snippet para empezar", style: theme.textTheme.headlineMedium,),
-      ));
+      return AppLayout(
+        fab: null,
+        content: Center(
+          child: Text(
+            "Seleccione un snippet para empezar",
+            style: theme.textTheme.headlineMedium,
+          ),
+        ),
+      );
     }
-    return AppLayout(content: SnippetsWebPage());
-  }
-}
-
-class AppLayout extends StatelessWidget {
-  final Widget content;
-
-  const AppLayout({super.key, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: SnippetsAppBar(),
-      floatingActionButton: Builder(
+    return AppLayout(
+      fab: Builder(
         // Usamos Builder para tener el context correcto del botón
         builder: (context) => FloatingActionButton(
           child: const Icon(Icons.add_comment),
@@ -55,6 +49,21 @@ class AppLayout extends StatelessWidget {
           },
         ),
       ),
+      content: SnippetsWebPage());
+  }
+}
+
+class AppLayout extends StatelessWidget {
+  final Widget content;
+  final Widget? fab;
+
+  const AppLayout({super.key, required this.content, required this.fab});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: SnippetsAppBar(),
+      floatingActionButton: fab,
       body: Stack(
         children: [
           // 1. Contenido principal (debe tener un margen izquierdo si no quieres que el drawer lo tape)
@@ -63,10 +72,7 @@ class AppLayout extends StatelessWidget {
             top: kToolbarHeight,
             right: 0,
             bottom: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: content,
-            ),
+            child: Padding(padding: const EdgeInsets.all(8.0), child: content),
           ),
 
           // 2. El "Drawer" personalizado
@@ -74,7 +80,7 @@ class AppLayout extends StatelessWidget {
             top: 20, // Margen superior
             left: 10, // Un poco despegado del borde si quieres
             // Quitamos bottom: 0 para que no llegue hasta abajo
-            child: AppDrawer(drawerWidth: drawerWidth)
+            child: AppDrawer(drawerWidth: drawerWidth),
           ),
         ],
       ),

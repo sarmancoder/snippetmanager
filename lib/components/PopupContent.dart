@@ -16,6 +16,7 @@ class MyPopupContent extends ConsumerStatefulWidget {
 
 class _MyPopupContentState extends ConsumerState<MyPopupContent> {
   bool unable = false;
+  bool online = true;
   TextEditingController controller = TextEditingController(
     text: "En vue un vfor",
   );
@@ -28,9 +29,28 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
         mainAxisSize:
             MainAxisSize.min, // Importante para que no ocupe toda la pantalla
         children: [
-          Text(
-            "Modificar snippet con IA",
-            style: Theme.of(context).textTheme.bodyLarge,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "Modificar snippet con IA",
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold),
+              ),
+              SegmentedButton<bool>(
+                onSelectionChanged: (p0) {
+                  setState(() {
+                    online = p0.first;
+                  });
+                },
+                segments: [
+                  ButtonSegment(value: false, label: Text("Ollama")),
+                  ButtonSegment(value: true, label: Text("OpenRouter")),
+                ],
+                selected: {online}
+              )
+            ],
           ),
           const SizedBox(height: 10),
           Expanded(
@@ -81,20 +101,25 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
     var activeSnippet = ref.read(activeSnippetProvider.notifier).getCurrent();
     if (activeSnippet == null) return;
     print("preguntando a ollama");
-    var agent = AiAgent.getInstance(modelName: "gpt-oss:20b");
+    var agent = AiAgent.getInstance(modelName: "gpt-oss:20b", online: online);
     var snippet = await agent.prompt(askMode, controller.text, askMode == AskMode.modify ? activeSnippet : null);
-    var jsonAiSnippet = jsonDecode(snippet);
-    ref
-        .read(activeSnippetProvider.notifier)
-        .setActiveSnippet(
-          Snippet(
-            prefix: jsonAiSnippet["prefix"],
-            description: jsonAiSnippet["description"],
-            body: jsonAiSnippet["body"].join("\n"),
-            key: activeSnippet.key,
-            scope: jsonAiSnippet["scope"] ?? "",
-          ),
-        );
+    try { 
+      var jsonAiSnippet = jsonDecode(snippet);
+      ref
+          .read(activeSnippetProvider.notifier)
+          .setActiveSnippet(
+            Snippet(
+              prefix: jsonAiSnippet["prefix"],
+              description: jsonAiSnippet["description"],
+              body: jsonAiSnippet["body"].join("\n"),
+              key: activeSnippet.key,
+              scope: jsonAiSnippet["scope"] ?? "",
+            ),
+          );
+    } catch (exception) {
+      print(exception.toString());
+      print("No se pudo establecer el snippet");
+    }
   }
 
   Future<void> runTask(cb) async {
