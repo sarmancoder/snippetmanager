@@ -14,6 +14,10 @@ class SnippetsFiles extends _$SnippetsFiles {
   List<SnippetFile> build() {
     return snippetFiles;
   }
+
+  void setList(List<SnippetFile> newList) {
+    state = newList; // Al asignar a 'state', Riverpod notifica a la UI
+  }
 }
 
 @riverpod

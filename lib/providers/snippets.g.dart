@@ -41,7 +41,7 @@ final class SnippetsFilesProvider
   }
 }
 
-String _$snippetsFilesHash() => r'37a2341a2ce6185172c1ecee8d2397d67d8af526';
+String _$snippetsFilesHash() => r'53366773d5489c6351bbb69329098080e84ea455';
 
 abstract class _$SnippetsFiles extends $Notifier<List<SnippetFile>> {
   List<SnippetFile> build();

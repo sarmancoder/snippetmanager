@@ -14,11 +14,13 @@ String getVSCodePath() {
 Future<List<SnippetFile>> loadDirectory(String path) async {
   List<SnippetFile> files = [];
 
+  print(path);
+
   final dir = Directory(p.join(path)); // Ejemplo con una carpeta real
 
   if (await dir.exists()) {
     await for (FileSystemEntity entity in dir.list(recursive: false)) {
-      if (entity is File && entity.path.endsWith("json")) {
+      if (entity is File && (entity.path.endsWith("json") || entity.path.endsWith("code-snippets"))) {
         files.add(SnippetFile(path: path, name: p.basename(entity.path)));
       }
     }

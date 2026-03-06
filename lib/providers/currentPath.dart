@@ -12,4 +12,8 @@ class CurrentPath extends _$CurrentPath {
   String build() {
     return initialSnippetsPath;
   }
+
+  setPath(String path) {
+    state = path;
+  }
 }

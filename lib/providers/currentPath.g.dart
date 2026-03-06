@@ -40,7 +40,7 @@ final class CurrentPathProvider extends $NotifierProvider<CurrentPath, String> {
   }
 }
 
-String _$currentPathHash() => r'933847f115c0181548e91e55010190b2e9ffde36';
+String _$currentPathHash() => r'7c9c2405a8fabd97434de9c0bde4f325db24bde6';
 
 abstract class _$CurrentPath extends $Notifier<String> {
   String build();

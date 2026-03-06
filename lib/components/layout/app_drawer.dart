@@ -31,8 +31,8 @@ class AppDrawer extends StatelessWidget {
       color: bgColor,
       child: Column(
         children: [
-          CurrentSnippetPath(),
-          DrawerHeader(),
+          // CurrentSnippetPath(),
+          // DrawerHeader(),
           Expanded(child: SnippetList()),
           CreateSnippetButton(),
         ],
