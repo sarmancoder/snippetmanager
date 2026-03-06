@@ -1,6 +1,7 @@
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
+import 'package:aisnippets/components/ConfigButton.dart';
 import 'package:aisnippets/components/dark_mode_toggle.dart';
 import 'package:aisnippets/components/save_button.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
@@ -18,7 +19,7 @@ class SnippetsAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: CurrentDirectory(),
-      actions: [DarkModeToggle(), SaveButton()],
+      actions: [DarkModeToggle(), SaveButton(), ConfigButton()],
     );
   }
 
