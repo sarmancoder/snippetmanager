@@ -107,19 +107,35 @@ class SnippetList extends ConsumerWidget {
 
     continueIfNotSaved() async {
       if (!saved && activeSnippet != null) {
-        var confirmed = await confirm(
+        var save = await confirm(
           context: context,
-          content: const Text(
-            '¿Seguro que quieres salir? Los cambios no guardados se perderan',
-          ),
+          content: Text("¿Salvar los cambios?"),
         );
-        if (!confirmed)
-          return false;
-        else {
+        if (save) {
+          var currentPath = ref.read(currentPathProvider);
+          var currentFile = ref.read(activeSnippetFileProvider);
+          var currentSnippet = ref.read(activeSnippetProvider);
+          var state = ref.read(snippetListProvider);
+          if (currentSnippet != null) {
+            state = ref
+                .read(snippetListProvider.notifier)
+                .updateSnippet(
+                  Snippet(
+                    prefix: currentSnippet.prefix,
+                    description: currentSnippet.description,
+                    body: currentSnippet.body,
+                    scope: currentSnippet.scope,
+                    key: currentSnippet.key,
+                  ),
+                );
+          }
+          var file = p.join(currentPath, currentFile);
+          await saveSnippetList(file, state);
           ref.read(savedProvider.notifier).setSaved(true);
-          await Future.delayed(Duration(milliseconds: 100));
-          return true;
         }
+        ref.read(savedProvider.notifier).setSaved(true);
+        await Future.delayed(Duration(milliseconds: 100));
+        return true;
       }
       return true;
     }
@@ -160,7 +176,8 @@ class SnippetTile extends StatefulWidget {
     super.key,
     required this.snippet,
     required this.itemActive,
-    required this.onTap, required this.onRemove,
+    required this.onTap,
+    required this.onRemove,
   });
 
   @override
@@ -181,10 +198,17 @@ class _SnippetTileState extends State<SnippetTile> {
         minLeadingWidth: 0,
         leading: SizedBox(
           width: 10,
-          child: Icon(Icons.circle, color: tc, size: 14)),
-        trailing: IconButton(onPressed: () {
-          widget.onRemove();
-        }, icon: Icon(Icons.delete, color: _isHovered ? redColor : Colors.transparent)) ,
+          child: Icon(Icons.circle, color: tc, size: 14),
+        ),
+        trailing: IconButton(
+          onPressed: () {
+            widget.onRemove();
+          },
+          icon: Icon(
+            Icons.delete,
+            color: _isHovered ? redColor : Colors.transparent,
+          ),
+        ),
         title: Text(widget.snippet.prefix),
         subtitle: Text(widget.snippet.description),
         onTap: widget.onTap,
