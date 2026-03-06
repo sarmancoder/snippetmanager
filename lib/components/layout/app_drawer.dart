@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
+import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/dialogs/createSnippet.dart';
 import 'package:aisnippets/providers/currentPath.dart';
@@ -172,14 +173,18 @@ class _SnippetTileState extends State<SnippetTile> {
   @override
   Widget build(BuildContext context) {
     var pc = Theme.of(context).primaryColor;
+    var tc = widget.itemActive ? pc : Colors.transparent;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: ListTile(
-        leading: Icon(Icons.circle, color: widget.itemActive ? pc : Colors.transparent),
+        minLeadingWidth: 0,
+        leading: SizedBox(
+          width: 10,
+          child: Icon(Icons.circle, color: tc, size: 14)),
         trailing: IconButton(onPressed: () {
           widget.onRemove();
-        }, icon: Icon(Icons.delete, color: _isHovered ? Colors.red : Colors.transparent)) ,
+        }, icon: Icon(Icons.delete, color: _isHovered ? redColor : Colors.transparent)) ,
         title: Text(widget.snippet.prefix),
         subtitle: Text(widget.snippet.description),
         onTap: widget.onTap,

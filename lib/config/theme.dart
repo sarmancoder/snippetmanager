@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 var getFromSeed = (Brightness b) =>
-    ColorScheme.fromSeed(seedColor: Colors.purple, brightness: b);
+    ColorScheme.fromSeed(seedColor: Color(0xff4c5897), brightness: b);
+
+var redColor = Color(0xfff21616);
 
 var theme = (bool darkMode) {
   var brightness = darkMode ? Brightness.dark : Brightness.light;
