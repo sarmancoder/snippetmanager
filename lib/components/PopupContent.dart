@@ -17,6 +17,8 @@ class MyPopupContent extends ConsumerStatefulWidget {
 class _MyPopupContentState extends ConsumerState<MyPopupContent> {
   bool unable = false;
   bool online = true;
+  dynamic backSnippet;
+
   TextEditingController controller = TextEditingController(
     text: "En vue un vfor",
   );
@@ -70,6 +72,13 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              IconButton(
+                onPressed: (backSnippet == null || unable)
+                  ? null : () {
+                    undo();
+                  },
+                icon: Icon(Icons.undo)),
+              Expanded(child: Container(),),
               TextButton(
                 onPressed: unable
                     ? null
@@ -97,11 +106,24 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
     );
   }
 
+  undo() {
+    ref
+          .read(activeSnippetProvider.notifier)
+          .setActiveSnippet(
+            backSnippet,
+          );
+  }
+
   promptToIa(AskMode askMode) async {
     var activeSnippet = ref.read(activeSnippetProvider.notifier).getCurrent();
+    if (activeSnippet != null) {
+      setState(() {
+        backSnippet = activeSnippet;
+      });
+    }
     if (activeSnippet == null) return;
-    print("preguntando a ollama");
     var agent = AiAgent.getInstance(modelName: "gpt-oss:20b", online: online);
+    print("preguntando a ${online ? "Open router" : "Ollama"}");
     var snippet = await agent.prompt(askMode, controller.text, askMode == AskMode.modify ? activeSnippet : null);
     try { 
       var jsonAiSnippet = jsonDecode(snippet);
@@ -132,6 +154,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
         unable = false;
       });
     } catch (e) {
+      print(e.toString());
       setState(() {
         unable = false;
       });

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:aisnippets/business/ia/Ollama.dart';
 import 'package:aisnippets/business/ia/OpenRouter.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
-import 'package:ollama_dart/ollama_dart.dart';
 
 var instructionsTXT = """
 Hola, eres un asistente y me vas a responder solamente con un json con esta estructura, no necesito markdown:

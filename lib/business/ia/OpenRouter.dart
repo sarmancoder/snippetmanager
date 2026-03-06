@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aisnippets/business/ia/index.dart';
 import 'package:dart_openai/dart_openai.dart';
 
@@ -9,35 +11,45 @@ class OpenRouterAgent extends AiAgent {
 
   @override
   Future<String> ask(List<String> messages, String prompt, int tries) async {
-    if (tries < numMaxTries) {
+    try {
       print("Intento numero ${numMaxTries - tries}/$numMaxTries");
+
+      OpenAI.apiKey = apiKey;
+      OpenAI.baseUrl = "https://openrouter.ai/api";
+
+      var messagesOpenAi = [
+        for (var i = 0; i < messages.length; i++)
+          OpenAIChatCompletionChoiceMessageContentItemModel.text(messages[i]),
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt),
+      ];
+
+      OpenAIChatCompletionModel comp = await OpenAI.instance.chat.create(
+        model:
+            "openrouter/auto:free", // Eliges el modelo que quieras de OpenRouter
+        messages: [
+          OpenAIChatCompletionChoiceMessageModel(
+            content: messagesOpenAi,
+            role: OpenAIChatMessageRole.user,
+          ),
+        ],
+      );
+
+      var response = comp.choices.first.message.content?[0].text;
+      if (response == null || response.isEmpty) {
+        if (tries > 0) {
+          return await ask(messages, prompt, tries - 1);
+        }
+        throw 'Demasiados intentos';
+      }
+      return response;
+    } on TimeoutException catch (e) {
+      print('timeout!');
+      if (tries > 0) {
+        return await ask(messages, prompt, tries - 1);
+      }
+      throw 'Demasiados intentos';
+    } catch (exception) {
+      throw exception;
     }
-
-    OpenAI.apiKey = apiKey;
-    OpenAI.baseUrl = "https://openrouter.ai/api";
-
-    var messagesOpenAi = [
-      for (var i = 0; i < messages.length; i++)
-        OpenAIChatCompletionChoiceMessageContentItemModel.text(messages[i]),
-      OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt),
-    ];
-
-    OpenAIChatCompletionModel comp = await OpenAI.instance.chat.create(
-      model:
-          "openai/gpt-5-nano", // Eliges el modelo que quieras de OpenRouter
-      messages: [
-        OpenAIChatCompletionChoiceMessageModel(
-          content: messagesOpenAi,
-          role: OpenAIChatMessageRole.user,
-        ),
-      ],
-    );
-
-    var response = comp.choices.first.message.content;
-    print(response?[0].text!);
-    if (response == null || response.isEmpty) {
-      return await ask(messages, prompt, tries - 1);
-    }
-    return response[0].text!;
   }
 }
