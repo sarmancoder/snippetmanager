@@ -197,7 +197,7 @@ final class ActiveSnippetProvider
   }
 }
 
-String _$activeSnippetHash() => r'6f1d2b2119c1518a21951a4a82a32d8f1c63feda';
+String _$activeSnippetHash() => r'e52c45b40352d5f5b1fca9d061ccdfec2b91c68b';
 
 abstract class _$ActiveSnippet extends $Notifier<Snippet?> {
   Snippet? build();

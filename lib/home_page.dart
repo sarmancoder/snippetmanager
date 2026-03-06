@@ -1,4 +1,6 @@
+import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippets.dart';
+import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:popover/popover.dart';
 
@@ -29,6 +31,9 @@ class HomePage extends ConsumerWidget {
         ),
       );
     }
+
+    var online = ref.watch(sharedPrefsProvider).getBool(SharedPrefsValues.iaOnline) ?? false;
+
     return AppLayout(
       fab: Builder(
         // Usamos Builder para tener el context correcto del botón
@@ -37,8 +42,7 @@ class HomePage extends ConsumerWidget {
           onPressed: () {
             showPopover(
               context: context,
-              bodyBuilder: (context) => const MyPopupContent(),
-              onPop: () => print('Popover cerrado'),
+              bodyBuilder: (context) => MyPopupContent(online: online),
               direction: PopoverDirection.top, // Aparece hacia arriba
               width: 500,
               height: 300,

@@ -1,5 +1,6 @@
 import 'package:aisnippets/config/app.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'ui.g.dart';
 
@@ -19,6 +20,6 @@ class DarkMode extends _$DarkMode {
 }
 
 @riverpod
-SharedPrefs (Ref ref) {
+SharedPreferences SharedPrefs (Ref ref) {
   throw UnimplementedError(); // Se sobrescribirá en el main
 }

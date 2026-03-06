@@ -64,8 +64,13 @@ abstract class _$DarkMode extends $Notifier<bool> {
 final sharedPrefsProvider = SharedPrefsProvider._();
 
 final class SharedPrefsProvider
-    extends $FunctionalProvider<dynamic, dynamic, dynamic>
-    with $Provider<dynamic> {
+    extends
+        $FunctionalProvider<
+          SharedPreferences,
+          SharedPreferences,
+          SharedPreferences
+        >
+    with $Provider<SharedPreferences> {
   SharedPrefsProvider._()
     : super(
         from: null,
@@ -82,21 +87,22 @@ final class SharedPrefsProvider
 
   @$internal
   @override
-  $ProviderElement<dynamic> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<SharedPreferences> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  dynamic create(Ref ref) {
+  SharedPreferences create(Ref ref) {
     return SharedPrefs(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(dynamic value) {
+  Override overrideWithValue(SharedPreferences value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<dynamic>(value),
+      providerOverride: $SyncValueProvider<SharedPreferences>(value),
     );
   }
 }
 
-String _$sharedPrefsHash() => r'9d09b451235c0cae4efce057544af502683e5afa';
+String _$sharedPrefsHash() => r'5c580a3ffa6bb4b9206c2c12577a8bd1e5ad6058';

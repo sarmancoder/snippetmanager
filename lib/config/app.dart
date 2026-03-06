@@ -4,4 +4,5 @@ abstract final class SharedPrefsValues {
   SharedPrefsValues._();
 
   static const String darkMode = "is_dark";
+  static const String iaOnline = "ia_online";
 }

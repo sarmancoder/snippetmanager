@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:aisnippets/business/ia/Ollama.dart';
 import 'package:aisnippets/business/ia/index.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
+import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippets.dart';
+import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPopupContent extends ConsumerStatefulWidget {
-  const MyPopupContent({super.key});
+  final bool online;
+  const MyPopupContent({super.key, required this.online});
 
   @override
   ConsumerState<MyPopupContent> createState() => _MyPopupContentState();
@@ -16,8 +20,14 @@ class MyPopupContent extends ConsumerStatefulWidget {
 
 class _MyPopupContentState extends ConsumerState<MyPopupContent> {
   bool unable = false;
-  bool online = true;
+  bool online = false;
   dynamic backSnippet;
+
+  @override
+  void initState() {
+    super.initState();
+    online = widget.online;
+  }
 
   TextEditingController controller = TextEditingController(
     text: "En vue un vfor",
@@ -25,6 +35,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
 
   @override
   Widget build(BuildContext context) {
+    SharedPreferences sp = ref.watch(sharedPrefsProvider);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -43,6 +54,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
               SegmentedButton<bool>(
                 onSelectionChanged: (p0) {
                   setState(() {
+                    sp.setBool(SharedPrefsValues.iaOnline, p0.first);
                     online = p0.first;
                   });
                 },
