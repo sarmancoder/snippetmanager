@@ -7,7 +7,7 @@ const apiKey =
     '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';
 
 class OpenRouterAgent extends AiAgent {
-  OpenRouterAgent({required super.modelName});
+  OpenRouterAgent({super.modelName = "openrouter/auto:free"});
 
   @override
   Future<String> ask(List<String> messages, String prompt, int tries) async {
@@ -24,8 +24,7 @@ class OpenRouterAgent extends AiAgent {
       ];
 
       OpenAIChatCompletionModel comp = await OpenAI.instance.chat.create(
-        model:
-            "openrouter/auto:free", // Eliges el modelo que quieras de OpenRouter
+        model: modelName, // Eliges el modelo que quieras de OpenRouter
         messages: [
           OpenAIChatCompletionChoiceMessageModel(
             content: messagesOpenAi,

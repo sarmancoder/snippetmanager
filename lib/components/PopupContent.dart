@@ -134,7 +134,8 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
       });
     }
     if (activeSnippet == null) return;
-    var agent = AiAgent.getInstance(modelName: "gpt-oss:20b", online: online);
+    var model = ref.read(sharedPrefsProvider).getString(online ? "aa" : SharedPrefsValues.ollamaModel);
+    var agent = AiAgent.getInstance(modelName: model, online: online);
     print("preguntando a ${online ? "Open router" : "Ollama"}");
     var snippet = await agent.prompt(askMode, controller.text, askMode == AskMode.modify ? activeSnippet : null);
     try { 

@@ -5,4 +5,5 @@ abstract final class SharedPrefsValues {
 
   static const String darkMode = "is_dark";
   static const String iaOnline = "ia_online";
+  static const String ollamaModel = "ollama_model";
 }

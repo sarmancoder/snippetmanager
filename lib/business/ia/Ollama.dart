@@ -1,15 +1,14 @@
 import 'package:aisnippets/business/ia/index.dart';
 import 'package:ollama_dart/ollama_dart.dart';
 
+
 class AiAgentOllama extends AiAgent {
-  final client = OllamaClient();
-
+  static final client = OllamaClient();
   AiAgentOllama({required super.modelName});
-
-  
 
   @override
   Future<String> ask(List<String> instructions, String prompt, int tries) async {
+    print("Usando modelo de ollama " + this.modelName);
     if (tries < numMaxTries) {
       print("Intento numero ${numMaxTries - tries}/$numMaxTries");
     }
@@ -33,6 +32,11 @@ class AiAgentOllama extends AiAgent {
 
     return generated.message.content;
   }
+
+  static Future<ModelsResponse> getModels () async {
+    return await client.listModels();
+  }
+
 }
 
 /*

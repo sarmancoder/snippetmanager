@@ -30,9 +30,12 @@ abstract class AiAgent {
 
   AiAgent({required this.modelName});
 
-  static AiAgent getInstance ({required String modelName, required bool online}) {
+  static AiAgent getInstance ({String? modelName, required bool online}) {
     if (online) {
-      return OpenRouterAgent(modelName: modelName);
+      return OpenRouterAgent(modelName: modelName ?? "openrouter/auto:free" );
+    }
+    if (modelName == null) {
+      throw 'Obligatorio para ollama seleccionar un modelo';
     }
     return AiAgentOllama(modelName: modelName);
   }
