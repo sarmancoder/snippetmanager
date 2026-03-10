@@ -6,6 +6,7 @@ import 'package:aisnippets/components/dark_mode_toggle.dart';
 import 'package:aisnippets/components/save_button.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/currentPath.dart';
+import 'package:aisnippets/providers/services.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -137,10 +138,25 @@ class FileDropdown extends ConsumerWidget {
         iconEnabledColor: Colors.white,
         style: const TextStyle(fontSize: 14, color: Colors.white),
         dropdownColor: Colors.grey[900], // Para que se vea bien en modo oscuro
-        onChanged: (String? c) {
-          if (c != null) {
-            ref.read(activeSnippetFileProvider.notifier).setActiveSnippet(c);
+        onChanged: (String? c) async {
+          if (c == null) return;
+          var saved = ref.read(savedProvider);
+          var activeSnippet = ref.read(activeSnippetFileProvider);
+          if (!saved && activeSnippet != null) {
+            var saveSnippet = await confirm(
+              context: context,
+              content: Text("¿Quieres salvar el contenido del archivo?")
+            );
+            if (saveSnippet) {
+              await ref.read(servicesProvider.notifier).saveCurrentSnippet();
+            } else {
+              return;
+            }
           }
+          ref.read(activeSnippetFileProvider.notifier).setActiveSnippet(c);
+          var list = await getFileSnippets(SnippetFile(path: currentPath, name: c));
+          ref.read(snippetListProvider.notifier).setList(list);
+          ref.read(activeSnippetProvider.notifier).setActiveSnippet(null);
         },
       ),
     );

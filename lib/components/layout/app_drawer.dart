@@ -7,6 +7,7 @@ import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/dialogs/createSnippet.dart';
 import 'package:aisnippets/providers/currentPath.dart';
+import 'package:aisnippets/providers/services.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,28 +113,10 @@ class SnippetList extends ConsumerWidget {
           content: Text("¿Salvar los cambios?"),
         );
         if (save) {
-          var currentPath = ref.read(currentPathProvider);
-          var currentFile = ref.read(activeSnippetFileProvider);
-          var currentSnippet = ref.read(activeSnippetProvider);
-          var state = ref.read(snippetListProvider);
-          if (currentSnippet != null) {
-            state = ref
-                .read(snippetListProvider.notifier)
-                .updateSnippet(
-                  Snippet(
-                    prefix: currentSnippet.prefix,
-                    description: currentSnippet.description,
-                    body: currentSnippet.body,
-                    scope: currentSnippet.scope,
-                    key: currentSnippet.key,
-                  ),
-                );
-          }
-          var file = p.join(currentPath, currentFile);
-          await saveSnippetList(file, state);
-          ref.read(savedProvider.notifier).setSaved(true);
+          await ref.read(servicesProvider.notifier).saveCurrentSnippet();
+        } else {
+          return false;
         }
-        ref.read(savedProvider.notifier).setSaved(true);
         await Future.delayed(Duration(milliseconds: 100));
         return true;
       }
