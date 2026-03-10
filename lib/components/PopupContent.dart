@@ -18,20 +18,32 @@ class MyPopupContent extends ConsumerStatefulWidget {
   ConsumerState<MyPopupContent> createState() => _MyPopupContentState();
 }
 
+var defaultText = "En vue un vfor";
+
 class _MyPopupContentState extends ConsumerState<MyPopupContent> {
   bool unable = false;
   bool online = false;
+  AskMode askMode = AskMode.create;
   dynamic backSnippet;
+  final ScrollController _myScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     online = widget.online;
+    var promptToIa = getMessagesFor(askMode, defaultText, null);
+    controllerPrompt.value = TextEditingValue(text: promptToIa.join('\n'));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _myScrollController.animateTo(
+        _myScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
-  TextEditingController controller = TextEditingController(
-    text: "En vue un vfor",
-  );
+  TextEditingController controller = TextEditingController(text: defaultText);
+  TextEditingController controllerPrompt = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +60,9 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
             children: [
               Text(
                 "Modificar snippet con IA",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               SegmentedButton<bool>(
                 onSelectionChanged: (p0) {
@@ -62,15 +75,73 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
                   ButtonSegment(value: false, label: Text("Ollama")),
                   ButtonSegment(value: true, label: Text("OpenRouter")),
                 ],
-                selected: {online}
-              )
+                selected: {online},
+              ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Transform.scale(
+                  scale: 0.8,
+                  child: SegmentedButton<AskMode>(
+                    style: ButtonStyle(visualDensity: VisualDensity.compact),
+                    onSelectionChanged: (p0) {
+                      setState(() {
+                        askMode = p0.first;
+                      });
+                    },
+                    segments: [
+                      ButtonSegment(
+                        value: AskMode.modify,
+                        label: Text("Modificar"),
+                      ),
+                      ButtonSegment(
+                        value: AskMode.create,
+                        label: Text("Reemplazar"),
+                      ),
+                    ],
+                    selected: {askMode},
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TextField(
+              maxLines: 12,
+              readOnly: true,
+              scrollController: _myScrollController,
+              controller: controllerPrompt,
+              decoration: InputDecoration(filled: true),
+            ),
           ),
           const SizedBox(height: 10),
           Expanded(
             child: TextField(
               controller: controller,
-              maxLines: 6, // Esto lo convierte en un TextArea
+              onChanged: (value) {
+                var activeSnippet = ref
+                    .read(activeSnippetProvider.notifier)
+                    .getCurrent();
+                var snippet = askMode == AskMode.modify ? activeSnippet : null;
+                var promptToIa = getMessagesFor(askMode, value, snippet);
+                controllerPrompt.value = TextEditingValue(
+                  text: promptToIa.join('\n'),
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _myScrollController.animateTo(
+                    _myScrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                });
+              },
+              maxLines: 2, // Esto lo convierte en un TextArea
               decoration: InputDecoration(
                 hintText: "Escribe algo aquí...",
                 border: OutlineInputBorder(
@@ -86,22 +157,24 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
             children: [
               IconButton(
                 onPressed: (backSnippet == null || unable)
-                  ? null : () {
-                    undo();
-                  },
-                icon: Icon(Icons.undo)),
-              Expanded(child: Container(),),
+                    ? null
+                    : () {
+                        undo();
+                      },
+                icon: Icon(Icons.undo),
+              ),
+              Expanded(child: Container()),
               TextButton(
                 onPressed: unable
                     ? null
                     : () async {
                         await runTask(() async {
-                          await promptToIa(AskMode.modify);
+                          await promptToIa();
                         });
                       }, // Cierra el popup
-                child: const Text("Modificar"),
+                child: const Text("Proceder"),
               ),
-              ElevatedButton(
+              /*ElevatedButton(
                 onPressed: unable
                     ? null
                     : () async {
@@ -110,7 +183,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
                         });
                       },
                 child: const Text("Reemplazar"),
-              ),
+              ),*/
             ],
           ),
         ],
@@ -119,14 +192,10 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
   }
 
   undo() {
-    ref
-          .read(activeSnippetProvider.notifier)
-          .setActiveSnippet(
-            backSnippet,
-          );
+    ref.read(activeSnippetProvider.notifier).setActiveSnippet(backSnippet);
   }
 
-  promptToIa(AskMode askMode) async {
+  promptToIa() async {
     var activeSnippet = ref.read(activeSnippetProvider.notifier).getCurrent();
     if (activeSnippet != null) {
       setState(() {
@@ -134,11 +203,17 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
       });
     }
     if (activeSnippet == null) return;
-    var model = ref.read(sharedPrefsProvider).getString(online ? "aa" : SharedPrefsValues.ollamaModel);
+    var model = ref
+        .read(sharedPrefsProvider)
+        .getString(online ? "aa" : SharedPrefsValues.ollamaModel);
     var agent = AiAgent.getInstance(modelName: model, online: online);
     print("preguntando a ${online ? "Open router" : "Ollama"}");
-    var snippet = await agent.prompt(askMode, controller.text, askMode == AskMode.modify ? activeSnippet : null);
-    try { 
+    var snippet = await agent.prompt(
+      askMode,
+      controller.text,
+      askMode == AskMode.modify ? activeSnippet : null,
+    );
+    try {
       var jsonAiSnippet = jsonDecode(snippet);
       ref
           .read(activeSnippetProvider.notifier)

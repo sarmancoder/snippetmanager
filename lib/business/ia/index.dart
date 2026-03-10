@@ -25,6 +25,24 @@ enum AskMode {create, modify}
 
 final numMaxTries = 5;
 
+getMessagesFor(AskMode mode, String prompt, Snippet? currentSnippet) {
+    List<String> messages = [ instructionsTXT ];
+
+    if (mode == AskMode.modify && currentSnippet != null) {
+      var snippetJson = {
+        "prefix": currentSnippet.prefix,
+        "description": currentSnippet.description,
+        "body": currentSnippet.body,
+        "scope": currentSnippet.scope
+      };
+      messages.add("Mi actual snippet es el siguiente: ${jsonEncode(snippetJson)}. Quiero que me lo modifiques para: ");
+    } else {
+      messages.add(prompt);
+    }
+
+    return messages;
+}
+
 abstract class AiAgent {
   final String modelName;
 
@@ -41,17 +59,7 @@ abstract class AiAgent {
   }
 
   Future<String> prompt(AskMode mode, String prompt, Snippet? currentSnippet) async {
-    List<String> messages = [ instructionsTXT ];
-
-    if (mode == AskMode.modify && currentSnippet != null) {
-      var snippetJson = {
-        "prefix": currentSnippet.prefix,
-        "description": currentSnippet.description,
-        "body": currentSnippet.body,
-        "scope": currentSnippet.scope
-      };
-      messages.add("Mi actual snippet es el siguiente: ${jsonEncode(snippetJson)}. Quiero que me lo modifiques para: ");
-    }
+    List<String> messages = getMessagesFor(mode, prompt, currentSnippet);
 
     return await ask(messages, prompt, numMaxTries);
   }

@@ -45,7 +45,7 @@ class HomePage extends ConsumerWidget {
               bodyBuilder: (context) => MyPopupContent(online: online),
               direction: PopoverDirection.top, // Aparece hacia arriba
               width: 500,
-              height: 300,
+              height: 450,
               arrowHeight: 15,
               arrowWidth: 30,
               backgroundColor: Theme.of(context).colorScheme.surface,

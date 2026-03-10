@@ -20,7 +20,7 @@ class OpenRouterAgent extends AiAgent {
       var messagesOpenAi = [
         for (var i = 0; i < messages.length; i++)
           OpenAIChatCompletionChoiceMessageContentItemModel.text(messages[i]),
-        OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt),
+        // OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt),
       ];
 
       OpenAIChatCompletionModel comp = await OpenAI.instance.chat.create(

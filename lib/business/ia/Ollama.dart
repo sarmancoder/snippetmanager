@@ -19,7 +19,7 @@ class AiAgentOllama extends AiAgent {
         messages: [
           for (var i = 0; i< instructions.length; i++)
             Message(content: instructions[i], role: MessageRole.user),
-          Message(role: MessageRole.user, content: prompt)
+          // Message(role: MessageRole.user, content: prompt)
         ]
       )
     );
