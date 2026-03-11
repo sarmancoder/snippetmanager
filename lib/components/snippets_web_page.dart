@@ -51,6 +51,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
     });
     ref.listen(activeSnippetProvider, (b, c) {
       if (b == null || c == null) return;
+      if (b.key != c.key) return;
       if (b.scope != c.scope) ref.read(savedProvider.notifier).setSaved(false);
     });
 
