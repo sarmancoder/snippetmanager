@@ -4,10 +4,12 @@ import 'package:aisnippets/business/ia/Ollama.dart';
 import 'package:aisnippets/business/ia/index.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/config/app.dart';
+import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPopupContent extends ConsumerStatefulWidget {
@@ -196,6 +198,14 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
   }
 
   promptToIa() async {
+    if (online) {
+      var sstorage = FlutterSecureStorage();
+      var apiKey = await sstorage.read(key: SharedPrefsValues.apiKeyOpenRouter);
+      if (apiKey == null || apiKey.isEmpty) {
+        await alert(context: context, content: Text("Es necesario poner la api key"));
+        return;
+      }
+    }
     var activeSnippet = ref.read(activeSnippetProvider.notifier).getCurrent();
     if (activeSnippet != null) {
       setState(() {
@@ -205,7 +215,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
     if (activeSnippet == null) return;
     var model = ref
         .read(sharedPrefsProvider)
-        .getString(online ? "aa" : SharedPrefsValues.ollamaModel);
+        .getString(online ? SharedPrefsValues.openRouterModel : SharedPrefsValues.ollamaModel);
     var agent = AiAgent.getInstance(modelName: model, online: online);
     print("preguntando a ${online ? "Open router" : "Ollama"}");
     var snippet = await agent.prompt(
