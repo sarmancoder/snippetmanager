@@ -73,10 +73,10 @@ class AppLayout extends StatelessWidget {
           // 1. Contenido principal (debe tener un margen izquierdo si no quieres que el drawer lo tape)
           Positioned(
             left: drawerWidth,
-            top: kToolbarHeight,
+            top: 0,
             right: 0,
             bottom: 0,
-            child: Padding(padding: const EdgeInsets.all(8.0), child: content),
+            child: content,
           ),
 
           // 2. El "Drawer" personalizado
