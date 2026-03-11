@@ -95,7 +95,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
             onLoadStop: (controller, url) async {
               var c = activeSnippet;
               if (c == null || !c.insertSnippet) return;
-              await Future.delayed(Duration(milliseconds: 100));
+              await Future.delayed(Duration(milliseconds: 200));
               _dispatchCustomEvent('insertSnippet', {
                 "prefix": c.prefix,
                 "description": c.description,
