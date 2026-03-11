@@ -22,15 +22,8 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
     String eventName,
     Map<String, dynamic> detail,
   ) async {
-    print("controller");
     if (_webViewController == null) return;
-
-    print("json encode");
-    // Convierte el mapa Dart a JSON string válido
     final jsonDetail = jsonEncode(detail);
-
-    print('enviando javascript ' + eventName);
-
     await _webViewController!.evaluateJavascript(
       source:
           """
@@ -53,6 +46,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
         "prefix": c.prefix,
         "description": c.description,
         "body": c.body.split('\n'),
+        "scope": c.scope
       });
     });
 
@@ -101,6 +95,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
                 "prefix": c.prefix,
                 "description": c.description,
                 "body": c.body.split('\n'),
+                "scope": c.scope
               });
               setState(() {
                 firstLoaded = true;
