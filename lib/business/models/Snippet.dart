@@ -24,7 +24,7 @@ class Snippet {
   }*/
   
   bool equals(Snippet snippet) {
-    return snippet.body == body && snippet.prefix == prefix && snippet.description == description;
+    return snippet.body == body && snippet.prefix == prefix && snippet.description == description && snippet.scope == snippet.scope;
   }
 
   bool isEmpty() {

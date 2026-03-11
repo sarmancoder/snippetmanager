@@ -49,6 +49,10 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
         "scope": c.scope
       });
     });
+    ref.listen(activeSnippetProvider, (b, c) {
+      if (b == null || c == null) return;
+      if (b.scope != c.scope) ref.read(savedProvider.notifier).setSaved(false);
+    });
 
     return Column(
       children: [
