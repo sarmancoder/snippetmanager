@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
@@ -12,6 +14,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
+import 'package:url_launcher/url_launcher.dart';
 
 class SnippetsAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SnippetsAppBar({super.key});
@@ -45,7 +48,10 @@ class CurrentDirectory extends ConsumerWidget {
           onPressed: () async {
             var saved = ref.read(savedProvider);
             if (!saved) {
-              var save = await confirm(context: context, content: Text("¿Salvar los cambios?"));
+              var save = await confirm(
+                context: context,
+                content: Text("¿Salvar los cambios?"),
+              );
               if (save) {
                 var currentPath = ref.read(currentPathProvider);
                 var currentFile = ref.read(activeSnippetFileProvider);
@@ -93,12 +99,30 @@ class CurrentDirectory extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min, // Centra el contenido verticalmente
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                currentDirectory,
-                overflow: TextOverflow.ellipsis, // Por si la ruta es muy larga
-                style: tc.textTheme.labelSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () async {
+                    var uri = Uri.directory(currentDirectory);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri);
+                    } else {
+                      if (Platform.isWindows) {
+                        await Process.run('explorer.exe', [currentDirectory]);
+                      } else {
+                        throw 'No se pudo abrir la carpeta: $currentDirectory';
+                      }
+                    }
+                  },
+                  child: Text(
+                    currentDirectory,
+                    overflow:
+                        TextOverflow.ellipsis, // Por si la ruta es muy larga
+                    style: tc.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
               const FileDropdown(), // Sin Expanded aquí
@@ -145,7 +169,7 @@ class FileDropdown extends ConsumerWidget {
           if (!saved && activeSnippet != null) {
             var saveSnippet = await confirm(
               context: context,
-              content: Text("¿Quieres salvar el contenido del archivo?")
+              content: Text("¿Quieres salvar el contenido del archivo?"),
             );
             if (saveSnippet) {
               await ref.read(servicesProvider.notifier).saveCurrentSnippet();
@@ -154,7 +178,9 @@ class FileDropdown extends ConsumerWidget {
             }
           }
           ref.read(activeSnippetFileProvider.notifier).setActiveSnippet(c);
-          var list = await getFileSnippets(SnippetFile(path: currentPath, name: c));
+          var list = await getFileSnippets(
+            SnippetFile(path: currentPath, name: c),
+          );
           ref.read(snippetListProvider.notifier).setList(list);
           ref.read(activeSnippetProvider.notifier).setActiveSnippet(null);
         },
