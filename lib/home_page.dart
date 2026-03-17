@@ -38,7 +38,7 @@ class HomePage extends ConsumerWidget {
       fab: Builder(
         // Usamos Builder para tener el context correcto del botón
         builder: (context) => FloatingActionButton(
-          child: const Icon(Icons.add_comment),
+          child: const Icon(Icons.support_agent),
           onPressed: () {
             showPopover(
               context: context,
