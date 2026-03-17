@@ -90,6 +90,7 @@ class _ConfigDialogContentState extends State<ConfigDialogContent> {
             ],
             selected: {online},
           ),
+          SizedBox(height: 20),
           online ? ConfigOpenRouter() : ConfigOllama()
         ],
       ),

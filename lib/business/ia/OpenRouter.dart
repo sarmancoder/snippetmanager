@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aisnippets/business/ia/index.dart';
 import 'package:aisnippets/config/app.dart';
+import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
@@ -63,6 +64,7 @@ class OpenRouterAgent extends AiAgent {
 
       OpenAIChatCompletionModel comp = await OpenAI.instance.chat.create(
         model: modelName, // Eliges el modelo que quieras de OpenRouter
+        responseFormat: {"type": "json_object"},
         messages: [
           OpenAIChatCompletionChoiceMessageModel(
             content: messagesOpenAi,
@@ -86,6 +88,7 @@ class OpenRouterAgent extends AiAgent {
       }
       throw 'Demasiados intentos';
     } catch (exception) {
+      print(StackTrace.current);
       throw exception;
     }
   }

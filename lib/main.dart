@@ -1,10 +1,8 @@
 import 'package:aisnippets/business/fs.dart';
-import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/currentPath.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:json5/json5.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/theme.dart';
@@ -16,13 +14,12 @@ void main() async {
   var prefs = await SharedPreferences.getInstance();
   var path = getVSCodePath();
   var filesList = await loadDirectory(path);
-  var list = await getFileSnippets(filesList[1]);
-  print("cantidad de snippets " + list.length.toString());
+  var list = await getFileSnippets(filesList.first);
   runApp(ProviderScope(
     overrides: [
       sharedPrefsProvider.overrideWithValue(prefs),
       snippetsFilesProvider.overrideWith(() => SnippetsFiles(filesList)),
-      activeSnippetFileProvider.overrideWith(() => ActiveSnippetFile(filesList[1].name)),
+      activeSnippetFileProvider.overrideWith(() => ActiveSnippetFile(filesList.first.name)),
       currentPathProvider.overrideWith(() => CurrentPath(path)),
       snippetListProvider.overrideWith(() => SnippetList(list))
     ],
@@ -35,10 +32,11 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var dark = ref.watch(darkModeProvider);
+    var currentTheme = theme(context, dark);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Material App',
-      theme: theme(dark),
+      theme: currentTheme,
       home: HomePage(),
     );
   }

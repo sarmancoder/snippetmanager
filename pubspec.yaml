@@ -9,6 +9,7 @@ environment:
 dependencies:
   dart_openai: ^6.1.1
   file_picker: ^10.3.10
+  flex_color_scheme: ^8.4.0
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1

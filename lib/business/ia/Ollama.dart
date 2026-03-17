@@ -13,9 +13,14 @@ class AiAgentOllama extends AiAgent {
       print("Intento numero ${numMaxTries - tries}/$numMaxTries");
     }
 
+    for (var element in instructions) {
+      print(element);
+    }
+
     final generated = await client.generateChatCompletion(
       request: GenerateChatCompletionRequest(
         model: modelName,
+        format: GenerateChatCompletionRequestFormat.json(GenerateChatCompletionRequestFormatEnum.json),
         messages: [
           for (var i = 0; i< instructions.length; i++)
             Message(content: instructions[i], role: MessageRole.user),
@@ -29,6 +34,8 @@ class AiAgentOllama extends AiAgent {
     if (generated.message.content.isEmpty) {
       return await ask(instructions, prompt, tries - 1);
     }
+
+    print(generated.message.content);
 
     return generated.message.content;
   }

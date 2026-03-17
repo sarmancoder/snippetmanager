@@ -119,8 +119,8 @@ class CurrentDirectory extends ConsumerWidget {
                     overflow:
                         TextOverflow.ellipsis, // Por si la ruta es muy larga
                     style: tc.textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
                 ),
@@ -143,15 +143,9 @@ class FileDropdown extends ConsumerWidget {
     var snippetFiles = ref.watch(snippetsFilesProvider);
     var currentSnippet = ref.watch(activeSnippetFileProvider);
 
-    print(currentPath);
-    print(currentSnippet);
-    print(snippetFiles.map((a) => a.name));
-
     var items = snippetFiles.map((e) {
-      return DropdownMenuItem(value: e.name, child: Text(e.name));
+      return DropdownMenuItem(value: e.name, child: Text(e.name, style: TextStyle(fontSize: 12), ));
     }).toList();
-
-    // Tu lógica de ref.listen está perfecta aquí
 
     return DropdownButtonHideUnderline(
       // Limpia la línea fea de abajo
@@ -159,9 +153,7 @@ class FileDropdown extends ConsumerWidget {
         value: currentSnippet,
         items: items,
         isDense: true, // Muy importante para que quepa en el AppBar
-        iconEnabledColor: Colors.white,
-        style: const TextStyle(fontSize: 14, color: Colors.white),
-        dropdownColor: Colors.grey[900], // Para que se vea bien en modo oscuro
+        // dropdownColor: Colors.grey[900], // Para que se vea bien en modo oscuro
         onChanged: (String? c) async {
           if (c == null) return;
           var saved = ref.read(savedProvider);

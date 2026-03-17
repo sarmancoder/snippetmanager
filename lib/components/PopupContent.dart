@@ -7,6 +7,7 @@ import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/snippets.dart';
 import 'package:aisnippets/providers/ui.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -218,12 +219,12 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
         .getString(online ? SharedPrefsValues.openRouterModel : SharedPrefsValues.ollamaModel);
     var agent = AiAgent.getInstance(modelName: model, online: online);
     print("preguntando a ${online ? "Open router" : "Ollama"}");
-    var snippet = await agent.prompt(
-      askMode,
-      controller.text,
-      askMode == AskMode.modify ? activeSnippet : null,
-    );
     try {
+      var snippet = await agent.prompt(
+        askMode,
+        controller.text,
+        askMode == AskMode.modify ? activeSnippet : null,
+      );
       var jsonAiSnippet = jsonDecode(snippet);
       ref
           .read(activeSnippetProvider.notifier)
@@ -236,8 +237,9 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
               scope: jsonAiSnippet["scope"] ?? "",
             ),
           );
+    } on RequestFailedException catch (e) {
+      await alert(context: context, content: Text(e.message));
     } catch (exception) {
-      print(exception.toString());
       print("No se pudo establecer el snippet");
     }
   }

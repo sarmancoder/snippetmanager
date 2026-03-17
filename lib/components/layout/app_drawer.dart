@@ -29,13 +29,17 @@ class AppDrawer extends StatelessWidget {
       // Aquí defines qué tan largo quieres que sea
       height: MediaQuery.of(context).size.height - kToolbarHeight,
       width: drawerWidth,
-      color: bgColor,
+      // color: bgColor,
       child: Column(
         children: [
           // CurrentSnippetPath(),
           // DrawerHeader(),
           Expanded(child: SnippetList()),
-          CreateSnippetButton(),
+          Row(
+            children: [
+              Expanded(child: CreateSnippetButton()),
+            ],
+          ),
         ],
       ),
     );
@@ -71,7 +75,7 @@ class CreateSnippetButton extends ConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(32.0),
+      padding: const EdgeInsets.symmetric(vertical: 32.0),
       child: ElevatedButton(
         child: const Text('Crear snippet'),
         onPressed: () async {

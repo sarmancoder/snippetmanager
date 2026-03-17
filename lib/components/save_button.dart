@@ -15,6 +15,8 @@ class SaveButton extends ConsumerWidget {
     var currentFile = ref.watch(activeSnippetFileProvider);
     var currentSnippet = ref.watch(activeSnippetProvider);
 
+    var isDark = Theme.of(context).brightness == Brightness.dark;
+
     ref.listen(activeSnippetProvider, (prev, curr) async {
       if (prev == null || curr == null) return;
       if (prev.isEmpty() || curr.isEmpty()) return;
@@ -22,9 +24,11 @@ class SaveButton extends ConsumerWidget {
       if (prev.key != curr.key) return;
       ref.read(savedProvider.notifier).setSaved(false);
     });
-
+    final colorScheme = Theme.of(context).colorScheme;
+    // 2. Usas 'onSurface' que automáticamente será blanco en Dark y casi negro en Light
+    final fgColor = colorScheme.onSurface;
     return IconButton(
-      icon: Icon(Icons.save, color: saved ? Colors.white : Colors.red),
+      icon: Icon(Icons.save, color: saved ? fgColor : Colors.red),
       onPressed: () async {
         var state = ref.read(snippetListProvider);
         if (currentSnippet != null) {
