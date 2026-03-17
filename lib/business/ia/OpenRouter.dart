@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aisnippets/business/ia/index.dart';
+import 'package:aisnippets/business/models/AiSnippetsMessage.dart';
 import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:dart_openai/dart_openai.dart';
@@ -46,7 +47,11 @@ class OpenRouterAgent extends AiAgent {
   }
 
   @override
-  Future<String> ask(List<String> messages, String prompt, int tries) async {
+  Future<String> ask(
+    List<AiSnippetsMessage> messages,
+    String prompt,
+    int tries,
+  ) async {
     try {
       print("Intento numero ${numMaxTries - tries}/$numMaxTries");
 
@@ -56,21 +61,23 @@ class OpenRouterAgent extends AiAgent {
       OpenAI.apiKey = apiKey!;
       OpenAI.baseUrl = "https://openrouter.ai/api";
 
-      var messagesOpenAi = [
-        for (var i = 0; i < messages.length; i++)
-          OpenAIChatCompletionChoiceMessageContentItemModel.text(messages[i]),
-        // OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt),
-      ];
+      List<OpenAIChatCompletionChoiceMessageModel> messagesOpenAi = messages
+          .map((m) {
+            return OpenAIChatCompletionChoiceMessageModel(
+              role: m.type == MessageType.User
+                  ? OpenAIChatMessageRole.user
+                  : OpenAIChatMessageRole.assistant,
+              content: [
+                OpenAIChatCompletionChoiceMessageContentItemModel.text(m.text),
+              ],
+            );
+          })
+          .toList();
 
       OpenAIChatCompletionModel comp = await OpenAI.instance.chat.create(
-        model: modelName, // Eliges el modelo que quieras de OpenRouter
+        model: modelName,
         responseFormat: {"type": "json_object"},
-        messages: [
-          OpenAIChatCompletionChoiceMessageModel(
-            content: messagesOpenAi,
-            role: OpenAIChatMessageRole.user,
-          ),
-        ],
+        messages: messagesOpenAi, // Aquí pasas la lista completa ya formateada
       );
 
       var response = comp.choices.first.message.content?[0].text;

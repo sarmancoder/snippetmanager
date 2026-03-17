@@ -1,4 +1,5 @@
 import 'package:aisnippets/business/ia/index.dart';
+import 'package:aisnippets/business/models/AiSnippetsMessage.dart';
 import 'package:ollama_dart/ollama_dart.dart';
 
 
@@ -7,7 +8,7 @@ class AiAgentOllama extends AiAgent {
   AiAgentOllama({required super.modelName});
 
   @override
-  Future<String> ask(List<String> instructions, String prompt, int tries) async {
+  Future<String> ask(List<AiSnippetsMessage> instructions, String prompt, int tries) async {
     print("Usando modelo de ollama " + this.modelName);
     if (tries < numMaxTries) {
       print("Intento numero ${numMaxTries - tries}/$numMaxTries");
@@ -23,7 +24,10 @@ class AiAgentOllama extends AiAgent {
         format: GenerateChatCompletionRequestFormat.json(GenerateChatCompletionRequestFormatEnum.json),
         messages: [
           for (var i = 0; i< instructions.length; i++)
-            Message(content: instructions[i], role: MessageRole.user),
+            Message(
+              content: instructions[i].text,
+              role: instructions[i].type == MessageType.System ? MessageRole.system : MessageRole.user
+            ),
           // Message(role: MessageRole.user, content: prompt)
         ]
       )
