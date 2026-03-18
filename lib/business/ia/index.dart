@@ -15,6 +15,10 @@ Hola, eres un asistente y me vas a responder solamente con un json con esta estr
 }
 """;
 
+var convertPromptTxt = """
+Te voy a pasar un listado de snippets y quiero que hagas las siguientes modificaciones, quiero que me respondas con un array
+""";
+
 var instructionsTXTModify = (snippet) => """
 Actualmente el snippet que tengo es este:
 $snippet
@@ -22,7 +26,7 @@ $snippet
 Quiero que hagas cambios
 """;
 
-enum AskMode {create, modify}
+enum AskMode {create, modify, convert}
 
 final numMaxTries = 5;
 
@@ -47,6 +51,13 @@ getMessagesFor(AskMode mode, String prompt, Snippet? currentSnippet) {
         AiSnippetsMessage(
           text: prompt,
           type: MessageType.User)
+      );
+    } if (mode == AskMode.convert) {
+      messages.add(
+        AiSnippetsMessage(text: convertPromptTxt, type: MessageType.User)
+      );
+      messages.add(
+        AiSnippetsMessage(text: prompt, type: MessageType.User)
       );
     } else {
       messages.add(

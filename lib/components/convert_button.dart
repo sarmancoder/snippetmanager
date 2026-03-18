@@ -1,6 +1,9 @@
+import 'package:aisnippets/business/ia/index.dart';
+import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/services.dart';
 import 'package:aisnippets/providers/snippets.dart';
+import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,7 +27,14 @@ class ConvertButton extends ConsumerWidget {
         showDialog(
           context: context,
           builder: (c) {
-            return ConvertDialog();
+            return ConvertDialog(
+              getModelName: (bool online) {
+                var model = ref
+                  .read(sharedPrefsProvider)
+                  .getString(online ? SharedPrefsValues.openRouterModel : SharedPrefsValues.ollamaModel);
+                return model;
+              }
+            );
           },
         );
       },
@@ -34,7 +44,8 @@ class ConvertButton extends ConsumerWidget {
 }
 
 class ConvertDialog extends StatefulWidget {
-  const ConvertDialog({super.key});
+  final String? Function(bool online) getModelName;
+  const ConvertDialog({super.key, required this.getModelName});
 
   @override
   State<ConvertDialog> createState() => _ConvertDialogState();
@@ -45,6 +56,12 @@ class _ConvertDialogState extends State<ConvertDialog> {
   var modificationsController = TextEditingController();
   var convertedContentController = TextEditingController();
   var filenameController = TextEditingController();
+  var fileNameFN = FocusNode();
+
+  bool snippetGenerated = false;
+  bool unable = false;
+
+  String fileNameNote = "Es necesario el nombre del archivo";
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +84,7 @@ class _ConvertDialogState extends State<ConvertDialog> {
                   children: [
                     TextField(
                       maxLines: 7,
+                      readOnly: snippetGenerated,
                       controller: currentContentController,
                       decoration: const InputDecoration(
                         labelText: 'Snippet original',
@@ -78,6 +96,7 @@ class _ConvertDialogState extends State<ConvertDialog> {
                     ), // Espacio entre los dos de la izquierda
                     TextField(
                       maxLines: 4,
+                      readOnly: snippetGenerated,
                       controller: modificationsController,
                       decoration: const InputDecoration(
                         labelText: 'Instrucciones de cambio',
@@ -96,6 +115,9 @@ class _ConvertDialogState extends State<ConvertDialog> {
                   children: [
                     TextField(
                       controller: filenameController,
+                      focusNode: fileNameFN,
+                      enabled: snippetGenerated,
+                      readOnly: !snippetGenerated,
                       decoration: const InputDecoration(
                         labelText: 'Nombre del archivo',
                         border: OutlineInputBorder(),
@@ -104,9 +126,12 @@ class _ConvertDialogState extends State<ConvertDialog> {
                         // TODO: Handle text change
                       },
                     ),
+                    if (fileNameNote.isNotEmpty) Text(fileNameNote, style: TextStyle(color: Colors.red)),
                     TextField(
                       controller: convertedContentController, // Sustituye por tu controlador
                       maxLines: 10, // Esto lo hace "grande" visualmente
+                      readOnly: true,
+                      enabled: snippetGenerated,
                       decoration: const InputDecoration(
                         labelText: 'Resultado / Vista previa',
                         alignLabelWithHint: true, // Para que el label salga arriba
@@ -121,10 +146,45 @@ class _ConvertDialogState extends State<ConvertDialog> {
         ),
       ),
       actions: [
-        ElevatedButton(
-          child: const Text('Modificar snippet'),
-          onPressed: () {},
-        ),
+        if (!snippetGenerated)
+          ElevatedButton(
+            child: const Text('Modificar snippet'),
+            onPressed: unable ? null : () async {
+              setState(() {
+                unable = true;
+              });
+              var modelName = widget.getModelName(false);
+              var instance = AiAgent.getInstance(online: false, modelName: modelName);
+              var prompt = """
+  El snippet:
+  ${currentContentController.text}
+
+  La conversión:
+  ${modificationsController.text}
+  """;
+              var result = await instance.prompt(AskMode.convert, prompt, null);
+              convertedContentController.value = TextEditingValue(
+                text: result
+              );
+              setState(() {
+                unable = false;
+                snippetGenerated = true;
+              });
+            },
+          )
+        else
+          ElevatedButton(
+            child: const Text('Guardar snippet'),
+            onPressed: () {
+              if (filenameController.text.isEmpty) {
+                setState(() {
+                  fileNameNote = "Es necesario el nombre del archivo";
+                });
+                fileNameFN.requestFocus();
+                return;
+              }
+            },
+          )
       ],
     );
   }

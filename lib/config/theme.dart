@@ -44,9 +44,21 @@ var theme = (BuildContext context, bool darkMode) {
     primaryColor: primaryColor,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: WidgetStatePropertyAll(primaryColor),
-        foregroundColor: WidgetStatePropertyAll(Colors.white),
-        shape: WidgetStatePropertyAll(
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return primaryColor.withAlpha(
+              100,
+            ); // Opacidad cuando está deshabilitado
+          }
+          return primaryColor; // Color normal
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return Colors.white.withAlpha(100); // Texto con opacidad
+          }
+          return Colors.white;
+        }),
+        shape: const WidgetStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
