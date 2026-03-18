@@ -1,4 +1,4 @@
-final snippetsWebEditorAddress = "http://localhost:3000";
+final snippetsWebEditorAddress = "http://localhost:5173/app";
 
 abstract final class SharedPrefsValues {
   SharedPrefsValues._();
