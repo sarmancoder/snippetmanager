@@ -44,4 +44,9 @@ class Services extends _$Services {
       aa.close();
     }
   }
+
+  createNewFile(String fileName, String content) async {
+    var currentPath = ref.read(currentPathProvider);
+    await createNewSnippetFile(currentPath, fileName, content);
+  }
 }

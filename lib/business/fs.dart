@@ -67,3 +67,20 @@ Future saveSnippetList(String pathFile, List<Snippet> list) async {
   String prettyprint = encoder.convert(snippets);
   await File(pathFile).writeAsString(prettyprint);
 }
+
+Future<void> createNewSnippetFile(String dir, String fileName, String content) async {
+  // Combinamos la ruta de forma segura
+  final filePath = p.join(dir, fileName + ".code-snippets");
+  final file = File(filePath);
+
+  // 1. Verificamos si el archivo ya existe
+  if (await file.exists()) {
+    throw Exception('apperror:El archivo ya existe en la ruta: $filePath');
+  }
+
+  // 2. Si no existe, creamos el archivo y escribimos el contenido
+  // writeAsString crea el archivo automáticamente si no existe
+  await file.writeAsString(content);
+  
+  print('Archivo creado con éxito.');
+}

@@ -14,7 +14,7 @@ class ConvertButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var saved = ref.read(savedProvider);
     return IconButton(
-      icon: Icon(Icons.replay_outlined),
+      icon: Icon(Icons.compare_arrows),
       onPressed: () async {
         if (!saved) {
           var save = await confirm(
@@ -30,10 +30,19 @@ class ConvertButton extends ConsumerWidget {
             return ConvertDialog(
               getModelName: (bool online) {
                 var model = ref
-                  .read(sharedPrefsProvider)
-                  .getString(online ? SharedPrefsValues.openRouterModel : SharedPrefsValues.ollamaModel);
+                    .read(sharedPrefsProvider)
+                    .getString(
+                      online
+                          ? SharedPrefsValues.openRouterModel
+                          : SharedPrefsValues.ollamaModel,
+                    );
                 return model;
-              }
+              },
+              createNewFile: (fileName, content) async {
+                await ref
+                    .read(servicesProvider.notifier)
+                    .createNewFile(fileName, content);
+              },
             );
           },
         );
@@ -45,7 +54,12 @@ class ConvertButton extends ConsumerWidget {
 
 class ConvertDialog extends StatefulWidget {
   final String? Function(bool online) getModelName;
-  const ConvertDialog({super.key, required this.getModelName});
+  final Future<void> Function(String fileName, String content) createNewFile;
+  const ConvertDialog({
+    super.key,
+    required this.getModelName,
+    required this.createNewFile,
+  });
 
   @override
   State<ConvertDialog> createState() => _ConvertDialogState();
@@ -61,7 +75,7 @@ class _ConvertDialogState extends State<ConvertDialog> {
   bool snippetGenerated = false;
   bool unable = false;
 
-  String fileNameNote = "Es necesario el nombre del archivo";
+  String fileNameNote = "";
 
   @override
   Widget build(BuildContext context) {
@@ -126,15 +140,18 @@ class _ConvertDialogState extends State<ConvertDialog> {
                         // TODO: Handle text change
                       },
                     ),
-                    if (fileNameNote.isNotEmpty) Text(fileNameNote, style: TextStyle(color: Colors.red)),
+                    if (fileNameNote.isNotEmpty)
+                      Text(fileNameNote, style: TextStyle(color: Colors.red)),
                     TextField(
-                      controller: convertedContentController, // Sustituye por tu controlador
+                      controller:
+                          convertedContentController, // Sustituye por tu controlador
                       maxLines: 10, // Esto lo hace "grande" visualmente
                       readOnly: true,
                       enabled: snippetGenerated,
                       decoration: const InputDecoration(
                         labelText: 'Resultado / Vista previa',
-                        alignLabelWithHint: true, // Para que el label salga arriba
+                        alignLabelWithHint:
+                            true, // Para que el label salga arriba
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -149,33 +166,43 @@ class _ConvertDialogState extends State<ConvertDialog> {
         if (!snippetGenerated)
           ElevatedButton(
             child: const Text('Modificar snippet'),
-            onPressed: unable ? null : () async {
-              setState(() {
-                unable = true;
-              });
-              var modelName = widget.getModelName(false);
-              var instance = AiAgent.getInstance(online: false, modelName: modelName);
-              var prompt = """
+            onPressed: unable
+                ? null
+                : () async {
+                    setState(() {
+                      unable = true;
+                    });
+                    var modelName = widget.getModelName(false);
+                    var instance = AiAgent.getInstance(
+                      online: false,
+                      modelName: modelName,
+                    );
+                    var prompt =
+                        """
   El snippet:
   ${currentContentController.text}
 
   La conversión:
   ${modificationsController.text}
   """;
-              var result = await instance.prompt(AskMode.convert, prompt, null);
-              convertedContentController.value = TextEditingValue(
-                text: result
-              );
-              setState(() {
-                unable = false;
-                snippetGenerated = true;
-              });
-            },
+                    var result = await instance.prompt(
+                      AskMode.convert,
+                      prompt,
+                      null,
+                    );
+                    convertedContentController.value = TextEditingValue(
+                      text: result,
+                    );
+                    setState(() {
+                      unable = false;
+                      snippetGenerated = true;
+                    });
+                  },
           )
         else
           ElevatedButton(
             child: const Text('Guardar snippet'),
-            onPressed: () {
+            onPressed: () async {
               if (filenameController.text.isEmpty) {
                 setState(() {
                   fileNameNote = "Es necesario el nombre del archivo";
@@ -183,8 +210,22 @@ class _ConvertDialogState extends State<ConvertDialog> {
                 fileNameFN.requestFocus();
                 return;
               }
+
+              try {
+                await widget.createNewFile(
+                  filenameController.text,
+                  convertedContentController.text,
+                );
+              } catch (exception) {
+                String msg = (exception as dynamic).message;
+                if (msg.startsWith("apperror")) {
+                  setState(() {
+                    fileNameNote = msg.split(":")[1];
+                  });
+                }
+              }
             },
-          )
+          ),
       ],
     );
   }
