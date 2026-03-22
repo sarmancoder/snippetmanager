@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:aisnippets/business/fs.dart';
-import 'package:aisnippets/business/models/app_state.dart';
+import 'package:aisnippets/business/models/directory_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,14 +10,14 @@ part 'directory_provider.g.dart';
 @riverpod
 class DirectoryProvider extends _$DirectoryProvider {
   @override
-  FutureOr<AppState> build() async {
+  FutureOr<DirectoryState> build() async {
     var path = getVSCodePath();
     return await _loadDirectory(path);
   }
 
   _loadDirectory(path) async {
     var files = await loadDirectory(path);
-    var appState = AppState(currentPath: path, files: files);
+    var appState = DirectoryState(currentPath: path, files: files);
     return appState;
   }
 
