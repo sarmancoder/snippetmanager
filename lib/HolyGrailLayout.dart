@@ -13,7 +13,7 @@ class HolyGrailLayout extends StatelessWidget {
         Container(
           width: 250,
           color: Colors.white,
-          child: FilesDrawer(),
+          child: FilesDrawerLoader(),
         ),
 
         // Divisor visual
