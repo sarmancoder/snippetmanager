@@ -61,6 +61,8 @@ class OpenRouterAgent extends AiAgent {
       OpenAI.apiKey = apiKey!;
       OpenAI.baseUrl = "https://openrouter.ai/api";
 
+      print(messages.toString());
+
       List<OpenAIChatCompletionChoiceMessageModel> messagesOpenAi = messages
           .map((m) {
             return OpenAIChatCompletionChoiceMessageModel(

@@ -15,8 +15,21 @@ Hola, eres un asistente y me vas a responder solamente con un json con esta estr
 }
 """;
 
+var instConvert = """
+Hola, eres un asistente, y quiero que me respondas un json que tenga la siguiente estructura
+type SnippetsConfig = {
+  [key: string]: {
+    prefix: string;
+    description: string;
+    body: string[];
+    scope?: string;
+  };
+};
+Los prefixes quiero que sean los mismos, no os cambies
+""";
+
 var convertPromptTxt = """
-Te voy a pasar un listado de snippets y quiero que hagas las siguientes modificaciones, quiero que me respondas con un array
+Te voy a pasar un listado de snippets y quiero que hagas las siguientes modificaciones, entonces de vuelta quiero todos los snippets pero con las modificaciones que dije
 """;
 
 var instructionsTXTModify = (snippet) => """
@@ -32,7 +45,7 @@ final numMaxTries = 5;
 
 getMessagesFor(AskMode mode, String prompt, Snippet? currentSnippet) {
     List<AiSnippetsMessage> messages = [
-      AiSnippetsMessage(text: instructionsTXT, type: MessageType.System)
+      AiSnippetsMessage(text: mode == AskMode.convert ? instConvert : instructionsTXT, type: MessageType.System)
     ];
 
     if (mode == AskMode.modify && currentSnippet != null) {
