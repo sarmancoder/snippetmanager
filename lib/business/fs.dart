@@ -42,7 +42,7 @@ Future<List<Snippet>> getFileSnippets(SnippetFile file) async {
         key: key,
         prefix: value['prefix'],
         scope: value['scope'] ?? "",
-        description: value['description'],
+        description: value['description'] ?? '',
         body: value['body'].join('\n'),
       ),
     );

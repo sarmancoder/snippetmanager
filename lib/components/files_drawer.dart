@@ -1,4 +1,5 @@
 import 'package:aisnippets/providers/directory_provider.dart';
+import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +34,7 @@ class FilesDrawer extends ConsumerWidget {
         Container(
           // height: 150,
           width: double.infinity,
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).primaryColorDark,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
           child: Row(
             children: [
@@ -71,11 +72,7 @@ class FilesDrawer extends ConsumerWidget {
             child: Column(
               children: [
                 for (var i = 0; i < files.length; i++)
-                  ListTile(
-                    dense: true,
-                    title: Text(files[i].name),
-                    onTap: () {},
-                  ),
+                  SnippetFile(nameFile: files[i].name)
               ],
             ),
           ),
@@ -88,6 +85,35 @@ class FilesDrawer extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class SnippetFile extends ConsumerStatefulWidget {
+  final String nameFile;
+  const SnippetFile({super.key, required this.nameFile});
+
+  @override
+  ConsumerState<SnippetFile> createState() => _SnippetFileState();
+}
+
+class _SnippetFileState extends ConsumerState<SnippetFile> {
+  @override
+  Widget build(BuildContext context) {
+    var snippetFile = ref.watch(snippetFileProvider);
+    var selected = snippetFile?.fileName == widget.nameFile;
+    return Container(
+      color: selected ? Theme.of(context).primaryColor : Colors.white,
+      child: ListTile(
+        dense: true,
+        title: Text(widget.nameFile),
+        selectedColor: Colors.white,
+        selected: selected,
+        onTap: () {
+          var currentPath = ref.read(directoryProviderProvider).requireValue.currentPath;
+          ref.read(snippetFileProvider.notifier).setActiveFile(currentPath, widget.nameFile);
+        },
+      ),
     );
   }
 }
