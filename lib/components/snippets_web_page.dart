@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
-import 'package:aisnippets/providers/web_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -135,7 +134,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'updateSnippet',
                   callback: (args) {
-                    // Actualizar snippet
+                    ref.read(snippetFileProvider.notifier).setSaved(false);
                   },
                 );
               },

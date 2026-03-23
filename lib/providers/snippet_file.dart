@@ -26,4 +26,8 @@ class SnippetFile extends _$SnippetFile {
     state = state!.copyWith(activeSnippet: snippet);
   }
 
+  setSaved(bool saved) {
+    state = state!.copyWith(saved: false);
+  }
+
 }

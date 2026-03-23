@@ -8,6 +8,7 @@ abstract class SnippetFileState with _$SnippetFileState {
   const factory SnippetFileState({
     required String fileName,
     required List<Snippet> snippets,
-    @Default(null) Snippet? activeSnippet
+    @Default(null) Snippet? activeSnippet,
+    @Default(true) bool saved
   }) = _SnippetFileState;
 }

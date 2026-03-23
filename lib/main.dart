@@ -1,4 +1,5 @@
 import 'package:aisnippets/HolyGrailLayout.dart';
+import 'package:aisnippets/components/my_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,9 +14,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'AiSnippets',
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('AiSnippets'),
-        ),
+        appBar: MyAppBar(),
         body: HolyGrailLayout(),
       ),
     );
