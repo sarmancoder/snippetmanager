@@ -7,6 +7,7 @@ part 'snippet_file_state.freezed.dart';
 abstract class SnippetFileState with _$SnippetFileState {
   const factory SnippetFileState({
     required String fileName,
-    required List<Snippet> snippets
+    required List<Snippet> snippets,
+    @Default(null) Snippet? activeSnippet
   }) = _SnippetFileState;
 }

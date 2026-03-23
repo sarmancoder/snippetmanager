@@ -1,4 +1,5 @@
 import 'package:aisnippets/business/fs.dart';
+import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/snippet_file_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../business/models/SnippetFile.dart' as models_snippet_file;
@@ -18,6 +19,11 @@ class SnippetFile extends _$SnippetFile {
     );
 
     state = SnippetFileState(fileName: name, snippets: snippets);
+  }
+
+  setActiveSnippet (Snippet snippet) {
+    if (state == null) return;
+    state = state!.copyWith(activeSnippet: snippet);
   }
 
 }
