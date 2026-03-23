@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +138,16 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'updateSnippet',
                   callback: (args) {
-                    ref.read(snippetFileProvider.notifier).setSaved(false);
+                    var newSnippet = jsonDecode(args[0]);
+                    var snippet = Snippet(
+                      prefix: newSnippet['prefix'],
+                      description: newSnippet['description'],
+                      body: newSnippet['body'].join('\n'),
+                      key: active.key,
+                      scope: newSnippet['scope']);
+                    if (!snippet.equals(active)) {
+                      ref.read(snippetFileProvider.notifier).setEditingSnippet(snippet);
+                    }
                   },
                 );
               },

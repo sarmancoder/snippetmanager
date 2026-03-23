@@ -9,6 +9,7 @@ abstract class SnippetFileState with _$SnippetFileState {
     required String fileName,
     required List<Snippet> snippets,
     @Default(null) Snippet? activeSnippet,
+    @Default(null) Snippet? editingSnippet,
     @Default(true) bool saved
   }) = _SnippetFileState;
 }

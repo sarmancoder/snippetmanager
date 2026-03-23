@@ -28,8 +28,9 @@ class SaveButton extends ConsumerWidget {
     var blackColor = Colors.black.withAlpha(saved?.activeSnippet == null ? 100 : 255);
     return IconButton(
       icon: Icon(Icons.save, color: saved == null || saved.saved ? blackColor : Colors.red),
-      onPressed: () {
+      onPressed: () async {
         if (saved == null) return;
+        await ref.read(snippetFileProvider.notifier).saveSnippetList();
       },
       tooltip: 'Salvar snippet',
     );
