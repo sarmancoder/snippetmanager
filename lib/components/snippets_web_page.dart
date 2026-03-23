@@ -104,6 +104,9 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
 
   @override
   Widget build(BuildContext context) {
+    var active = ref.watch(
+      snippetFileProvider.select((a) => a?.activeSnippet)
+    );
     ref.listen(snippetFileProvider.select((a) => a?.activeSnippet), (
       old,
       curr,
@@ -122,7 +125,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
         Expanded(
           child: Container(
             margin: EdgeInsets.only(left: 10),
-            child: InAppWebView(
+            child: active == null ? Container() : InAppWebView(
               initialUrlRequest: URLRequest(
                 url: WebUri(snippetsWebEditorAddress),
               ),
@@ -144,6 +147,19 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
                 },*/
               onLoadStop: (controller, url) async {
                 // Insertar snippet con retardo
+                if (firstLoaded) return;
+                await Future.delayed(Duration(milliseconds: 200));
+                var curr = active;
+                _dispatchCustomEvent('insertSnippet', {
+                  "prefix": curr.prefix,
+                  "description": curr.description,
+                  "body": curr.body.split('\n'),
+                  "scope": curr.scope,
+                });
+
+                setState(() {
+                  firstLoaded = true;
+                });
               },
 
               initialSettings: InAppWebViewSettings(
