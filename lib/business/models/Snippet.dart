@@ -1,30 +1,41 @@
-import 'package:json5/json5.dart';
+import 'dart:convert';
 
-class Snippet {
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String key;
-  final String prefix;
-  final String description;
-  final String body;
-  final String scope;
-  final bool insertSnippet;
-  // final String comments;
+part 'Snippet.freezed.dart';
 
-  Snippet({
-    this.insertSnippet = true,
-    required this.prefix,
-    required this.description, 
-    required this.body,
-    required this.key,
-    required this.scope
-  });
+@freezed
+abstract class Snippet with _$Snippet {
+  const factory Snippet({
+    required String key,
+    required String prefix,
+    required String description,
+    required String body,
+    required String scope,
+    @Default(true) bool insertSnippet,
+  }) = _Snippet;
 
-  /*static Snippet fromContentFile(String fileContent) async {
-    var json = JSON5.parse(fileContent);
-  }*/
-  
+  @override
+  String toString() {
+    const JsonEncoder encoder = JsonEncoder.withIndent(
+      '  ',
+    ); // Dos espacios de sangría
+    return encoder.convert({
+      'prefix': prefix,
+      'description': description,
+      'body': body,
+      'scope': scope,
+    });
+  }
+}
+
+extension Methods on Snippet {
+
   bool equals(Snippet snippet) {
-    return snippet.body == body && snippet.prefix == prefix && snippet.description == description && snippet.scope == snippet.scope;
+    return snippet.body == body &&
+        snippet.prefix == prefix &&
+        snippet.description == description &&
+        snippet.scope == snippet.scope;
   }
 
   bool isEmpty() {
