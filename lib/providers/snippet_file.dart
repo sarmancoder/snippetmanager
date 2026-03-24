@@ -28,9 +28,16 @@ class SnippetFile extends _$SnippetFile {
     );
   }
 
-  setActiveSnippet(Snippet snippet) {
-    if (state == null) return;
-    state = state!.copyWith(activeSnippet: snippet.copyWith(), editingSnippet: snippet.copyWith());
+  setActiveSnippetByKey(String key) {
+    final snippetIndex = state!.snippets.indexWhere((s) => s.key == key);
+    if (snippetIndex == -1) return;
+    
+    final snippet = state!.snippets[snippetIndex];
+    state = state!.copyWith(
+      activeSnippet: snippet,
+      editingSnippet: snippet.copyWith(),
+      saved: true,
+    );
   }
 
   setEditingSnippet(Snippet editingSnippet) {
@@ -38,38 +45,31 @@ class SnippetFile extends _$SnippetFile {
   }
 
   updateSnippet() {
-    List<Snippet> news = [];
-    bool replaced = false;
-    for (final s in state!.snippets) {
-      if (!replaced && s.key == state!.editingSnippet!.key) {
-        news.add(state!.editingSnippet!);
-        replaced = true;
-      } else {
-        news.add(s);
+    if (state!.editingSnippet == null) return state!.snippets;
+    final updatedSnippets = state!.snippets.map((s) {
+      if (s.key == state!.editingSnippet!.key) {
+        return state!.editingSnippet!;
       }
-    }
-    state = state!.copyWith(snippets: news);
-    return news;
+      return s;
+    }).toList();
+    return updatedSnippets;
   }
 
   saveSnippetList() async {
-    print("activesnippet:");
-    print(state!.activeSnippet);
     var currentPath = ref
         .read(directoryProviderProvider)
         .requireValue
         .currentPath;
     var currentFile = state!.fileName;
-    var currentSnippet = state!.activeSnippet;
-    var snippets = [];
-    if (currentSnippet != null) {
-      snippets = updateSnippet();
-    }
+    var updatedSnippets = updateSnippet();
     var file = p.join(currentPath, currentFile);
-    print("Listado de snippets");
-    print(snippets);
-    print("Listado de snippets");
-    await fs.saveSnippetList(file, snippets as dynamic);
-    state = state!.copyWith(saved: true);
+    await fs.saveSnippetList(file, updatedSnippets as dynamic);
+    
+    // Sincronizar y marcar como guardado
+    state = state!.copyWith(
+      snippets: updatedSnippets,
+      activeSnippet: state!.editingSnippet,
+      saved: true,
+    );
   }
 }

@@ -35,7 +35,7 @@ extension Methods on Snippet {
     return snippet.body == body &&
         snippet.prefix == prefix &&
         snippet.description == description &&
-        snippet.scope == snippet.scope;
+        snippet.scope == scope;
   }
 
   bool isEmpty() {

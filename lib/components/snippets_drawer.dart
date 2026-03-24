@@ -22,7 +22,38 @@ class SnippetsDrawer extends ConsumerWidget {
                 child: Column(
                   children: [
                     for (var i = 0; i < snippets.snippets.length; i++)
-                      SnippetTile(snippet: snippets.snippets[i]),
+                      Builder(
+                        builder: (context) {
+                          var snippet = snippets.snippets[i];
+                          return SnippetTile(
+                            key: ValueKey(snippet.key),
+                            snippetKey: snippet.key,
+                            prefix: snippet.prefix,
+                            description: snippet.description,
+                            onTap: () async {
+                              var active = ref.read(snippetFileProvider);
+                              var saved = active!.saved;
+                              var activeSnippet = active!.activeSnippet;
+                              var targetKey = snippet.key;
+                              
+                              if (!saved && activeSnippet != null) {
+                                var confirmed = await confirm(
+                                  context: context,
+                                  content: const Text(
+                                    '¿Seguro que quieres salir? Los cambios no guardados se perderan',
+                                  ),
+                                );
+                                if (!confirmed) return;
+                                await ref.read(snippetFileProvider.notifier).saveSnippetList();
+                                await Future.delayed(Duration(milliseconds: 150));
+                              }
+                              
+                              // Después de guardar, usar el estado actualizado
+                              ref.read(snippetFileProvider.notifier).setActiveSnippetByKey(targetKey);
+                            },
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -43,56 +74,32 @@ class SnippetsDrawer extends ConsumerWidget {
   }
 }
 
-class SnippetTile extends ConsumerStatefulWidget {
-  final Snippet snippet;
-  const SnippetTile({super.key, required this.snippet});
+class SnippetTile extends ConsumerWidget {
+  final String snippetKey;
+  final String prefix;
+  final String description;
+  final VoidCallback onTap;
+
+  const SnippetTile({
+    super.key,
+    required this.snippetKey,
+    required this.prefix,
+    required this.description,
+    required this.onTap,
+  });
 
   @override
-  ConsumerState<SnippetTile> createState() => _SnippetTileState();
-}
-
-class _SnippetTileState extends ConsumerState<SnippetTile> {
-  @override
-  Widget build(BuildContext context) {
-    var snippetsState = ref.watch(snippetFileProvider);
-    var selected = snippetsState?.activeSnippet?.key == widget.snippet.key;
+  Widget build(BuildContext context, WidgetRef ref) {
+    var isSelected = ref.watch(snippetFileProvider.select((s) => s?.activeSnippet?.key == snippetKey));
     return Container(
-      color: selected ? Theme.of(context).primaryColor : Colors.transparent,
+      color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
       child: ListTile(
-        title: Text(widget.snippet.prefix),
-        subtitle: Text(widget.snippet.description, maxLines: 2),
-        selected: selected,
+        title: Text(prefix),
+        subtitle: Text(description, maxLines: 2),
+        selected: isSelected,
         selectedColor: Colors.white,
-        onTap: () async {
-          var save = await continueIfNotSaved();
-          if (!save) return;
-          ref
-              .read(snippetFileProvider.notifier)
-              .setActiveSnippet(widget.snippet);
-        },
+        onTap: onTap,
       ),
     );
-  }
-
-  continueIfNotSaved() async {
-    var active = ref.read(snippetFileProvider);
-    var saved = active!.saved;
-    var activeSnippet = active!.activeSnippet;
-    if (!saved && activeSnippet != null) {
-      var confirmed = await confirm(
-        context: context,
-        content: const Text(
-          '¿Seguro que quieres salir? Los cambios no guardados se perderan',
-        ),
-      );
-      if (!confirmed)
-        return false;
-      else {
-        await ref.read(snippetFileProvider.notifier).saveSnippetList();
-        await Future.delayed(Duration(milliseconds: 100));
-        return true;
-      }
-    }
-    return true;
   }
 }

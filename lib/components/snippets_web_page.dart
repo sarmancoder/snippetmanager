@@ -138,14 +138,21 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
                 controller.addJavaScriptHandler(
                   handlerName: 'updateSnippet',
                   callback: (args) {
+                    // Obtener siempre el estado actual, no usar la referencia capturada
+                    final currentState = ref.read(snippetFileProvider);
+                    final currentActive = currentState?.activeSnippet;
+                    
+                    if (currentActive == null) return;
+                    
                     var newSnippet = jsonDecode(args[0]);
                     var snippet = Snippet(
-                      prefix: newSnippet['prefix'],
-                      description: newSnippet['description'],
-                      body: newSnippet['body'].join('\n'),
-                      key: active.key,
-                      scope: newSnippet['scope']);
-                    if (!snippet.equals(active)) {
+                      prefix: newSnippet['prefix'] ?? '',
+                      description: newSnippet['description'] ?? '',
+                      body: (newSnippet['body'] is List ? newSnippet['body'].join('\n') : newSnippet['body'] ?? ''),
+                      key: currentActive.key,
+                      scope: newSnippet['scope'] ?? '',
+                    );
+                    if (!snippet.equals(currentActive)) {
                       ref.read(snippetFileProvider.notifier).setEditingSnippet(snippet);
                     }
                   },
