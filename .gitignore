@@ -19,6 +19,7 @@ pruebas.dart
 *.ipr
 *.iws
 .idea/
+node_modules
 
 libo****
 
