@@ -1,3 +1,4 @@
+import 'package:aisnippets/components/ia/ConfigButton.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +11,8 @@ class MyAppBar extends StatelessWidget  implements PreferredSizeWidget {
     return AppBar(
       title: const Text('AiSnippets'),
       actions: [
-        SaveButton()
+        SaveButton(),
+        ConfigButton()
       ],
     );
   }

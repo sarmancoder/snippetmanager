@@ -1,5 +1,5 @@
-import 'package:aisnippets/components/ConfigOllama.dart';
-import 'package:aisnippets/components/ConfigOpenRouter.dart';
+import 'package:aisnippets/components/ia/ConfigOllama.dart';
+import 'package:aisnippets/components/ia/ConfigOpenRouter.dart';
 import 'package:flutter/material.dart';
 
 class ConfigState extends InheritedWidget {
