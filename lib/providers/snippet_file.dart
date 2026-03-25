@@ -98,4 +98,10 @@ class SnippetFile extends _$SnippetFile {
     }
     return true;
   }
+
+  addToList (Snippet snippet) {
+    var list = [...state!.snippets];
+    list.add(snippet);
+    state = state!.copyWith(snippets: list);
+  }
 }

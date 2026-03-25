@@ -1,5 +1,6 @@
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
+import 'package:aisnippets/dialogs/createSnippet.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,9 +32,13 @@ class SnippetsDrawer extends ConsumerWidget {
                             prefix: snippet.prefix,
                             description: snippet.description,
                             onTap: () async {
-                              var saved = await ref.read(snippetFileProvider.notifier).askForSave(context);
+                              var saved = await ref
+                                  .read(snippetFileProvider.notifier)
+                                  .askForSave(context);
                               if (!saved) return;
-                              ref.read(snippetFileProvider.notifier).setActiveSnippetByKey(snippet.key);
+                              ref
+                                  .read(snippetFileProvider.notifier)
+                                  .setActiveSnippetByKey(snippet.key);
                             },
                           );
                         },
@@ -49,7 +54,24 @@ class SnippetsDrawer extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
               child: const Text('Añadir snippet'),
-              onPressed: () {},
+              onPressed: () async {
+                var saved = await ref
+                    .read(snippetFileProvider.notifier)
+                    .askForSave(context);
+                if (!saved) return;
+                if (!context.mounted) return;
+
+                var snippet = await createSnippet(context: context);
+                if (snippet == null) {
+                  Navigator.of(context).pop();
+                  return;
+                }
+
+                print("creando snippet");
+                Navigator.of(context).pop();
+                ref.read(snippetFileProvider.notifier).addToList(snippet);
+                await ref.read(snippetFileProvider.notifier).saveSnippetList();
+              },
             ),
           ),
         ],
@@ -74,7 +96,9 @@ class SnippetTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isSelected = ref.watch(snippetFileProvider.select((s) => s?.activeSnippet?.key == snippetKey));
+    var isSelected = ref.watch(
+      snippetFileProvider.select((s) => s?.activeSnippet?.key == snippetKey),
+    );
     return Container(
       color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
       child: ListTile(
