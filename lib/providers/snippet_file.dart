@@ -30,6 +30,10 @@ class SnippetFile extends _$SnippetFile {
     );
   }
 
+  closeActiveSnippet () {
+    state = state!.copyWith(activeSnippet:  null, editingSnippet: null);
+  }
+
   setActiveSnippetByKey(String key) {
     final snippetIndex = state!.snippets.indexWhere((s) => s.key == key);
     if (snippetIndex == -1) return;
@@ -103,5 +107,12 @@ class SnippetFile extends _$SnippetFile {
     var list = [...state!.snippets];
     list.add(snippet);
     state = state!.copyWith(snippets: list);
+  }
+
+  removeFromList(String snippetKey) {
+    var list = [...state!.snippets];
+    state = state!.copyWith(snippets: list.where((s) {
+      return s.key != snippetKey;
+    }).toList());
   }
 }

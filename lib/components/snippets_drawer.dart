@@ -71,6 +71,7 @@ class SnippetsDrawer extends ConsumerWidget {
                 Navigator.of(context).pop();
                 ref.read(snippetFileProvider.notifier).addToList(snippet);
                 await ref.read(snippetFileProvider.notifier).saveSnippetList();
+                ref.read(snippetFileProvider.notifier).setActiveSnippetByKey(snippet.key);
               },
             ),
           ),
@@ -99,15 +100,59 @@ class SnippetTile extends ConsumerWidget {
     var isSelected = ref.watch(
       snippetFileProvider.select((s) => s?.activeSnippet?.key == snippetKey),
     );
-    return Container(
-      color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
-      child: ListTile(
-        title: Text(prefix),
-        subtitle: Text(description, maxLines: 2),
-        selected: isSelected,
-        selectedColor: Colors.white,
-        onTap: onTap,
-      ),
+    return HoverableWidget(
+      builder: (hovered) {
+        return Container(
+          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+          child: ListTile(
+            title: Text(prefix),
+            subtitle: Text(description, maxLines: 2),
+            selected: isSelected,
+            trailing: IconButton(
+              icon:  Icon(Icons.delete, color: hovered ? Colors.red : Colors.transparent),
+              onPressed: () async {
+                var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
+                if (!confirmed) return;
+                ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
+                await ref.read(snippetFileProvider.notifier).saveSnippetList();
+                ref.read(snippetFileProvider.notifier).closeActiveSnippet();
+              },
+            ),
+            selectedColor: Colors.white,
+            onTap: onTap,
+          ),
+        );
+      }
+    );
+  }
+}
+
+class HoverableWidget extends StatefulWidget {
+  final Widget Function(bool hovered) builder;
+
+  const HoverableWidget({super.key, required this.builder});
+
+  @override
+  State<HoverableWidget> createState() => _HoverableWidgetState();
+}
+
+class _HoverableWidgetState extends State<HoverableWidget> {
+  bool hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (event) {
+        setState(() {
+          hovered = true;
+        });
+      },
+      onExit: (event) {
+        setState(() {
+          hovered = false;
+        });
+      },
+      child: widget.builder(hovered),
     );
   }
 }
