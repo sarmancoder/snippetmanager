@@ -1,7 +1,9 @@
 import 'package:aisnippets/business/fs.dart' as fs;
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/snippet_file_state.dart';
+import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/directory_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../business/models/SnippetFile.dart' as models_snippet_file;
 import 'package:path/path.dart' as p;
@@ -31,7 +33,7 @@ class SnippetFile extends _$SnippetFile {
   setActiveSnippetByKey(String key) {
     final snippetIndex = state!.snippets.indexWhere((s) => s.key == key);
     if (snippetIndex == -1) return;
-    
+
     final snippet = state!.snippets[snippetIndex];
     state = state!.copyWith(
       activeSnippet: snippet,
@@ -41,7 +43,10 @@ class SnippetFile extends _$SnippetFile {
   }
 
   setEditingSnippet(Snippet editingSnippet) {
-    state = state!.copyWith(saved: false, editingSnippet: editingSnippet.copyWith());
+    state = state!.copyWith(
+      saved: false,
+      editingSnippet: editingSnippet.copyWith(),
+    );
   }
 
   updateSnippet() {
@@ -64,12 +69,33 @@ class SnippetFile extends _$SnippetFile {
     var updatedSnippets = updateSnippet();
     var file = p.join(currentPath, currentFile);
     await fs.saveSnippetList(file, updatedSnippets as dynamic);
-    
+
     // Sincronizar y marcar como guardado
     state = state!.copyWith(
       snippets: updatedSnippets,
       activeSnippet: state!.editingSnippet,
       saved: true,
     );
+  }
+
+  askForSave(BuildContext context) async {
+    var active = state;
+    if (active == null) return true;
+    var saved = active.saved;
+    var activeSnippet = active.activeSnippet;
+
+    if (!saved && activeSnippet != null) {
+      var confirmed = await confirm(
+        context: context,
+        content: const Text(
+          '¿Seguro que quieres salir? Los cambios no guardados se perderan',
+        ),
+      );
+      if (!confirmed) return false;
+      await saveSnippetList();
+      await Future.delayed(Duration(milliseconds: 150));
+      return true;
+    }
+    return true;
   }
 }

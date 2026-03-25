@@ -31,25 +31,9 @@ class SnippetsDrawer extends ConsumerWidget {
                             prefix: snippet.prefix,
                             description: snippet.description,
                             onTap: () async {
-                              var active = ref.read(snippetFileProvider);
-                              var saved = active!.saved;
-                              var activeSnippet = active!.activeSnippet;
-                              var targetKey = snippet.key;
-                              
-                              if (!saved && activeSnippet != null) {
-                                var confirmed = await confirm(
-                                  context: context,
-                                  content: const Text(
-                                    '¿Seguro que quieres salir? Los cambios no guardados se perderan',
-                                  ),
-                                );
-                                if (!confirmed) return;
-                                await ref.read(snippetFileProvider.notifier).saveSnippetList();
-                                await Future.delayed(Duration(milliseconds: 150));
-                              }
-                              
-                              // Después de guardar, usar el estado actualizado
-                              ref.read(snippetFileProvider.notifier).setActiveSnippetByKey(targetKey);
+                              var saved = await ref.read(snippetFileProvider.notifier).askForSave(context);
+                              if (!saved) return;
+                              ref.read(snippetFileProvider.notifier).setActiveSnippetByKey(snippet.key);
                             },
                           );
                         },
