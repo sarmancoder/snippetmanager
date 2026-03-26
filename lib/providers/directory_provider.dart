@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aisnippets/business/fs.dart';
+import 'package:aisnippets/business/models/SnippetFile.dart';
 import 'package:aisnippets/business/models/directory_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -40,5 +41,13 @@ class DirectoryProvider extends _$DirectoryProvider {
         throw 'No se pudo abrir la carpeta: $currentDirectory';
       }
     }
+  }
+
+  createNewFile(String fileName, String content) async {
+    var currentPath = state.requireValue.currentPath;
+    await createNewSnippetFile(currentPath, fileName, content);
+    var files = state.requireValue.files;
+    var newFile = SnippetFile(path: currentPath, name: fileName + ".code-snippets");
+    state = AsyncValue.data(state.requireValue.copyWith(files: [...files, newFile]));
   }
 }

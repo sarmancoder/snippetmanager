@@ -1,3 +1,4 @@
+import 'package:aisnippets/components/add_file_button.dart';
 import 'package:aisnippets/providers/directory_provider.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:file_picker/file_picker.dart';
@@ -79,10 +80,7 @@ class FilesDrawer extends ConsumerWidget {
         ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: ElevatedButton(
-            child: const Text('Añadir archivo'),
-            onPressed: () {},
-          ),
+          child: AddFileButton(),
         ),
       ],
     );
