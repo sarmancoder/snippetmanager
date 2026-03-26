@@ -109,7 +109,12 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
         title: Text(widget.nameFile),
         selectedColor: Colors.white,
         selected: selected,
-        onTap: () {
+        onTap: () async {
+          var snippets = ref.read(snippetFileProvider);
+          if (snippets != null && !snippets.saved) {
+            var saved = await ref.read(snippetFileProvider.notifier).askForSave(context);
+            if (!saved) return;
+          }
           var currentPath = ref.read(directoryProviderProvider).requireValue.currentPath;
           ref.read(snippetFileProvider.notifier).setActiveFile(currentPath, widget.nameFile);
         },
