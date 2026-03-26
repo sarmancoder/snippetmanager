@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:aisnippets/business/fs.dart';
+import 'package:aisnippets/business/fs.dart' as fs;
 import 'package:aisnippets/business/models/SnippetFile.dart';
 import 'package:aisnippets/business/models/directory_state.dart';
+import 'package:aisnippets/providers/snippet_file.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,12 +13,12 @@ part 'directory_provider.g.dart';
 class DirectoryProvider extends _$DirectoryProvider {
   @override
   FutureOr<DirectoryState> build() async {
-    var path = getVSCodePath();
+    var path = fs.getVSCodePath();
     return await _loadDirectory(path);
   }
 
   _loadDirectory(path) async {
-    var files = await loadDirectory(path);
+    var files = await fs.loadDirectory(path);
     var appState = DirectoryState(currentPath: path, files: files);
     return appState;
   }
@@ -45,9 +46,21 @@ class DirectoryProvider extends _$DirectoryProvider {
 
   createNewFile(String fileName, String content) async {
     var currentPath = state.requireValue.currentPath;
-    await createNewSnippetFile(currentPath, fileName, content);
+    await fs.createNewSnippetFile(currentPath, fileName, content);
     var files = state.requireValue.files;
     var newFile = SnippetFile(path: currentPath, name: fileName + ".code-snippets");
     state = AsyncValue.data(state.requireValue.copyWith(files: [...files, newFile]));
+  }
+
+  deleteFile(String fileName) async {
+    await fs.deleteFile(state.requireValue.currentPath, fileName);
+    var s = state.requireValue;
+    state = AsyncValue.data(s.copyWith(
+      files: [...s.files].where((f) => f.name != fileName).toList()
+    ));
+    var snippetFile = ref.read(p.snippetFileProvider);
+    if (fileName == snippetFile?.fileName) {
+      ref.read(p.snippetFileProvider.notifier).closeActiveSnippet();
+    }
   }
 }

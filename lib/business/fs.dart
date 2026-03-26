@@ -29,6 +29,12 @@ Future<List<SnippetFile>> loadDirectory(String path) async {
   return files;
 }
 
+Future deleteFile(String pathFile, String fileName) async {
+  String fileStr = p.join(pathFile, fileName);
+  await File(fileStr).delete();
+  return true;
+}
+
 Future<List<Snippet>> getFileSnippets(SnippetFile file) async {
   var snippets = <Snippet>[];
   var fileStr = p.join(file.path, file.name);

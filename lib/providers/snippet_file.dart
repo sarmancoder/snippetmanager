@@ -38,6 +38,10 @@ class SnippetFile extends _$SnippetFile {
     state = state!.copyWith(activeSnippet:  null, editingSnippet: null);
   }
 
+  closeFile() {
+    state = state!.copyWith(activeSnippet:  null, editingSnippet: null, fileName: '', snippets: []);
+  }
+
   setActiveSnippetByKey(String key) {
     final snippetIndex = state!.snippets.indexWhere((s) => s.key == key);
     if (snippetIndex == -1) return;
