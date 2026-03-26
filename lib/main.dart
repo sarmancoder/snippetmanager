@@ -14,12 +14,16 @@ void main() async {
     child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var brighness = ref.watch(uiBrightnessProvider);
     return MaterialApp(
+      theme: ThemeData(
+        brightness: brighness
+      ),
       debugShowCheckedModeBanner: false,
       title: 'AiSnippets',
       home: Scaffold(

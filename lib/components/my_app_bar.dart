@@ -1,5 +1,6 @@
 import 'package:aisnippets/components/ia/ConfigButton.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
+import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,7 @@ class MyAppBar extends StatelessWidget  implements PreferredSizeWidget {
     return AppBar(
       title: const Text('AiSnippets'),
       actions: [
+        DarkModeToggle(),
         SaveButton(),
         ConfigButton()
       ],
@@ -21,13 +23,31 @@ class MyAppBar extends StatelessWidget  implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
+class DarkModeToggle extends ConsumerWidget {
+  const DarkModeToggle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var brighness = ref.read(uiBrightnessProvider);
+    var isDark = brighness == Brightness.dark;
+    return IconButton(
+      icon: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+      onPressed: () {
+        ref.read(uiBrightnessProvider.notifier).toggle();
+      },
+    );
+  }
+}
+
 class SaveButton extends ConsumerWidget {
   const SaveButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var saved = ref.watch(snippetFileProvider);
-    var blackColor = Colors.black.withAlpha(saved?.activeSnippet == null ? 100 : 255);
+    var isDark = Theme.of(context).brightness == Brightness.dark;
+    var color = isDark ? Colors.white : Colors.black;
+    var blackColor = color.withAlpha(saved?.activeSnippet == null ? 100 : 255);
     return IconButton(
       icon: Icon(Icons.save, color: saved == null || saved.saved ? blackColor : Colors.red),
       onPressed: () async {

@@ -61,7 +61,6 @@ class FilesDrawer extends ConsumerWidget {
                     currentPath,
                     maxLines: 2,
                     style: TextStyle(
-                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -105,11 +104,10 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
     return HoverableWidget(
       builder: (hovered) {
         return Container(
-          color: selected ? Theme.of(context).primaryColor : Colors.white,
+          // color: selected ? Theme.of(context).primaryColor : Colors.white,
           child: ListTile(
             dense: true,
             title: Text(widget.nameFile),
-            selectedColor: Colors.white,
             trailing: IconButton(
               icon: Icon(Icons.delete, color: hovered ? Colors.red : Colors.transparent,),
               onPressed: () async {

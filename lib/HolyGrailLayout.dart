@@ -17,9 +17,8 @@ class HolyGrailLayout extends StatelessWidget {
         Row(
           children: [
             // --- SIDEBAR IZQUIERDO PERSISTENTE ---
-            Container(
+            SizedBox(
               width: 250,
-              color: Colors.white,
               child: FilesDrawerLoader(),
             ),
 
@@ -28,10 +27,7 @@ class HolyGrailLayout extends StatelessWidget {
 
             // --- CONTENIDO PRINCIPAL (Flexible para ocupar el resto) ---
             Expanded(
-              child: Container(
-                color: Colors.grey[100],
-                child: SnippetsWebPage(),
-              ),
+              child: SnippetsWebPage(),
             ),
 
             // Divisor visual

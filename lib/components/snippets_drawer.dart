@@ -12,9 +12,8 @@ class SnippetsDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var snippets = ref.watch(snippetFileProvider);
 
-    return Container(
+    return SizedBox(
       width: 250,
-      color: Colors.white,
       child: Column(
         children: [
           if (snippets != null)
@@ -118,7 +117,6 @@ class SnippetTile extends ConsumerWidget {
                 ref.read(snippetFileProvider.notifier).closeActiveSnippet();
               },
             ),
-            selectedColor: Colors.white,
             onTap: onTap,
           ),
         );
