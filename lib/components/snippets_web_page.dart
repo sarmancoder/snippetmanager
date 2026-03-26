@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
+import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,6 +119,12 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
         "description": curr.description,
         "body": curr.body.split('\n'),
         "scope": curr.scope,
+      });
+    });
+
+    ref.listen(uiBrightnessProvider, (old, curr) {
+      _dispatchCustomEvent('toggleDark', {
+        'dark': curr == Brightness.dark ? 1 : 0
       });
     });
 
