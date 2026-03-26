@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/utils.dart';
+import 'package:aisnippets/config/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,7 +50,7 @@ class _SnippetCreatorState extends ConsumerState<SnippetCreator> {
             if (message.isNotEmpty)
             Row(
               children: <Widget>[
-                Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)
+                Text(message, textAlign: TextAlign.center, style: TextStyle(color: redColor, fontWeight: FontWeight.bold),)
               ],
             ),
             Row(

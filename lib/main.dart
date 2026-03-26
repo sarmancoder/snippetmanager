@@ -1,5 +1,6 @@
 import 'package:aisnippets/HolyGrailLayout.dart';
 import 'package:aisnippets/components/my_app_bar.dart';
+import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,11 +20,11 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var brighness = ref.watch(uiBrightnessProvider);
+    var brightness = ref.watch(uiBrightnessProvider);
     return MaterialApp(
-      theme: ThemeData(
-        brightness: brighness
-      ),
+      theme: getTheme(),
+      darkTheme: getThemeDark(),
+      themeMode: brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light,
       debugShowCheckedModeBanner: false,
       title: 'AiSnippets',
       home: Scaffold(

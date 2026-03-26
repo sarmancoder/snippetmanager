@@ -1,4 +1,5 @@
 import 'package:aisnippets/components/ia/ConfigButton.dart';
+import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
@@ -49,9 +50,8 @@ class SaveButton extends ConsumerWidget {
     var color = isDark ? Colors.white : Colors.black;
     var blackColor = color.withAlpha(saved?.activeSnippet == null ? 100 : 255);
     return IconButton(
-      icon: Icon(Icons.save, color: saved == null || saved.saved ? blackColor : Colors.red),
-      onPressed: () async {
-        if (saved == null) return;
+      icon: Icon(Icons.save, color: saved == null || saved.saved ? blackColor : redColor),
+      onPressed: saved == null ? null : () async {
         await ref.read(snippetFileProvider.notifier).saveSnippetList();
       },
       tooltip: 'Salvar snippet',

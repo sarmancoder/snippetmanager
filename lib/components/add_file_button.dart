@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aisnippets/business/ia/index.dart';
 import 'package:aisnippets/config/app.dart';
+import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/providers/directory_provider.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:aisnippets/providers/ui.dart';
@@ -155,7 +156,7 @@ class _ConvertDialogState extends State<ConvertDialog> {
                         if (fileNameNote.isNotEmpty)
                           Text(
                             fileNameNote,
-                            style: TextStyle(color: Colors.red),
+                            style: TextStyle(color: redColor),
                           ),
                         TextField(
                           controller:

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aisnippets/config/theme.dart';
 import 'package:flutter/material.dart';
 
 Future<bool> confirm({required BuildContext context, required Widget content}) {
@@ -13,16 +14,38 @@ Future<bool> confirm({required BuildContext context, required Widget content}) {
         content: content,
         actions: [
           ElevatedButton(
-            child: const Text('Confirmar'),
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith((state) => buttonColorStyle(state, redColor!))
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 5,
+              children: [
+                Icon(Icons.cancel),
+                const Text('Volver'),
+              ],
+            ),
             onPressed: () {
-              comp.complete(true);
+              comp.complete(false);
               Navigator.of(context).pop();
             },
           ),
           ElevatedButton(
-            child: const Text('Volver'),
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith((state) => buttonColorStyle(state, greenColor!))
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 5,
+              children: [
+                Icon(Icons.check_circle),
+                const Text('Confirmar'),
+              ],
+            ),
             onPressed: () {
-              comp.complete(false);
+              comp.complete(true);
               Navigator.of(context).pop();
             },
           ),

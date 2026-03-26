@@ -1,5 +1,6 @@
 import 'package:aisnippets/components/add_file_button.dart';
 import 'package:aisnippets/components/snippets_drawer.dart';
+import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/providers/directory_provider.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
@@ -26,64 +27,77 @@ class FilesDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var theme = Theme.of(context);
     var files = ref.watch(
       directoryProviderProvider.select((val) => val.value?.files ?? [])
     );
     var currentPath = ref.watch(
       directoryProviderProvider.select((val) => val.value?.currentPath ?? '')
     );
-    return Column(
-      children: [
-        Container(
-          // height: 150,
-          width: double.infinity,
-          color: Theme.of(context).primaryColorDark,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.folder),
-                onPressed: () async {
-                  String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-                  if (selectedDirectory == null) return;
-                  ref.read(directoryProviderProvider.notifier).changeDirtory(selectedDirectory);
-                },
-                tooltip: 'Descripción',
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () async {
-                    await ref
-                        .read(directoryProviderProvider.notifier)
-                        .openDirectory();
+    return Container(
+      color: theme.drawerTheme.backgroundColor,
+      child: Column(
+        children: [
+          Container(
+            // height: 150,
+            width: double.infinity,
+            color: Theme.of(context).primaryColor,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.folder),
+                  onPressed: () async {
+                    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+                    if (selectedDirectory == null) return;
+                    ref.read(directoryProviderProvider.notifier).changeDirtory(selectedDirectory);
                   },
-                  child: Text(
-                    currentPath,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                  tooltip: 'Descripción',
+                ),
+                Expanded(
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await ref
+                            .read(directoryProviderProvider.notifier)
+                            .openDirectory();
+                      },
+                      child: Text(
+                        currentPath,
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (var i = 0; i < files.length; i++)
+                    SnippetFile(nameFile: files[i].name)
+                ],
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(8) ,
+                  child: AddFileButton(),
                 ),
               ),
             ],
           ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                for (var i = 0; i < files.length; i++)
-                  SnippetFile(nameFile: files[i].name)
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: AddFileButton(),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -109,7 +123,7 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
             dense: true,
             title: Text(widget.nameFile),
             trailing: IconButton(
-              icon: Icon(Icons.delete, color: hovered ? Colors.red : Colors.transparent,),
+              icon: Icon(Icons.delete, color: hovered ? redColor : Colors.transparent,),
               onPressed: () async {
                 var response = await confirm(context: context, content: Text("¿Estás seguro que quieres eliminar el archivo?"));
                 if (!response) return;

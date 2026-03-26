@@ -28,6 +28,7 @@ dependencies:
   url_launcher: ^6.3.2
   freezed_annotation:
   json_annotation:
+  flutter_tailwind_colors: ^0.0.5
 
 dev_dependencies:
   flutter_test:
