@@ -17,6 +17,10 @@ class SnippetFile extends _$SnippetFile {
     return null;
   }
 
+  editActiveSnipet(Snippet snippet) {
+    state = state!.copyWith(activeSnippet: snippet, editingSnippet: snippet, saved: false);
+  }
+
   setActiveFile(path, name) async {
     var snippets = await fs.getFileSnippets(
       models_snippet_file.SnippetFile(path: path, name: name),

@@ -65,7 +65,7 @@ getMessagesFor(AskMode mode, String prompt, Snippet? currentSnippet) {
           text: prompt,
           type: MessageType.User)
       );
-    } if (mode == AskMode.convert) {
+    } else if (mode == AskMode.convert) {
       messages.add(
         AiSnippetsMessage(text: convertPromptTxt, type: MessageType.User)
       );

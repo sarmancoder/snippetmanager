@@ -162,9 +162,9 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
             child: TextField(
               controller: controller,
               onChanged: (value) {
-                /*var activeSnippet = ref
-                    .read(activeSnippetProvider.notifier)
-                    .getCurrent();
+                var activeSnippet = ref
+                    .read(snippetFileProvider)!
+                    .activeSnippet!;
                 var snippet = askMode == AskMode.modify ? activeSnippet : null;
                 var promptToIa = getMessagesFor(askMode, value, snippet);
                 controllerPrompt.value = TextEditingValue(
@@ -176,7 +176,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                   );
-                });*/
+                });
               },
               maxLines: 2, // Esto lo convierte en un TextArea
               decoration: InputDecoration(
@@ -211,16 +211,6 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
                       }, // Cierra el popup
                 child: const Text("Proceder"),
               ),
-              /*ElevatedButton(
-                onPressed: unable
-                    ? null
-                    : () async {
-                        await runTask(() async {
-                          await promptToIa(AskMode.create);
-                        });
-                      },
-                child: const Text("Reemplazar"),
-              ),*/
             ],
           ),
         ],
@@ -241,7 +231,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
         return;
       }
     }
-    /*var activeSnippet = ref.read(activeSnippetProvider.notifier).getCurrent();
+    var activeSnippet = ref.read(snippetFileProvider)!.activeSnippet!;
     if (activeSnippet != null) {
       setState(() {
         backSnippet = activeSnippet;
@@ -261,8 +251,8 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
       );
       var jsonAiSnippet = jsonDecode(snippet);
       ref
-          .read(activeSnippetProvider.notifier)
-          .setActiveSnippet(
+          .read(snippetFileProvider.notifier)
+          .editActiveSnipet(
             Snippet(
               prefix: jsonAiSnippet["prefix"],
               description: jsonAiSnippet["description"],
@@ -275,7 +265,7 @@ class _MyPopupContentState extends ConsumerState<MyPopupContent> {
       await alert(context: context, content: Text(e.message));
     } catch (exception) {
       print("No se pudo establecer el snippet");
-    }*/
+    }
   }
 
   Future<void> runTask(cb) async {
