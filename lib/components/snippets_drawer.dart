@@ -1,3 +1,4 @@
+import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/dialogs/createSnippet.dart';
@@ -30,6 +31,7 @@ class SnippetsDrawer extends ConsumerWidget {
                             var snippet = snippets.snippets[i];
                             return SnippetTile(
                               key: ValueKey(snippet.key),
+                              snippet: snippet,
                               snippetKey: snippet.key,
                               prefix: snippet.prefix,
                               description: snippet.description,
@@ -95,13 +97,14 @@ class SnippetTile extends ConsumerWidget {
   final String prefix;
   final String description;
   final VoidCallback onTap;
+  final Snippet snippet;
 
   const SnippetTile({
     super.key,
     required this.snippetKey,
     required this.prefix,
     required this.description,
-    required this.onTap,
+    required this.onTap, required this.snippet,
   });
 
   @override
@@ -111,23 +114,28 @@ class SnippetTile extends ConsumerWidget {
     );
     return HoverableWidget(
       builder: (hovered) {
-        return Container(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
-          child: ListTile(
-            title: Text(prefix),
-            subtitle: Text(description, maxLines: 2),
-            selected: isSelected,
-            trailing: IconButton(
-              icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
-              onPressed: () async {
-                var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
-                if (!confirmed) return;
-                ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
-                await ref.read(snippetFileProvider.notifier).saveSnippetList();
-                ref.read(snippetFileProvider.notifier).closeActiveSnippet();
-              },
+        return Draggable(
+          data: snippet,
+          feedback: Text("Feedback"),
+          childWhenDragging: Text("Dragging"),
+          child: Container(
+            color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+            child: ListTile(
+              title: Text(prefix),
+              subtitle: Text(description, maxLines: 2),
+              selected: isSelected,
+              trailing: IconButton(
+                icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
+                onPressed: () async {
+                  var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
+                  if (!confirmed) return;
+                  ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
+                  await ref.read(snippetFileProvider.notifier).saveSnippetList();
+                  ref.read(snippetFileProvider.notifier).closeActiveSnippet();
+                },
+              ),
+              onTap: onTap,
             ),
-            onTap: onTap,
           ),
         );
       }
