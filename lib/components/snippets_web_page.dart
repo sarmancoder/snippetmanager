@@ -4,6 +4,7 @@ import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:aisnippets/providers/ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 /*
@@ -92,16 +93,22 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
   ) async {
     if (_webViewController == null) return;
     final jsonDetail = jsonEncode(detail);
-    await _webViewController!.evaluateJavascript(
-      source:
-          """
-    window.dispatchEvent(new CustomEvent("$eventName", {
-      detail: $jsonDetail,   // Ahora es un JSON válido: {"action":"save","data":{"title":"Mi snippet","code":"print(\"hola\")"}}
-      bubbles: true,
-      cancelable: true
-    }));
-  """,
-    );
+    try { 
+      await _webViewController!.evaluateJavascript(
+        source:
+            """
+      window.dispatchEvent(new CustomEvent("$eventName", {
+        detail: $jsonDetail,   // Ahora es un JSON válido: {"action":"save","data":{"title":"Mi snippet","code":"print(\"hola\")"}}
+        bubbles: true,
+        cancelable: true
+      }));
+    """,
+      );
+    } on MissingPluginException {
+    
+    } catch(exception) {
+      print(exception.toString());
+    }
   }
 
   @override
