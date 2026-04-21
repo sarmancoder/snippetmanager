@@ -46,21 +46,25 @@ class _PromptAlertDialogState extends State<_PromptAlertDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (msg.isNotEmpty) Text(msg),
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Rellena tu respuesta aquí',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    labelText: 'Rellena tu respuesta aquí',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  }
+                ),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
-              }
-            ),
+            ],
           )
         ],
       ),

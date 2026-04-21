@@ -29,12 +29,10 @@ class SnippetsDrawer extends ConsumerWidget {
                         Builder(
                           builder: (context) {
                             var snippet = snippets.snippets[i];
-                            return SnippetTile(
+                            return SnippetTileDraggable(
                               key: ValueKey(snippet.key),
                               snippet: snippet,
                               snippetKey: snippet.key,
-                              prefix: snippet.prefix,
-                              description: snippet.description,
                               onTap: () async {
                                 var saved = await ref
                                     .read(snippetFileProvider.notifier)
@@ -92,19 +90,15 @@ class SnippetsDrawer extends ConsumerWidget {
   }
 }
 
-class SnippetTile extends ConsumerWidget {
+class SnippetTileDraggable extends ConsumerWidget {
   final String snippetKey;
-  final String prefix;
-  final String description;
   final VoidCallback onTap;
   final Snippet snippet;
 
-  const SnippetTile({
+  const SnippetTileDraggable({
     super.key,
     required this.snippetKey,
-    required this.prefix,
-    required this.description,
-    required this.onTap, required this.snippet,
+    required this.onTap, required this.snippet
   });
 
   @override
@@ -112,33 +106,73 @@ class SnippetTile extends ConsumerWidget {
     var isSelected = ref.watch(
       snippetFileProvider.select((s) => s?.activeSnippet?.key == snippetKey),
     );
+    var snippetTileDragging = SnippetTile(
+      dragging: true, hovered: false,
+      isSelected: isSelected, snippet: snippet, snippetKey: snippetKey,
+      onTap: onTap, onRemove: () { }
+    );
     return HoverableWidget(
       builder: (hovered) {
         return Draggable(
           data: snippet,
-          feedback: Text("Feedback"),
-          childWhenDragging: Text("Dragging"),
-          child: Container(
-            color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
-            child: ListTile(
-              title: Text(prefix),
-              subtitle: Text(description, maxLines: 2),
-              selected: isSelected,
-              trailing: IconButton(
-                icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
-                onPressed: () async {
-                  var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
-                  if (!confirmed) return;
-                  ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
-                  await ref.read(snippetFileProvider.notifier).saveSnippetList();
-                  ref.read(snippetFileProvider.notifier).closeActiveSnippet();
-                },
-              ),
-              onTap: onTap,
-            ),
+          feedback: SizedBox(
+            width: 350,
+            child: Material(child: snippetTileDragging,)),
+          childWhenDragging:  snippetTileDragging,
+          child: SnippetTile(
+            hovered: hovered,
+            isSelected: isSelected, snippet: snippet, snippetKey: snippetKey, onTap: onTap,
+            onRemove: () async {
+              var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
+            if (!confirmed) return;
+            ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
+            await ref.read(snippetFileProvider.notifier).saveSnippetList();
+            ref.read(snippetFileProvider.notifier).closeActiveSnippet();
+            }
           ),
         );
       }
+    );
+  }
+}
+
+class SnippetTile extends StatelessWidget {
+  const SnippetTile({
+    super.key,
+    required this.isSelected,
+    required this.snippet,
+    required this.snippetKey,
+    required this.onTap,
+    this.dragging = false, required this.onRemove,
+    required this.hovered
+  });
+
+  final bool dragging;
+  final bool isSelected;
+  final Snippet snippet;
+  final String snippetKey;
+  final VoidCallback onTap;
+  final bool hovered;
+  
+  final Function() onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    var snippetColor = Theme.of(context).primaryColor;
+    return Container(
+      color:  dragging ? snippetColor.withAlpha(50) : isSelected ? snippetColor : Colors.transparent,
+      child: ListTile(
+        title: Text(snippet.prefix),
+        subtitle: Text(snippet.description, maxLines: 2),
+        selected: isSelected,
+        trailing: IconButton(
+          icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
+          onPressed: () async {
+            onRemove();
+          },
+        ),
+        onTap: onTap,
+      ),
     );
   }
 }
