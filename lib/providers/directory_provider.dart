@@ -47,8 +47,13 @@ class DirectoryProvider extends _$DirectoryProvider {
   createNewFile(String fileName, String content) async {
     var currentPath = state.requireValue.currentPath;
     await fs.createNewSnippetFile(currentPath, fileName, content);
-    var files = state.requireValue.files;
     var newFile = SnippetFile(path: currentPath, name: fileName + ".code-snippets");
+    // state = AsyncValue.data(state.requireValue.copyWith(files: [...files, newFile]));
+    addNewFileToList(newFile);
+  }
+  
+  addNewFileToList(SnippetFile newFile) {
+    var files = state.requireValue.files;
     state = AsyncValue.data(state.requireValue.copyWith(files: [...files, newFile]));
   }
 
