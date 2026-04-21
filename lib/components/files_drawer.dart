@@ -13,6 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart' as SF;
 
+var blackAlpha = 100;
+
 class FilesDrawerLoader extends ConsumerWidget {
   const FilesDrawerLoader({super.key});
 
@@ -141,7 +143,7 @@ class FilesDrawer extends ConsumerWidget {
                 return AnimatedContainer(
                   duration: Duration(milliseconds: 250),
                   color: d.isNotEmpty
-                      ? color.withAlpha(100)
+                      ? color.withAlpha(blackAlpha)
                       : color.withAlpha(0),
                   height: 200,
                 );
@@ -192,14 +194,14 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
             var color = Colors.black;
             return AnimatedContainer(
               duration: Duration(milliseconds: 500),
-              color: candidateData.isEmpty ? color.withAlpha(0) : color.withAlpha(150),
+              color: candidateData.isEmpty ? color.withAlpha(0) : color.withAlpha(blackAlpha),
               child: ListTile(
                 dense: true,
                 title: Text(widget.nameFile),
                 trailing: IconButton(
                   icon: Icon(
                     Icons.delete,
-                    color: hovered ? redColor : Colors.transparent,
+                    color: hovered && candidateData.isEmpty ? redColor : Colors.transparent,
                   ),
                   onPressed: () async {
                     var response = await confirm(
