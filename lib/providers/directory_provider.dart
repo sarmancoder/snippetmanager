@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:aisnippets/business/fs.dart' as fs;
 import 'package:aisnippets/business/models/SnippetFile.dart';
 import 'package:aisnippets/business/models/directory_state.dart';
+import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippet_file.dart' as p;
+import 'package:aisnippets/providers/ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,7 +15,8 @@ part 'directory_provider.g.dart';
 class DirectoryProvider extends _$DirectoryProvider {
   @override
   FutureOr<DirectoryState> build() async {
-    var path = fs.getVSCodePath();
+    var lastDir = ref.read(sharedPrefsProvider).getString(SharedPrefsValues.lastDirKey);
+    var path = lastDir ?? fs.getVSCodePath();
     return await _loadDirectory(path);
   }
 
@@ -28,6 +31,7 @@ class DirectoryProvider extends _$DirectoryProvider {
     state = await AsyncValue.guard(() async {
       return await _loadDirectory(path);
     });
+    await ref.read(sharedPrefsProvider).setString(SharedPrefsValues.lastDirKey, path);
   }
 
   openDirectory() async {

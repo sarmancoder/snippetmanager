@@ -3,6 +3,7 @@ final snippetsWebEditorAddress = "http://localhost:5173/app";
 abstract final class SharedPrefsValues {
   SharedPrefsValues._();
 
+  static const String lastDirKey = "last_dir_opened";
   static const String darkMode = "is_dark";
   static const String iaOnline = "ia_online";
   static const String ollamaModel = "ollama_model";
