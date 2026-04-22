@@ -1,5 +1,6 @@
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/config/theme.dart';
+import 'package:aisnippets/dialogs/MoveSnippetToFile.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/dialogs/createSnippet.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
@@ -33,6 +34,11 @@ class SnippetsDrawer extends ConsumerWidget {
                               key: ValueKey(snippet.key),
                               snippet: snippet,
                               snippetKey: snippet.key,
+                              onDoubleTap: () async {
+                                var file = await promptSnippetFile(context);
+                                Navigator.of(context).pop();
+                                // todo: mover archivo a ese file
+                              },
                               onTap: () async {
                                 var saved = await ref
                                     .read(snippetFileProvider.notifier)
@@ -93,12 +99,15 @@ class SnippetsDrawer extends ConsumerWidget {
 class SnippetTileDraggable extends ConsumerWidget {
   final String snippetKey;
   final VoidCallback onTap;
+  final VoidCallback onDoubleTap;
   final Snippet snippet;
 
   const SnippetTileDraggable({
     super.key,
     required this.snippetKey,
-    required this.onTap, required this.snippet
+    required this.onTap,
+    required this.onDoubleTap,
+    required this.snippet
   });
 
   @override
@@ -109,7 +118,8 @@ class SnippetTileDraggable extends ConsumerWidget {
     var snippetTileDragging = SnippetTile(
       dragging: true, hovered: false,
       isSelected: isSelected, snippet: snippet, snippetKey: snippetKey,
-      onTap: onTap, onRemove: () { }
+      onTap: onTap, onRemove: () { },
+      onDoubleTap: onDoubleTap,
     );
     return HoverableWidget(
       builder: (hovered) {
@@ -121,6 +131,7 @@ class SnippetTileDraggable extends ConsumerWidget {
           childWhenDragging:  snippetTileDragging,
           child: SnippetTile(
             hovered: hovered,
+            onDoubleTap: onDoubleTap,
             isSelected: isSelected, snippet: snippet, snippetKey: snippetKey, onTap: onTap,
             onRemove: () async {
               var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
@@ -143,6 +154,7 @@ class SnippetTile extends StatelessWidget {
     required this.snippet,
     required this.snippetKey,
     required this.onTap,
+    required this.onDoubleTap,
     this.dragging = false, required this.onRemove,
     required this.hovered
   });
@@ -152,6 +164,7 @@ class SnippetTile extends StatelessWidget {
   final Snippet snippet;
   final String snippetKey;
   final VoidCallback onTap;
+  final VoidCallback onDoubleTap;
   final bool hovered;
   
   final Function() onRemove;
@@ -161,17 +174,20 @@ class SnippetTile extends StatelessWidget {
     var snippetColor = Theme.of(context).primaryColor;
     return Container(
       color:  dragging ? snippetColor.withAlpha(50) : isSelected ? snippetColor : Colors.transparent,
-      child: ListTile(
-        title: Text(snippet.prefix),
-        subtitle: Text(snippet.description, maxLines: 2),
-        selected: isSelected,
-        trailing: IconButton(
-          icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
-          onPressed: () async {
-            onRemove();
-          },
+      child: GestureDetector(
+          onTap: onTap,
+          onDoubleTap: onDoubleTap,
+        child: ListTile(
+          title: Text(snippet.prefix),
+          subtitle: Text(snippet.description, maxLines: 2),
+          selected: isSelected,
+          trailing: IconButton(
+            icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
+            onPressed: () async {
+              onRemove();
+            },
+          ),
         ),
-        onTap: onTap,
       ),
     );
   }
