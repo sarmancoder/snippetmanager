@@ -85,31 +85,37 @@ class FilesDrawer extends ConsumerWidget {
             ),
           ),
           SingleChildScrollView(
-            child: Column(
-              children: [
-                for (var i = 0; i < files.length; i++)
-                  SnippetFile(
-                    nameFile: files[i].name,
-                    onSnippetDropped: (snippetToInsert) async {
-                      var fileName = files[i].name;
-                      var snippetsFile = await getFileSnippets(files[i]);
-                      await saveSnippetList(join(currentPath, fileName), [
-                        ...snippetsFile,
-                        snippetToInsert,
-                      ]);
-                      if (ref.read(snippetFileProvider)?.activeSnippet?.key ==
-                          snippetToInsert.key) {
-                        ref
-                            .read(snippetFileProvider.notifier)
-                            .closeActiveSnippet();
-                      }
+            child: ListView.separated(
+              itemCount: files.length,
+              shrinkWrap: true,
+
+              physics: ScrollPhysics(),
+              separatorBuilder: (BuildContext context, int index) {
+                return Container();
+              },
+              itemBuilder: (BuildContext context, int i) {
+                return SnippetFile(
+                  nameFile: files[i].name,
+                  onSnippetDropped: (snippetToInsert) async {
+                    var fileName = files[i].name;
+                    var snippetsFile = await getFileSnippets(files[i]);
+                    await saveSnippetList(join(currentPath, fileName), [
+                      ...snippetsFile,
+                      snippetToInsert,
+                    ]);
+                    if (ref.read(snippetFileProvider)?.activeSnippet?.key ==
+                        snippetToInsert.key) {
                       ref
                           .read(snippetFileProvider.notifier)
-                          .removeFromList(snippetToInsert.key);
-                      ref.read(snippetFileProvider.notifier).saveSnippetList();
-                    },
-                  ),
-              ],
+                          .closeActiveSnippet();
+                    }
+                    ref
+                        .read(snippetFileProvider.notifier)
+                        .removeFromList(snippetToInsert.key);
+                    ref.read(snippetFileProvider.notifier).saveSnippetList();
+                  },
+                );
+              },
             ),
           ),
           Expanded(
@@ -194,14 +200,101 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
             var color = Colors.black;
             return AnimatedContainer(
               duration: Duration(milliseconds: 500),
-              color: candidateData.isEmpty ? color.withAlpha(0) : color.withAlpha(blackAlpha),
+              color: candidateData.isEmpty
+                  ? color.withAlpha(0)
+                  : color.withAlpha(blackAlpha),
+              child: GestureDetector(
+                onDoubleTap: () async {
+                  var newName = await prompt(context: context, title: "Nuevo nombre para el archivo");
+                  print(newName);
+                  // todo: dejar pendiente cambiar nombre snippets
+                },
+                onTap: () async {
+                    var snippets = ref.read(snippetFileProvider);
+                    if (snippets != null && !snippets.saved) {
+                      var saved = await ref
+                          .read(snippetFileProvider.notifier)
+                          .askForSave(context);
+                      if (!saved) return;
+                    }
+                    var currentPath = ref
+                        .read(directoryProviderProvider)
+                        .requireValue
+                        .currentPath;
+                    ref
+                        .read(snippetFileProvider.notifier)
+                        .setActiveFile(currentPath, widget.nameFile);
+                  },
+                child: ListTile(
+                  dense: true,
+                  visualDensity: const VisualDensity(
+                    horizontal: 0,
+                    vertical: -4,
+                  ), // Reduce altura extra
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 0.0,
+                  ), // Ajusta el aire lateral
+                  title: Text(widget.nameFile),
+                  selected: selected,
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: hovered && candidateData.isEmpty
+                          ? redColor
+                          : Colors.transparent,
+                    ),
+                    onPressed: () async {
+                      var response = await confirm(
+                        context: context,
+                        content: Text(
+                          "¿Estás seguro que quieres eliminar el archivo?",
+                        ),
+                      );
+                      if (!response) return;
+                      await ref
+                          .read(directoryProviderProvider.notifier)
+                          .deleteFile(widget.nameFile);
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/*
+class _SnippetFileState extends ConsumerState<SnippetFile> {
+  @override
+  Widget build(BuildContext context) {
+    var snippetFile = ref.watch(snippetFileProvider);
+    var selected = snippetFile?.fileName == widget.nameFile;
+    return HoverableWidget(
+      builder: (hovered) {
+        return DragTarget<Snippet>(
+          onAcceptWithDetails: (details) {
+            widget.onSnippetDropped(details.data);
+          },
+          builder: (context, candidateData, rejectedData) {
+            var color = Colors.black;
+            return AnimatedContainer(
+              duration: Duration(milliseconds: 500),
+              color: candidateData.isEmpty
+                  ? color.withAlpha(0)
+                  : color.withAlpha(blackAlpha),
               child: ListTile(
                 dense: true,
                 title: Text(widget.nameFile),
                 trailing: IconButton(
                   icon: Icon(
                     Icons.delete,
-                    color: hovered && candidateData.isEmpty ? redColor : Colors.transparent,
+                    color: hovered && candidateData.isEmpty
+                        ? redColor
+                        : Colors.transparent,
                   ),
                   onPressed: () async {
                     var response = await confirm(
@@ -241,3 +334,4 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
     );
   }
 }
+*/
