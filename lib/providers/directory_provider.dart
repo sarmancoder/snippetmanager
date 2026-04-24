@@ -72,4 +72,47 @@ class DirectoryProvider extends _$DirectoryProvider {
       ref.read(p.snippetFileProvider.notifier).closeActiveSnippet();
     }
   }
+
+  Future<void> renameFile(String file, String newName) async {
+    // 1. Obtener el estado actual
+    final currentState = state.requireValue;
+    final currentPath = currentState.currentPath;
+    
+    // Asegurarnos de que el nombre tenga la extensión correcta si tu app la requiere
+    final String finalNewName = newName.endsWith(".code-snippets") 
+        ? newName 
+        : "$newName.code-snippets";
+
+    if (state.requireValue.files.where((a) => a.name == newName).isNotEmpty) {
+      return;
+    }
+
+    try {
+      // 2. Renombrar físicamente en el sistema de archivos
+      // Asumiendo que fs.renameFile existe, si no, se usa File(old).rename(new)
+      final oldPath = '$currentPath/$file';
+      final newPath = '$currentPath/$finalNewName';
+      
+      await File(oldPath).rename(newPath);
+
+      // 3. Actualizar la lista de archivos en el estado local
+      final updatedFiles = currentState.files.map((f) {
+        if (f.name == file) {
+          // Retornamos una copia del archivo con el nuevo nombre
+          return SnippetFile(path: f.path, name: finalNewName);
+        }
+        return f;
+      }).toList();
+
+      state = AsyncValue.data(currentState.copyWith(files: updatedFiles));
+
+      // 4. Si el archivo renombrado es el activo, actualizar el provider del snippet
+      if (ref.read(p.snippetFileProvider)?.fileName == file) {
+        ref.read(p.snippetFileProvider.notifier).setActiveFile(currentPath, newName);
+      }
+    } catch (e) {
+      // Opcional: Manejar el error (ej. permisos denegados)
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
 }

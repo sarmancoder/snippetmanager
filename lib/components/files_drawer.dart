@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/components/add_file_button.dart';
 import 'package:aisnippets/components/snippets_drawer.dart';
+import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/dialogs/prompt.dart';
@@ -205,26 +208,30 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
                   : color.withAlpha(blackAlpha),
               child: GestureDetector(
                 onDoubleTap: () async {
-                  var newName = await prompt(context: context, title: "Nuevo nombre para el archivo");
-                  print(newName);
-                  // todo: dejar pendiente cambiar nombre snippets
+                  var newName = await prompt(
+                    context: context,
+                    title: "Nuevo nombre para el archivo",
+                    defaultRes: widget.nameFile.replaceFirst(".$snippetFileExtension", "")
+                  );
+                  Navigator.of(context).pop();
+                  ref.read(directoryProviderProvider.notifier).renameFile(widget.nameFile, newName);
                 },
                 onTap: () async {
-                    var snippets = ref.read(snippetFileProvider);
-                    if (snippets != null && !snippets.saved) {
-                      var saved = await ref
-                          .read(snippetFileProvider.notifier)
-                          .askForSave(context);
-                      if (!saved) return;
-                    }
-                    var currentPath = ref
-                        .read(directoryProviderProvider)
-                        .requireValue
-                        .currentPath;
-                    ref
+                  var snippets = ref.read(snippetFileProvider);
+                  if (snippets != null && !snippets.saved) {
+                    var saved = await ref
                         .read(snippetFileProvider.notifier)
-                        .setActiveFile(currentPath, widget.nameFile);
-                  },
+                        .askForSave(context);
+                    if (!saved) return;
+                  }
+                  var currentPath = ref
+                      .read(directoryProviderProvider)
+                      .requireValue
+                      .currentPath;
+                  ref
+                      .read(snippetFileProvider.notifier)
+                      .setActiveFile(currentPath, widget.nameFile);
+                },
                 child: ListTile(
                   dense: true,
                   visualDensity: const VisualDensity(
@@ -235,7 +242,9 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
                     horizontal: 8.0,
                     vertical: 0.0,
                   ), // Ajusta el aire lateral
-                  title: Text(widget.nameFile),
+                  title: Text(
+                    widget.nameFile.replaceFirst(".$snippetFileExtension", ""),
+                  ),
                   selected: selected,
                   trailing: IconButton(
                     icon: Icon(

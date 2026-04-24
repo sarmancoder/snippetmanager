@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
+import 'package:aisnippets/config/app.dart';
 import 'package:json5/json5.dart';
 import 'package:path/path.dart' as p;
 
@@ -20,7 +21,7 @@ Future<List<SnippetFile>> loadDirectory(String path) async {
 
   if (await dir.exists()) {
     await for (FileSystemEntity entity in dir.list(recursive: false)) {
-      if (entity is File && (entity.path.endsWith("json") || entity.path.endsWith("code-snippets"))) {
+      if (entity is File && entity.path.endsWith(snippetFileExtension)) {
         files.add(SnippetFile(path: path, name: p.basename(entity.path)));
       }
     }
