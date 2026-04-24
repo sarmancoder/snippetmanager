@@ -1,11 +1,15 @@
+import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/MoveSnippetToFile.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
 import 'package:aisnippets/dialogs/createSnippet.dart';
+import 'package:aisnippets/providers/directory_provider.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart';
+import 'package:aisnippets/business/models/SnippetFile.dart' as SF;
 
 class SnippetsDrawer extends ConsumerWidget {
   const SnippetsDrawer({super.key});
@@ -18,7 +22,7 @@ class SnippetsDrawer extends ConsumerWidget {
     return SizedBox(
       width: 250,
       child: Container(
-      color: theme.drawerTheme.backgroundColor,
+        color: theme.drawerTheme.backgroundColor,
         child: Column(
           children: [
             if (snippets != null)
@@ -35,9 +39,10 @@ class SnippetsDrawer extends ConsumerWidget {
                               snippet: snippet,
                               snippetKey: snippet.key,
                               onDoubleTap: () async {
-                                var file = await promptSnippetFile(context);
-                                Navigator.of(context).pop();
-                                // todo: mover archivo a ese file
+                                var fileName = await promptSnippetFile(context);
+                                Navigator.of(context).pop();ref
+                                    .read(directoryProviderProvider.notifier)
+                                    .moveSnippetToFile(fileName, snippet);
                               },
                               onTap: () async {
                                 var saved = await ref
@@ -71,18 +76,24 @@ class SnippetsDrawer extends ConsumerWidget {
                             .askForSave(context);
                         if (!saved) return;
                         if (!context.mounted) return;
-                          
+
                         var snippet = await createSnippet(context: context);
                         if (snippet == null) {
                           Navigator.of(context).pop();
                           return;
                         }
-                          
+
                         print("creando snippet");
                         Navigator.of(context).pop();
-                        ref.read(snippetFileProvider.notifier).addToList(snippet);
-                        await ref.read(snippetFileProvider.notifier).saveSnippetList();
-                        ref.read(snippetFileProvider.notifier).setActiveSnippetByKey(snippet.key);
+                        ref
+                            .read(snippetFileProvider.notifier)
+                            .addToList(snippet);
+                        await ref
+                            .read(snippetFileProvider.notifier)
+                            .saveSnippetList();
+                        ref
+                            .read(snippetFileProvider.notifier)
+                            .setActiveSnippetByKey(snippet.key);
                       },
                     ),
                   ),
@@ -107,7 +118,7 @@ class SnippetTileDraggable extends ConsumerWidget {
     required this.snippetKey,
     required this.onTap,
     required this.onDoubleTap,
-    required this.snippet
+    required this.snippet,
   });
 
   @override
@@ -116,9 +127,13 @@ class SnippetTileDraggable extends ConsumerWidget {
       snippetFileProvider.select((s) => s?.activeSnippet?.key == snippetKey),
     );
     var snippetTileDragging = SnippetTile(
-      dragging: true, hovered: false,
-      isSelected: isSelected, snippet: snippet, snippetKey: snippetKey,
-      onTap: onTap, onRemove: () { },
+      dragging: true,
+      hovered: false,
+      isSelected: isSelected,
+      snippet: snippet,
+      snippetKey: snippetKey,
+      onTap: onTap,
+      onRemove: () {},
       onDoubleTap: onDoubleTap,
     );
     return HoverableWidget(
@@ -127,22 +142,29 @@ class SnippetTileDraggable extends ConsumerWidget {
           data: snippet,
           feedback: SizedBox(
             width: 350,
-            child: Material(child: snippetTileDragging,)),
-          childWhenDragging:  snippetTileDragging,
+            child: Material(child: snippetTileDragging),
+          ),
+          childWhenDragging: snippetTileDragging,
           child: SnippetTile(
             hovered: hovered,
             onDoubleTap: onDoubleTap,
-            isSelected: isSelected, snippet: snippet, snippetKey: snippetKey, onTap: onTap,
+            isSelected: isSelected,
+            snippet: snippet,
+            snippetKey: snippetKey,
+            onTap: onTap,
             onRemove: () async {
-              var confirmed = await confirm(context: context, content: Text("¿Estás seguro de eliminar el snippet?"));
-            if (!confirmed) return;
-            ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
-            await ref.read(snippetFileProvider.notifier).saveSnippetList();
-            ref.read(snippetFileProvider.notifier).closeActiveSnippet();
-            }
+              var confirmed = await confirm(
+                context: context,
+                content: Text("¿Estás seguro de eliminar el snippet?"),
+              );
+              if (!confirmed) return;
+              ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
+              await ref.read(snippetFileProvider.notifier).saveSnippetList();
+              ref.read(snippetFileProvider.notifier).closeActiveSnippet();
+            },
           ),
         );
-      }
+      },
     );
   }
 }
@@ -155,8 +177,9 @@ class SnippetTile extends StatelessWidget {
     required this.snippetKey,
     required this.onTap,
     required this.onDoubleTap,
-    this.dragging = false, required this.onRemove,
-    required this.hovered
+    this.dragging = false,
+    required this.onRemove,
+    required this.hovered,
   });
 
   final bool dragging;
@@ -166,23 +189,30 @@ class SnippetTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDoubleTap;
   final bool hovered;
-  
+
   final Function() onRemove;
 
   @override
   Widget build(BuildContext context) {
     var snippetColor = Theme.of(context).primaryColor;
     return Container(
-      color:  dragging ? snippetColor.withAlpha(50) : isSelected ? snippetColor : Colors.transparent,
+      color: dragging
+          ? snippetColor.withAlpha(50)
+          : isSelected
+          ? snippetColor
+          : Colors.transparent,
       child: GestureDetector(
-          onTap: onTap,
-          onDoubleTap: onDoubleTap,
+        onTap: onTap,
+        onDoubleTap: onDoubleTap,
         child: ListTile(
           title: Text(snippet.prefix),
           subtitle: Text(snippet.description, maxLines: 2),
           selected: isSelected,
           trailing: IconButton(
-            icon:  Icon(Icons.delete, color: hovered ? redColor : Colors.transparent),
+            icon: Icon(
+              Icons.delete,
+              color: hovered ? redColor : Colors.transparent,
+            ),
             onPressed: () async {
               onRemove();
             },

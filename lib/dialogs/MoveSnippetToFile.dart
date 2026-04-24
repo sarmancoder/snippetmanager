@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/directory_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,7 +92,7 @@ class _MovesnippettofileState extends ConsumerState<Movesnippettofile> {
                           if (value.isEmpty) {
                             return;
                           }
-                          widget.onSelect(value! + ".code-snippets");
+                          widget.onSelect("$value.code-snippets");
                         },
                       )
                     );
@@ -99,7 +100,7 @@ class _MovesnippettofileState extends ConsumerState<Movesnippettofile> {
                   var file = files[index];
                   return RadioListTile(
                     value: index,
-                    title: Text(file.name));
+                    title: Text(file.name.replaceAll(".$snippetFileExtension", "")));
                 },
               ),
             ),

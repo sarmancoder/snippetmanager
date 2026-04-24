@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:aisnippets/business/fs.dart' as fs;
+import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/business/models/SnippetFile.dart';
 import 'package:aisnippets/business/models/directory_state.dart';
 import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/providers/snippet_file.dart' as p;
 import 'package:aisnippets/providers/ui.dart';
+import 'package:path/path.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,7 +17,9 @@ part 'directory_provider.g.dart';
 class DirectoryProvider extends _$DirectoryProvider {
   @override
   FutureOr<DirectoryState> build() async {
-    var lastDir = ref.read(sharedPrefsProvider).getString(SharedPrefsValues.lastDirKey);
+    var lastDir = ref
+        .read(sharedPrefsProvider)
+        .getString(SharedPrefsValues.lastDirKey);
     var path = lastDir ?? fs.getVSCodePath();
     return await _loadDirectory(path);
   }
@@ -31,7 +35,9 @@ class DirectoryProvider extends _$DirectoryProvider {
     state = await AsyncValue.guard(() async {
       return await _loadDirectory(path);
     });
-    await ref.read(sharedPrefsProvider).setString(SharedPrefsValues.lastDirKey, path);
+    await ref
+        .read(sharedPrefsProvider)
+        .setString(SharedPrefsValues.lastDirKey, path);
   }
 
   openDirectory() async {
@@ -51,22 +57,27 @@ class DirectoryProvider extends _$DirectoryProvider {
   createNewFile(String fileName, String content) async {
     var currentPath = state.requireValue.currentPath;
     await fs.createNewSnippetFile(currentPath, fileName, content);
-    var newFile = SnippetFile(path: currentPath, name: fileName + ".code-snippets");
+    var newFile = SnippetFile(
+      path: currentPath,
+      name: fileName + ".code-snippets",
+    );
     // state = AsyncValue.data(state.requireValue.copyWith(files: [...files, newFile]));
     addNewFileToList(newFile);
   }
-  
+
   addNewFileToList(SnippetFile newFile) {
     var files = state.requireValue.files;
-    state = AsyncValue.data(state.requireValue.copyWith(files: [...files, newFile]));
+    state = AsyncValue.data(
+      state.requireValue.copyWith(files: [...files, newFile]),
+    );
   }
 
   deleteFile(String fileName) async {
     await fs.deleteFile(state.requireValue.currentPath, fileName);
     var s = state.requireValue;
-    state = AsyncValue.data(s.copyWith(
-      files: [...s.files].where((f) => f.name != fileName).toList()
-    ));
+    state = AsyncValue.data(
+      s.copyWith(files: [...s.files].where((f) => f.name != fileName).toList()),
+    );
     var snippetFile = ref.read(p.snippetFileProvider);
     if (fileName == snippetFile?.fileName) {
       ref.read(p.snippetFileProvider.notifier).closeActiveSnippet();
@@ -77,10 +88,10 @@ class DirectoryProvider extends _$DirectoryProvider {
     // 1. Obtener el estado actual
     final currentState = state.requireValue;
     final currentPath = currentState.currentPath;
-    
+
     // Asegurarnos de que el nombre tenga la extensión correcta si tu app la requiere
-    final String finalNewName = newName.endsWith(".code-snippets") 
-        ? newName 
+    final String finalNewName = newName.endsWith(".code-snippets")
+        ? newName
         : "$newName.code-snippets";
 
     if (state.requireValue.files.where((a) => a.name == newName).isNotEmpty) {
@@ -92,7 +103,7 @@ class DirectoryProvider extends _$DirectoryProvider {
       // Asumiendo que fs.renameFile existe, si no, se usa File(old).rename(new)
       final oldPath = '$currentPath/$file';
       final newPath = '$currentPath/$finalNewName';
-      
+
       await File(oldPath).rename(newPath);
 
       // 3. Actualizar la lista de archivos en el estado local
@@ -108,11 +119,36 @@ class DirectoryProvider extends _$DirectoryProvider {
 
       // 4. Si el archivo renombrado es el activo, actualizar el provider del snippet
       if (ref.read(p.snippetFileProvider)?.fileName == file) {
-        ref.read(p.snippetFileProvider.notifier).setActiveFile(currentPath, newName);
+        ref
+            .read(p.snippetFileProvider.notifier)
+            .setActiveFile(currentPath, newName);
       }
     } catch (e) {
       // Opcional: Manejar el error (ej. permisos denegados)
       state = AsyncValue.error(e, StackTrace.current);
     }
+  }
+
+  Future<void> moveSnippetToFile(String fileName, Snippet snippet) async {
+    var currentPath = state.requireValue.currentPath;
+    var files = state.requireValue.files;
+    var filesFiltered = files.where((a) => a.name == fileName);
+    var snippetsFile = filesFiltered.isEmpty ? [] : await fs.getFileSnippets(
+      filesFiltered.first,
+    );
+    await fs.saveSnippetList(join(currentPath, fileName), [
+      ...snippetsFile,
+      snippet,
+    ]);
+    if (ref.read(p.snippetFileProvider)?.activeSnippet?.key == snippet.key) {
+      ref.read(p.snippetFileProvider.notifier).closeActiveSnippet();
+    }
+    ref.read(p.snippetFileProvider.notifier).removeFromList(snippet.key);
+    if (files.where((a) => a.name == fileName).isEmpty) {
+      ref
+          .read(directoryProviderProvider.notifier)
+          .addNewFileToList(SnippetFile(name: fileName, path: currentPath));
+    }
+    ref.read(p.snippetFileProvider.notifier).saveSnippetList();
   }
 }
