@@ -144,11 +144,7 @@ class DirectoryProvider extends _$DirectoryProvider {
       ref.read(p.snippetFileProvider.notifier).closeActiveSnippet();
     }
     ref.read(p.snippetFileProvider.notifier).removeFromList(snippet.key);
-    if (files.where((a) => a.name == fileName).isEmpty) {
-      ref
-          .read(directoryProviderProvider.notifier)
-          .addNewFileToList(SnippetFile(name: fileName, path: currentPath));
-    }
+    this.addNewFileToList(SnippetFile(name: fileName, path: currentPath));
     ref.read(p.snippetFileProvider.notifier).saveSnippetList();
   }
 }

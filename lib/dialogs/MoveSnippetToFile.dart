@@ -107,7 +107,13 @@ class _MovesnippettofileState extends ConsumerState<Movesnippettofile> {
             ElevatedButton(
               child: const Text('Seleccionar archivo'),
               onPressed: () {
-                widget.onSelect(files[selectedFile].name);
+                if (selectedFile >= files.length) {
+                  /*print(files[0].name);
+                  print(controller.text);*/
+                  widget.onSelect("${controller.text}.$snippetFileExtension");
+                } else {
+                  widget.onSelect(files[selectedFile].name);
+                }
               },
             )
           ],
