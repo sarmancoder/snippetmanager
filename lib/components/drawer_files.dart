@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
 import 'package:aisnippets/components/HoverableWidget.dart';
@@ -18,8 +16,8 @@ import 'package:aisnippets/business/models/SnippetFile.dart' as SF;
 
 var blackAlpha = 100;
 
-class FilesDrawerLoader extends ConsumerWidget {
-  const FilesDrawerLoader({super.key});
+class DrawerFilesLoader extends ConsumerWidget {
+  const DrawerFilesLoader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,13 +25,13 @@ class FilesDrawerLoader extends ConsumerWidget {
     return appProviderAsync.when(
       loading: () => Center(child: const CircularProgressIndicator()),
       error: (err, stack) => Text('Error: $err'),
-      data: (d) => FilesDrawer(),
+      data: (d) => DrawerFiles(),
     );
   }
 }
 
-class FilesDrawer extends ConsumerWidget {
-  const FilesDrawer({super.key});
+class DrawerFiles extends ConsumerWidget {
+  const DrawerFiles({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -97,7 +95,7 @@ class FilesDrawer extends ConsumerWidget {
                 return Container();
               },
               itemBuilder: (BuildContext context, int i) {
-                return SnippetFile(
+                return SnippetFileTile(
                   nameFile: files[i].name,
                   onSnippetDropped: (snippetToInsert) async {
                     var fileName = files[i].name;
@@ -175,20 +173,20 @@ class FilesDrawer extends ConsumerWidget {
   }
 }
 
-class SnippetFile extends ConsumerStatefulWidget {
+class SnippetFileTile extends ConsumerStatefulWidget {
   final String nameFile;
   final Function(Snippet snippetToInsert) onSnippetDropped;
-  const SnippetFile({
+  const SnippetFileTile({
     super.key,
     required this.nameFile,
     required this.onSnippetDropped,
   });
 
   @override
-  ConsumerState<SnippetFile> createState() => _SnippetFileState();
+  ConsumerState<SnippetFileTile> createState() => _SnippetFileTileState();
 }
 
-class _SnippetFileState extends ConsumerState<SnippetFile> {
+class _SnippetFileTileState extends ConsumerState<SnippetFileTile> {
   @override
   Widget build(BuildContext context) {
     var snippetFile = ref.watch(snippetFileProvider);

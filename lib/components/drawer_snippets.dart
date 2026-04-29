@@ -9,8 +9,8 @@ import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SnippetsDrawer extends ConsumerWidget {
-  const SnippetsDrawer({super.key});
+class DrawerSnippets extends ConsumerWidget {
+  const DrawerSnippets({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
