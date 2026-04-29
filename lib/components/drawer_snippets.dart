@@ -12,10 +12,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class DrawerSnippets extends ConsumerWidget {
   const DrawerSnippets({super.key});
 
+  List<Snippet> getSortedSnippets(List<Snippet> snippets) {
+    if (snippets.isEmpty) return [];
+    
+    // Creamos una copia de la lista antes de ordenar, a
+    // ya que .sort() modifica la lista original y las listas de Freezed son inmutables.
+    return [...snippets]..sort((a, b) => 
+      a.prefix.toLowerCase().compareTo(b.prefix.toLowerCase())
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var snippets = ref.watch(snippetFileProvider);
     var theme = Theme.of(context);
+    var sortedSnippets = getSortedSnippets(snippets?.snippets ?? []);
 
     return SizedBox(
       width: 250,
@@ -28,10 +39,10 @@ class DrawerSnippets extends ConsumerWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      for (var i = 0; i < snippets.snippets.length; i++)
+                      for (var i = 0; i < sortedSnippets.length; i++)
                         Builder(
                           builder: (context) {
-                            var snippet = snippets.snippets[i];
+                            var snippet = sortedSnippets[i];
                             return SnippetTileDraggable(
                               key: ValueKey(snippet.key),
                               snippet: snippet,
@@ -80,8 +91,6 @@ class DrawerSnippets extends ConsumerWidget {
                           Navigator.of(context).pop();
                           return;
                         }
-
-                        print("creando snippet");
                         Navigator.of(context).pop();
                         ref
                             .read(snippetFileProvider.notifier)
@@ -151,6 +160,7 @@ class SnippetTileDraggable extends ConsumerWidget {
             snippetKey: snippetKey,
             onTap: onTap,
             onRemove: () async {
+              var spProvider = ref.read(snippetFileProvider.notifier);
               var confirmed = await confirm(
                 context: context,
                 content: Text("¿Estás seguro de eliminar el snippet?"),
@@ -158,7 +168,7 @@ class SnippetTileDraggable extends ConsumerWidget {
               if (!confirmed) return;
               ref.read(snippetFileProvider.notifier).removeFromList(snippetKey);
               await ref.read(snippetFileProvider.notifier).saveSnippetList();
-              ref.read(snippetFileProvider.notifier).closeActiveSnippet();
+              spProvider.closeActiveSnippet();
             },
           ),
         );

@@ -67,9 +67,17 @@ class DirectoryProvider extends _$DirectoryProvider {
 
   addNewFileToList(SnippetFile newFile) {
     var files = state.requireValue.files;
-    state = AsyncValue.data(
-      state.requireValue.copyWith(files: [...files, newFile]),
-    );
+
+    // Crear una nueva lista que incluya el nuevo archivo
+    var updatedFiles = [...files, newFile];
+
+    // Ordenar la lista alfabéticamente.
+    // Asumo que SnippetFile tiene un campo 'name' o similar.
+    // Ajusta 'nombre' a la propiedad real de tu clase.
+    updatedFiles.sort((a, b) => a.name.compareTo(b.name));
+
+    // Actualizar el estado con la lista ya ordenada
+    state = AsyncValue.data(state.requireValue.copyWith(files: updatedFiles));
   }
 
   deleteFile(String fileName) async {
@@ -133,9 +141,9 @@ class DirectoryProvider extends _$DirectoryProvider {
     var currentPath = state.requireValue.currentPath;
     var files = state.requireValue.files;
     var filesFiltered = files.where((a) => a.name == fileName);
-    var snippetsFile = filesFiltered.isEmpty ? [] : await fs.getFileSnippets(
-      filesFiltered.first,
-    );
+    var snippetsFile = filesFiltered.isEmpty
+        ? []
+        : await fs.getFileSnippets(filesFiltered.first);
     await fs.saveSnippetList(join(currentPath, fileName), [
       ...snippetsFile,
       snippet,
