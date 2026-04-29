@@ -1,5 +1,5 @@
-import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
+import 'package:aisnippets/components/HoverableWidget.dart';
 import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/MoveSnippetToFile.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
@@ -8,8 +8,6 @@ import 'package:aisnippets/providers/directory_provider.dart';
 import 'package:aisnippets/providers/snippet_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart';
-import 'package:aisnippets/business/models/SnippetFile.dart' as SF;
 
 class SnippetsDrawer extends ConsumerWidget {
   const SnippetsDrawer({super.key});
@@ -219,36 +217,6 @@ class SnippetTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class HoverableWidget extends StatefulWidget {
-  final Widget Function(bool hovered) builder;
-
-  const HoverableWidget({super.key, required this.builder});
-
-  @override
-  State<HoverableWidget> createState() => _HoverableWidgetState();
-}
-
-class _HoverableWidgetState extends State<HoverableWidget> {
-  bool hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (event) {
-        setState(() {
-          hovered = true;
-        });
-      },
-      onExit: (event) {
-        setState(() {
-          hovered = false;
-        });
-      },
-      child: widget.builder(hovered),
     );
   }
 }

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:aisnippets/business/fs.dart';
 import 'package:aisnippets/business/models/Snippet.dart';
+import 'package:aisnippets/components/HoverableWidget.dart';
 import 'package:aisnippets/components/add_file_button.dart';
-import 'package:aisnippets/components/snippets_drawer.dart';
 import 'package:aisnippets/config/app.dart';
 import 'package:aisnippets/config/theme.dart';
 import 'package:aisnippets/dialogs/confirm.dart';
@@ -193,19 +193,19 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
   Widget build(BuildContext context) {
     var snippetFile = ref.watch(snippetFileProvider);
     var selected = snippetFile?.fileName == widget.nameFile;
-    return HoverableWidget(
-      builder: (hovered) {
-        return DragTarget<Snippet>(
-          onAcceptWithDetails: (details) {
-            widget.onSnippetDropped(details.data);
-          },
-          builder: (context, candidateData, rejectedData) {
+    return DragTarget<Snippet>(
+      onAcceptWithDetails: (details) {
+        widget.onSnippetDropped(details.data);
+      },
+      builder: (context, candidateData, rejectedData) {
+        return HoverableWidget(
+          builder: (hovered) {
             var color = Colors.black;
+            var colorAlpha = (candidateData.isEmpty && !hovered) ? color.withAlpha(0) : color.withAlpha(blackAlpha - 60);
+            print(hovered.toString());
             return AnimatedContainer(
               duration: Duration(milliseconds: 500),
-              color: candidateData.isEmpty
-                  ? color.withAlpha(0)
-                  : color.withAlpha(blackAlpha),
+              color: colorAlpha,
               child: GestureDetector(
                 onDoubleTap: () async {
                   var newName = await prompt(
@@ -269,78 +269,9 @@ class _SnippetFileState extends ConsumerState<SnippetFile> {
                 ),
               ),
             );
-          },
+          }
         );
       },
     );
   }
 }
-
-/*
-class _SnippetFileState extends ConsumerState<SnippetFile> {
-  @override
-  Widget build(BuildContext context) {
-    var snippetFile = ref.watch(snippetFileProvider);
-    var selected = snippetFile?.fileName == widget.nameFile;
-    return HoverableWidget(
-      builder: (hovered) {
-        return DragTarget<Snippet>(
-          onAcceptWithDetails: (details) {
-            widget.onSnippetDropped(details.data);
-          },
-          builder: (context, candidateData, rejectedData) {
-            var color = Colors.black;
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 500),
-              color: candidateData.isEmpty
-                  ? color.withAlpha(0)
-                  : color.withAlpha(blackAlpha),
-              child: ListTile(
-                dense: true,
-                title: Text(widget.nameFile),
-                trailing: IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    color: hovered && candidateData.isEmpty
-                        ? redColor
-                        : Colors.transparent,
-                  ),
-                  onPressed: () async {
-                    var response = await confirm(
-                      context: context,
-                      content: Text(
-                        "¿Estás seguro que quieres eliminar el archivo?",
-                      ),
-                    );
-                    if (!response) return;
-                    await ref
-                        .read(directoryProviderProvider.notifier)
-                        .deleteFile(widget.nameFile);
-                  },
-                ),
-                selected: selected,
-                onTap: () async {
-                  var snippets = ref.read(snippetFileProvider);
-                  if (snippets != null && !snippets.saved) {
-                    var saved = await ref
-                        .read(snippetFileProvider.notifier)
-                        .askForSave(context);
-                    if (!saved) return;
-                  }
-                  var currentPath = ref
-                      .read(directoryProviderProvider)
-                      .requireValue
-                      .currentPath;
-                  ref
-                      .read(snippetFileProvider.notifier)
-                      .setActiveFile(currentPath, widget.nameFile);
-                },
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-*/
