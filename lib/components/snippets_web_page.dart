@@ -7,74 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-/*
-class SnippetsWebPage extends ConsumerWidget {
-  const SnippetsWebPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var active = ref.watch(
-      snippetFileProvider.select((a) => a?.activeSnippet)
-    );
-
-    ref.listen(
-      snippetFileProvider.select((a) => a?.activeSnippet),
-      (old, curr) async {
-        if (curr == null) {
-          ref.read(webPageProvider.notifier).close();
-          return;
-        }
-        do {
-          var result = ref.read(webPageProvider.notifier).sendSnippet(curr);
-          if (result) break;
-          else {
-            await Future.delayed(Duration(milliseconds: 500));
-          }
-        } while (true);
-      }
-    );
-
-    return Column(
-      children: <Widget>[
-        Expanded(
-          flex: 1,
-          child: active == null ? Container() : InAppWebView(
-            initialUrlRequest: URLRequest(
-              url: WebUri(snippetsWebEditorAddress),
-            ),
-          
-            onWebViewCreated: (controller) {
-              /*_webViewController = controller;
-              debugPrint('WebView creado');
-          
-              controller.addJavaScriptHandler(
-                handlerName: 'updateSnippet',
-                callback: (args) {
-                  // Actualizar snippet
-                },
-              );*/
-            },
-          
-            /*onConsoleMessage: (controller, consoleMessage) {
-                print("JS Console: ${consoleMessage.message}");
-              },*/
-            onLoadStop: (controller, url) async {
-              ref.read(webPageProvider.notifier).setController(controller);
-              // Insertar snippet con retardo
-            },
-          
-            initialSettings: InAppWebViewSettings(
-              underPageBackgroundColor: const Color(0x00000000),
-              forceDark: ForceDark.AUTO,
-              javaScriptEnabled: true,
-              useHybridComposition: true,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}*/
 
 class SnippetsWebPage extends ConsumerStatefulWidget {
   const SnippetsWebPage({super.key});
@@ -144,23 +76,21 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
           ),
         ),
         InAppWebView(
-          initialUrlRequest: URLRequest(
-            url: WebUri(snippetsWebEditorAddress),
-          ),
-            
+          initialUrlRequest: URLRequest(url: WebUri(snippetsWebEditorAddress)),
+
           onWebViewCreated: (controller) {
             _webViewController = controller;
             debugPrint('WebView creado');
-            
+
             controller.addJavaScriptHandler(
               handlerName: 'updateSnippet',
               callback: (args) {
                 // Obtener siempre el estado actual, no usar la referencia capturada
                 final currentState = ref.read(snippetFileProvider);
                 final currentActive = currentState?.activeSnippet;
-            
+
                 if (currentActive == null) return;
-            
+
                 var newSnippet = jsonDecode(args[0]);
                 var snippet = Snippet(
                   prefix: newSnippet['prefix'] ?? '',
@@ -179,7 +109,7 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
               },
             );
           },
-            
+
           /*onConsoleMessage: (controller, consoleMessage) {
               print("JS Console: ${consoleMessage.message}");
             },*/
@@ -194,12 +124,11 @@ class _SnippetsWebPageState extends ConsumerState<SnippetsWebPage> {
               "body": active.body.split('\n'),
               "scope": active.scope,
             });
-            
+
             setState(() {
               firstLoaded = true;
             });
           },
-            
           initialSettings: InAppWebViewSettings(
             underPageBackgroundColor: const Color(0x00000000),
             forceDark: ForceDark.AUTO,

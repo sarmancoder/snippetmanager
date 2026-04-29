@@ -1,4 +1,7 @@
-final snippetsWebEditorAddress = "http://localhost:5173/app";
+//  https://snippeteditor.vercel.app/app
+var host = "localhost:5173"; // "snipppeteditor.vercel.app";
+
+final snippetsWebEditorAddress = "http://$host/app";
 final snippetFileExtension = "code-snippets";
 
 abstract final class SharedPrefsValues {
