@@ -99,21 +99,10 @@ class DrawerFiles extends ConsumerWidget {
                   nameFile: files[i].name,
                   onSnippetDropped: (snippetToInsert) async {
                     var fileName = files[i].name;
-                    var snippetsFile = await getFileSnippets(files[i]);
-                    await saveSnippetList(join(currentPath, fileName), [
-                      ...snippetsFile,
-                      snippetToInsert,
-                    ]);
-                    if (ref.read(snippetFileProvider)?.activeSnippet?.key ==
-                        snippetToInsert.key) {
-                      ref
-                          .read(snippetFileProvider.notifier)
-                          .closeActiveSnippet();
-                    }
+                    // Navigator.of(context).pop();
                     ref
-                        .read(snippetFileProvider.notifier)
-                        .removeFromList(snippetToInsert.key);
-                    ref.read(snippetFileProvider.notifier).saveSnippetList();
+                        .read(directoryProviderProvider.notifier)
+                        .moveSnippetToFile(fileName, snippetToInsert);
                   },
                 );
               },
@@ -127,25 +116,12 @@ class DrawerFiles extends ConsumerWidget {
                   title: "Nombre del nuevo archivo",
                 );
                 if (fn.isEmpty) return;
-                var fileName = fn + ".code-snippets";
                 Navigator.of(context).pop();
-                await saveSnippetList(join(currentPath, fileName), [data.data]);
-                if (ref.read(snippetFileProvider)?.activeSnippet?.key ==
-                    data.data.key) {
-                  ref.read(snippetFileProvider.notifier).closeActiveSnippet();
-                }
                 ref
-                    .read(snippetFileProvider.notifier)
-                    .removeFromList(data.data.key);
-                ref
-                    .read(directoryProviderProvider.notifier)
-                    .addNewFileToList(
-                      SF.SnippetFile(name: fileName, path: currentPath),
-                    );
-                ref.read(snippetFileProvider.notifier).saveSnippetList();
+                  .read(directoryProviderProvider.notifier)
+                  .moveSnippetToFile(fn, data.data);
               },
               builder: (c, d, __) {
-                print('dtectado drag ' + d.length.toString());
                 var color = Colors.black;
                 return AnimatedContainer(
                   duration: Duration(milliseconds: 250),
@@ -199,7 +175,9 @@ class _SnippetFileTileState extends ConsumerState<SnippetFileTile> {
         return HoverableWidget(
           builder: (hovered) {
             var color = Colors.black;
-            var colorAlpha = (candidateData.isEmpty && !hovered) ? color.withAlpha(0) : color.withAlpha(blackAlpha - 60);
+            var colorAlpha = (candidateData.isEmpty && !hovered)
+                ? color.withAlpha(0)
+                : color.withAlpha(blackAlpha - 60);
             print(hovered.toString());
             return AnimatedContainer(
               duration: Duration(milliseconds: 500),
@@ -209,10 +187,15 @@ class _SnippetFileTileState extends ConsumerState<SnippetFileTile> {
                   var newName = await prompt(
                     context: context,
                     title: "Nuevo nombre para el archivo",
-                    defaultRes: widget.nameFile.replaceFirst(".$snippetFileExtension", "")
+                    defaultRes: widget.nameFile.replaceFirst(
+                      ".$snippetFileExtension",
+                      "",
+                    ),
                   );
                   Navigator.of(context).pop();
-                  ref.read(directoryProviderProvider.notifier).renameFile(widget.nameFile, newName);
+                  ref
+                      .read(directoryProviderProvider.notifier)
+                      .renameFile(widget.nameFile, newName);
                 },
                 onTap: () async {
                   var snippets = ref.read(snippetFileProvider);
@@ -267,7 +250,7 @@ class _SnippetFileTileState extends ConsumerState<SnippetFileTile> {
                 ),
               ),
             );
-          }
+          },
         );
       },
     );
