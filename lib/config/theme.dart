@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tailwind_colors/flutter_tailwind_colors.dart';
+import 'package:system_theme/system_theme.dart';
 
 var redColor = TWColors.red[600];
 var greenColor = TWColors.green[600];
 
-var bgcolor = TWColors.slate;
-var primaryColor = TWColors.indigo;
+/*var bgcolor = TWColors.slate;
+var primaryColor = TWColors.indigo;*/
 
 buttonColorStyle(Set<WidgetState> state, Color color) {
   if (state.contains(WidgetState.hovered) && !state.contains(WidgetState.disabled)) {
@@ -15,7 +16,9 @@ buttonColorStyle(Set<WidgetState> state, Color color) {
 }
 
 ThemeData baseTheme(ThemeData t) {
-  var fgColorText = t.brightness == Brightness.dark ? Colors.white : Colors.black;
+  var isDark = t.brightness == Brightness.dark;
+  var fgColorText = isDark ? Colors.white : Colors.black;
+
   var bs = ButtonStyle(
     shape: WidgetStatePropertyAll(
       RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
@@ -30,7 +33,7 @@ ThemeData baseTheme(ThemeData t) {
     shadowColor: const WidgetStatePropertyAll(Colors.transparent),
     backgroundColor: WidgetStateProperty.resolveWith((a) {
       if (a.contains(WidgetState.disabled)) {
-        return Colors.grey[400];
+        return Colors.grey[isDark ? 800 : 400];
       }
       return t.primaryColorDark;
     }),
@@ -50,32 +53,28 @@ ThemeData baseTheme(ThemeData t) {
   );
 }
 
-ThemeData getTheme() {
-  var bgColorTone = 400;
-  var matColor = primaryColor;
+ThemeData getTheme(Color accentColor) {
   return baseTheme(
     ThemeData(
       brightness: Brightness.light,
-      primaryColor: matColor[bgColorTone - 100],
-      primaryColorDark: matColor[bgColorTone + 200],
+      primaryColor: accentColor,
+      primaryColorDark: accentColor,
     ),
   ).copyWith(
-    appBarTheme: AppBarTheme(backgroundColor: bgcolor[bgColorTone]),
-    drawerTheme: DrawerThemeData(backgroundColor: bgcolor[bgColorTone - 200]),
+    appBarTheme: AppBarTheme(backgroundColor: accentColor, foregroundColor: Colors.grey[200],),
+    drawerTheme: DrawerThemeData(backgroundColor: accentColor.withAlpha(10)),
   );
 }
 
-ThemeData getThemeDark() {
-  var bgColorTone = 900;
-  var matColor = primaryColor;
+ThemeData getThemeDark(Color accentColor) {
   return baseTheme(
     ThemeData(
       brightness: Brightness.dark,
-      primaryColor: matColor[bgColorTone - 200],
-      primaryColorDark: matColor[bgColorTone - 300],
+      primaryColor: accentColor,
+      primaryColorDark: accentColor,
     ),
   ).copyWith(
-    appBarTheme: AppBarTheme(backgroundColor: bgcolor[bgColorTone]),
-    drawerTheme: DrawerThemeData(backgroundColor: bgcolor[bgColorTone - 200]),
+    appBarTheme: AppBarTheme(backgroundColor: accentColor),
+    drawerTheme: DrawerThemeData(backgroundColor: accentColor!.withAlpha(50)),
   );
 }

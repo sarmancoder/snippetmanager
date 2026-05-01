@@ -49,7 +49,7 @@ class DrawerFiles extends ConsumerWidget {
           Container(
             // height: 150,
             width: double.infinity,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).primaryColor.withAlpha(220),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
             child: Row(
               children: [
@@ -77,7 +77,7 @@ class DrawerFiles extends ConsumerWidget {
                       child: Text(
                         currentPath,
                         maxLines: 2,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[200]),
                       ),
                     ),
                   ),
