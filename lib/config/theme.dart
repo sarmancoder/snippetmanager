@@ -28,7 +28,13 @@ ThemeData baseTheme(ThemeData t) {
       return SystemMouseCursors.click;
     }),
     shadowColor: const WidgetStatePropertyAll(Colors.transparent),
-    backgroundColor: WidgetStateProperty.resolveWith((a) => buttonColorStyle(a, t.primaryColorDark)),
+    backgroundColor: WidgetStateProperty.resolveWith((a) {
+      if (a.contains(WidgetState.disabled)) {
+        return Colors.grey[400];
+      }
+      return t.primaryColorDark;
+    }),
+    // .resolveWith((a) => buttonColorStyle(a, t.primaryColorDark)),
     foregroundColor: WidgetStatePropertyAll(Colors.white),
   );
   return ThemeData(

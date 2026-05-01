@@ -79,7 +79,7 @@ class DrawerSnippets extends ConsumerWidget {
                     padding: const EdgeInsets.all(8),
                     child: ElevatedButton(
                       child: const Text('Añadir snippet'),
-                      onPressed: () async {
+                      onPressed: (snippets == null) ? null : () async {
                         var saved = await ref
                             .read(snippetFileProvider.notifier)
                             .askForSave(context);
