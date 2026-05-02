@@ -27,6 +27,7 @@ class DirectoryProvider extends _$DirectoryProvider {
   _loadDirectory(path) async {
     var files = await fs.loadDirectory(path);
     var appState = DirectoryState(currentPath: path, files: files);
+    print("cantidad de archivs " + files.length.toString());
     return appState;
   }
 

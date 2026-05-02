@@ -7,9 +7,20 @@ import 'package:json5/json5.dart';
 import 'package:path/path.dart' as p;
 
 String getVSCodePath() {
-  String roamingPath = Platform.environment['APPDATA']!;
-  String vscodeSnippetsPath = p.join(roamingPath, "Code", "User", "snippets");
-  return vscodeSnippetsPath;
+  if (Platform.isWindows) {
+    String roamingPath = Platform.environment['APPDATA']!;
+    String vscodeSnippetsPath = p.join(roamingPath, "Code", "User", "snippets");
+    return vscodeSnippetsPath;
+  } else if (Platform.isMacOS) {
+    // Generalmente: ~/Library/Application Support/Code/User/snippets
+    String home = Platform.environment['HOME']!;
+    return p.join(home, "Library", "Application Support", "Code", "User", "snippets");
+    
+  } else {
+    // Generalmente: ~/.config/Code/User/snippets
+    String home = Platform.environment['HOME']!;
+    return p.join(home, ".config", "Code", "User", "snippets");
+  }
 }
 
 Future<List<SnippetFile>> loadDirectory(String path) async {

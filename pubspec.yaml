@@ -13,7 +13,6 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
-  flutter_inappwebview: ^6.1.5
   flutter_riverpod: ^3.2.1
   flutter_secure_storage: ^10.0.0
   http: ^1.6.0
@@ -30,6 +29,8 @@ dependencies:
   json_annotation:
   flutter_tailwind_colors: ^0.0.5
   system_theme: ^3.2.0
+  webview_all: ^1.0.3
+  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:
