@@ -1,6 +1,8 @@
 import {useState} from 'react';
 import {Greet} from "../wailsjs/go/main/App";
 import Editor from '@monaco-editor/react';
+import { Button } from '@mui/material';
+import DualEditorPage from './components/DualEditorPage';
 
 function App() {
     const [resultText, setResultText] = useState("Please enter your name below 👇");
@@ -13,11 +15,7 @@ function App() {
     }
 
     return (
-        <div id="App">
-            <p>Holaa</p>
-            <Editor theme='vs-dark' height="200px" defaultLanguage="javascript" defaultValue="// some comment" />
-            <iframe  width={1500} height={500} src='https://snipppeteditor.vercel.app/app'></iframe>
-        </div>
+        <DualEditorPage />
     )
 }
 

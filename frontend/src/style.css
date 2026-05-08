@@ -1,8 +1,4 @@
-body, p {
+body {
     margin: 0px;
-}
-#App {
     background-color: white;
-    height: 100vh;
-    width: 100vw;
 }
