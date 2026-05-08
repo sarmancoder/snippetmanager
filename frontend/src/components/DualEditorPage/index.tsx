@@ -1,5 +1,5 @@
 import { Editor, OnMount } from '@monaco-editor/react'
-import { Box, TextField } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, TextField } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
 
 export default function DualEditorPage() {
@@ -69,19 +69,29 @@ export default function DualEditorPage() {
                     label="Descripción" 
                     onChange={(e) => setDescription(e.target.value)} 
                 />
-                <TextField 
-                    value={scopes}
-                    fullWidth 
-                    label="Scopes" 
-                    onChange={(e) => setScopes(e.target.value)} 
-                />
-                <Editor 
-                    language={scopes.length == 0 ? 'plaintext' : scopes.split(',')[0]}
-                    theme='vs-dark'
-                    height={'200px'} 
-                    onChange={(value) => setBody(value || '')}
-                    onMount={handleLeftEditorDidMount}
-                />
+                <Card variant="outlined">
+                    <CardHeader title={'Contenido del snippet'}
+                        action={(
+                            <>
+                                <TextField size='small'
+                                    value={scopes}
+                                    fullWidth 
+                                    label="Scopes" 
+                                    onChange={(e) => setScopes(e.target.value)} 
+                                />
+                            </>
+                        )}
+                    />
+                    <CardContent>
+                        <Editor 
+                            language={scopes.length == 0 ? 'plaintext' : scopes.split(',')[0]}
+                            theme='vs-dark'
+                            height={'350px'} 
+                            onChange={(value) => setBody(value || '')}
+                            onMount={handleLeftEditorDidMount}
+                        />
+                    </CardContent>
+                </Card>
             </Box>
 
             {/* Columna Derecha: Resultado JSON */}
