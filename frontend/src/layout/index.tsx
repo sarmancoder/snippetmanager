@@ -1,13 +1,12 @@
-import MenuIcon from '@mui/icons-material/Menu';
 import { colors } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { drawerWidth } from '../config';
+import DrawerFiles from './DrawerFiles';
 
-const drawerWidth = '200px'
 
 export default function LayoutApp({children}) {
     return (
@@ -22,17 +21,7 @@ export default function LayoutApp({children}) {
                     </Toolbar>
                 </AppBar>
             </Box>
-            <Box sx={{
-                bgcolor: colors.grey[300],
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                bottom: 0,
-                width: drawerWidth
-            }}>
-                <Toolbar />
-                <p>drawer</p>
-            </Box>
+            <DrawerFiles />
             <Box sx={{
                 bgcolor: colors.grey[300],
                 position: 'fixed',
