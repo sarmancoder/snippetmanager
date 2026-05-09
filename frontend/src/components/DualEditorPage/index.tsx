@@ -3,8 +3,10 @@ import { Box, Card, CardContent, CardHeader, TextField } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
 import Select from "react-select";
 import { languageScopes } from '../../config';
+import { useAppContext } from '../../AppSnippetsContext';
 
 export default function DualEditorPage() {
+    const {snippetsList, currentSnippetKey} = useAppContext()
     const bodyEditor = useRef<any>(null) // Guardaremos la instancia del editor aquí
     const jsonResultRef = useRef<any>(null) // Guardaremos la instancia del editor aquí
 
@@ -13,7 +15,23 @@ export default function DualEditorPage() {
     const [scopes, setScopes] = useState('')
     const [body, setBody] = useState('')
 
-    const [jsonSnippet, setJsonSnippet] = useState({})
+    useEffect(() => {
+        const snippet = snippetsList.find(a => a.key == currentSnippetKey)
+        if (!snippet) return
+        setPrefix(snippet.prefix)
+        setDescription(snippet.description)
+        setScopes(snippet.scope.split(',').map(a => {
+            return languageScopes.find(x => x.value == a)?.value
+        }).join(','))
+        setBody(snippet.body.join('\n'))
+
+        // Establecemos el valor del editor Monaco que hay en bodyEditor
+        if (bodyEditor.current) {
+            bodyEditor.current.setValue(snippet.body.join('\n'));
+        }
+    }, [currentSnippetKey])
+
+    // const [jsonSnippet, setJsonSnippet] = useState({})
 
     const handleLeftEditorDidMount: OnMount = (editor, monaco) => {
         bodyEditor.current = editor
@@ -28,23 +46,20 @@ export default function DualEditorPage() {
             setPrefix(infoJSON.prefix)
             setDescription(infoJSON.description)
             setBody(infoJSON.body.join('\n'))
-            console.log(infoJSON.scopes ?? [])
             setScopes((infoJSON.scopes ?? []).join(','))
             bodyEditor.current.setValue((infoJSON.body ?? []).join('\n'))
         });
     }
 
     useEffect(() => {
-        console.log('estableciendo')
         const newSnippet = {
             prefix, description, scopes,
             body: body.split('\n')
         }
-        setJsonSnippet(newSnippet)
+        // setJsonSnippet(newSnippet)
 
         // Actualizar el valor del editor directamente si la instancia existe
         if (jsonResultRef.current) {
-            console.log('actualizando editor')
             const jsonString = JSON.stringify(newSnippet, null, 2)
             jsonResultRef.current.setValue(jsonString)
         }

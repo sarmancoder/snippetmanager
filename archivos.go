@@ -4,8 +4,9 @@ import (
 	"context"
 	"os"
 	"os/exec"
-	"github.com/wailsapp/wails/v2/pkg/runtime" // Este es el de Wails
 	goruntime "runtime"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime" // Este es el de Wails
 )
 
 // Estructura para devolver datos combinados al frontend
@@ -70,4 +71,13 @@ func (f *AdministradorArchivos) AbrirCarpetaEnExplorador(ruta string) {
 	if cmd != nil {
 		cmd.Run()
 	}
+}
+
+func (f *AdministradorArchivos) LeerArchivo(ruta string) (string, error) {
+	data, err := os.ReadFile(ruta)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
 }

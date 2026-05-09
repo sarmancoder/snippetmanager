@@ -6,6 +6,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { drawerWidth } from '../config';
 import DrawerFiles from './DrawerFiles';
+import DrawerSnippets from './DrawerSnippets';
 
 
 export default function LayoutApp({children}) {
@@ -22,17 +23,7 @@ export default function LayoutApp({children}) {
                 </AppBar>
             </Box>
             <DrawerFiles />
-            <Box sx={{
-                bgcolor: colors.grey[300],
-                position: 'fixed',
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: drawerWidth
-            }}>
-                <Toolbar />
-                <p>drawer drecha</p>
-            </Box>
+            <DrawerSnippets />
             <Box sx={{
                 position: 'fixed',
                 left: drawerWidth,
