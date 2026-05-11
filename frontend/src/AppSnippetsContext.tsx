@@ -2,11 +2,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { EscribirArchivo, LeerArchivo } from '../wailsjs/go/main/AdministradorArchivos';
 import { isEmptySnippet } from './utils';
+import confirmAction from './utils/ConfirmAction';
 
 const MyContext = createContext<any>(null);
 
 export type SnippetType = { body: string[], scope: string, description: string, prefix: string }
-type SnippetArrayElem = SnippetType & {key: string}
+type SnippetArrayElem = SnippetType & { key: string }
 
 function useFetchData() {
     const [currentPathFile, setCurrentPathFile] = useState('');
@@ -37,24 +38,37 @@ function useFetchData() {
         })
     }, [currentPathFile])
 
+    async function saveSnippet() {
+        const snippetObj = snippetsList.reduce((acc, { key, ...curr }) => {
+            acc[key] = key == currentSnippetKey ? snippetEditing : curr
+            return acc
+        }, {})
+        const jsonString = JSON.stringify(snippetObj, null, 4);
+        await EscribirArchivo(currentPathFile, jsonString)
+        setSnippetsList(snippetsList.map(a => {
+            if (a.key == currentSnippetKey) return snippetEditing
+            return a
+        }) as any)
+    }
+
+    async function lookForSave() {
+        if (saved) return true
+        const change = await confirmAction({
+            message: "¿Quieres salvar los cambios?",
+        })
+        if (change == null) return false
+        if (change == true) await saveSnippet()
+        setsaved(true)
+        return true
+    }
+
     return {
         currentPathFile, setCurrentPathFile,
         currentPathContent, setCurrentPathContent,
         snippetsList, saved, setsaved, activeSnippet,
         setCurrentSnippetKey, currentSnippetKey,
         snippetEditing, setSnippetEditing,
-        async saveSnippet() {
-            const snippetObj = snippetsList.reduce((acc, {key, ...curr}) => {
-                acc[key] = key == currentSnippetKey ? snippetEditing : curr
-                return acc
-            }, {})
-            const jsonString = JSON.stringify(snippetObj, null, 4);
-            await EscribirArchivo(currentPathFile, jsonString)
-            setSnippetsList(snippetsList.map(a => {
-                if (a.key == currentSnippetKey) return snippetEditing
-                return a
-            }) as any)
-        }
+        saveSnippet, lookForSave
     };
 }
 

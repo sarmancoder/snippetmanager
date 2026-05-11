@@ -1,4 +1,4 @@
-import { Box, Button, Modal, SxProps, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardHeader, Modal, SxProps } from '@mui/material';
 import { confirmable, createConfirmation, type ConfirmDialogProps } from 'react-confirm';
 
 const style: SxProps = {
@@ -18,28 +18,28 @@ interface AdditionalProps {
     message: string;
 }
 
-type ResponseType = boolean
+type ResponseType = null | boolean
 
 // 2. El componente que recibe las props de react-confirm + las nuestras
 // Usamos ConfirmDialogProps<Props_Que_Pasamos, Tipo_De_Respuesta>
 const MyDialog = ({ show, proceed, message }: ConfirmDialogProps<AdditionalProps, ResponseType>) => {
     return (
-        <Modal 
+        <Modal
             open={show} 
-            onClose={() => proceed(false)} // Si cierran el modal sin clickar botones
+            onClose={() => proceed(null)} // Si cierran el modal sin clickar botones
         >
             <Box sx={style}>
-                <Typography variant='h6' component='h4'>
-                    {message}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 4 }}>
-                    <Button variant="contained" color="error" onClick={() => proceed(false)}>
-                        No
-                    </Button>
-                    <Button variant="contained" color="success" onClick={() => proceed(true)}>
-                        Sí
-                    </Button>
-                </Box>
+                <Card elevation={0}>
+                    <CardHeader title={message} />
+                    <CardActions sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 4 }}>
+                        <Button variant="contained" disableElevation color="error" onClick={() => proceed(false)}>
+                            No
+                        </Button>
+                        <Button variant="contained" disableElevation color="success" onClick={() => proceed(true)}>
+                            Sí
+                        </Button>
+                    </CardActions>
+                </Card>
             </Box>
         </Modal>
     );
