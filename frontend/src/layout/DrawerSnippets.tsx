@@ -1,9 +1,10 @@
 import { Box, Button, colors, List, ListItemButton, ListItemText, Toolbar } from '@mui/material'
 import { useAppContext } from '../AppSnippetsContext'
 import { drawerWidth } from '../config'
+import createSnippet from '../utils/CreateSnippet'
 
 export default function DrawerSnippets() {
-    const { snippetsList, currentPathFile, lookForSave, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
+    const { snippetsList, currentPathFile, lookForSave, insertSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
     return (
         <Box sx={{
             bgcolor: colors.grey[300],
@@ -39,7 +40,12 @@ export default function DrawerSnippets() {
                 ))}
             </List>
             <Box sx={{ flexGrow: 1 }}></Box>
-            <Button variant="contained" size='small' disabled={currentPathFile.length == 0} sx={{ margin: 1 }} color="primary">
+            <Button variant="contained" size='small' disableElevation disabled={currentPathFile.length == 0} sx={{ margin: 1 }} color="primary" onClick={async () => {
+                if (!(await lookForSave)) return
+                const snippet = await createSnippet({})
+                if (snippet == null) return;
+                await insertSnippet(snippet)
+            }}>
                 Añadir snippet
             </Button>
         </Box>

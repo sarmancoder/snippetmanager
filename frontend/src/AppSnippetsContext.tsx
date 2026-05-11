@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { EscribirArchivo, LeerArchivo } from '../wailsjs/go/main/AdministradorArchivos';
 import { isEmptySnippet } from './utils';
 import confirmAction from './utils/ConfirmAction';
+import { SnippetCreationObject } from './utils/CreateSnippet';
 
 const MyContext = createContext<any>(null);
 
@@ -39,16 +40,21 @@ function useFetchData() {
     }, [currentPathFile])
 
     async function saveSnippet() {
-        const snippetObj = snippetsList.reduce((acc, { key, ...curr }) => {
-            acc[key] = key == currentSnippetKey ? snippetEditing : curr
-            return acc
-        }, {})
-        const jsonString = JSON.stringify(snippetObj, null, 4);
-        await EscribirArchivo(currentPathFile, jsonString)
+        await saveList();
         setSnippetsList(snippetsList.map(a => {
             if (a.key == currentSnippetKey) return snippetEditing
             return a
         }) as any)
+    }
+
+    async function saveList() {
+        const snippetObj = snippetsList.reduce((acc, { key, ...curr }) => {
+            acc[key] = key == currentSnippetKey ? snippetEditing : curr;
+            return acc;
+        }, {});
+        const jsonString = JSON.stringify(snippetObj, null, 4);
+        console.log(snippetObj);
+        await EscribirArchivo(currentPathFile, jsonString);
     }
 
     async function lookForSave() {
@@ -68,7 +74,20 @@ function useFetchData() {
         snippetsList, saved, setsaved, activeSnippet,
         setCurrentSnippetKey, currentSnippetKey,
         snippetEditing, setSnippetEditing,
-        saveSnippet, lookForSave
+        saveSnippet, lookForSave,
+
+        async insertSnippet(snippet: SnippetCreationObject) {
+            const keySnippet = snippet.prefix + new Date().getTime()
+            const newSnippetList: typeof snippetsList = [...snippetsList, {
+                ...snippet,
+                key: keySnippet,
+                body: [],
+                scope: ''
+            }]
+            setSnippetsList(newSnippetList)
+            // setCurrentSnippetKey(keySnippet)
+            await saveList()
+        }
     };
 }
 
