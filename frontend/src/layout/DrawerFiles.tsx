@@ -4,7 +4,7 @@ import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import { useState } from 'react'
-import { AbrirCarpetaEnExplorador, EscribirArchivo, SeleccionarYLeerCarpeta, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
+import { AbrirCarpetaEnExplorador, EliminarArchivo, EscribirArchivo, SeleccionarYLeerCarpeta, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
 import { useAppContext } from '../AppSnippetsContext'
 import { drawerWidth, filesExtension } from '../config'
 import { Paper, MenuList, MenuItem} from '@mui/material';
@@ -68,9 +68,13 @@ export default function DrawerFiles() {
 
                             <IconButton
                                 size="small"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                     e.stopPropagation();
-                                    console.log('Borrar:', item);
+                                    await EliminarArchivo(
+                                        await UnirRutas([pathFolder, item])
+                                    )
+                                    setfiles([...files.filter(f => f !== item)])
+                                    setCurrentPathFile('')
                                 }}
                                 sx={{
                                     ml: 1,

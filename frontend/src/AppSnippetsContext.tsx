@@ -27,6 +27,12 @@ function useFetchData() {
     }, [currentSnippetKey])
 
     useEffect(() => {
+        if (currentPathFile.length == 0) {
+            setSnippetsList([])
+        }
+    }, [currentPathFile])
+
+    useEffect(() => {
         LeerArchivo(currentPathFile).then(r => {
             setCurrentPathContent(r)
             const data: Record<string, SnippetType> = JSON.parse(r)

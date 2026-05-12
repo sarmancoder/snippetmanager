@@ -103,3 +103,16 @@ func (f *AdministradorArchivos) EscribirArchivo(ruta string, contenido string) e
 	runtime.LogInfo(f.ctx, "Archivo procesado exitosamente: "+ruta)
 	return nil
 }
+
+func (f *AdministradorArchivos) EliminarArchivo(ruta string) error {
+	log.Printf("Intentando eliminar: %s", ruta)
+
+	err := os.Remove(ruta)
+	if err != nil {
+		log.Printf("Error al eliminar archivo: %v", err)
+		return fmt.Errorf("no se pudo eliminar el archivo: %w", err)
+	}
+
+	runtime.LogInfo(f.ctx, "Archivo eliminado: "+ruta)
+	return nil
+}
