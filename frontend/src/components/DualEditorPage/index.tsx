@@ -1,13 +1,16 @@
-import { Editor, OnMount } from '@monaco-editor/react'
-import { Box, Card, CardContent, CardHeader, TextField } from '@mui/material'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Editor, OnMount } from '@monaco-editor/react';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Select from "react-select";
-import { languageScopes, LanguageScopeValue } from '../../config';
 import { SnippetType, useAppContext } from '../../AppSnippetsContext';
+import { languageScopes, LanguageScopeValue } from '../../config';
 import { areSnippetsEqual, isEmptySnippet } from '../../utils';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { Menu, MenuItem } from '@mui/material';
+import { SnippetsReplacements } from './SnippetsReplacements';
 
 export default function DualEditorPage() {
-    const {snippetsList, currentSnippetKey, setSnippetEditing, activeSnippet, setsaved} = useAppContext()
+    const { snippetsList, currentSnippetKey, setSnippetEditing, activeSnippet, setsaved } = useAppContext()
 
     const bodyEditor = useRef<any>(null)
     const jsonResultRef = useRef<any>(null)
@@ -22,12 +25,12 @@ export default function DualEditorPage() {
             prefix, description, scopes,
             body: body.split('\n')
         }
-        
-        const currentSnippet = {body: body.split('\n'), scope: scopes, description, prefix}
+
+        const currentSnippet = { body: body.split('\n'), scope: scopes, description, prefix }
         const areEqual = activeSnippet && !areSnippetsEqual(currentSnippet, activeSnippet as SnippetType)
         if (!isEmptySnippet(currentSnippet) && areEqual) {
             setsaved(false)
-            setSnippetEditing({prefix, description, scope: scopes, body: body.split('\n')})
+            setSnippetEditing({ prefix, description, scope: scopes, body: body.split('\n') })
         }
 
         // Actualizar el valor del editor directamente si la instancia existe
@@ -95,6 +98,29 @@ export default function DualEditorPage() {
         }
     }, [scopes])
 
+    const handleReplaceSelection = (textToInsert) => {
+        const editor = bodyEditor.current;
+        if (!editor) return;
+
+        // Obtenemos TODAS las selecciones actuales (soporta multicursor)
+        const selections = editor.getSelections();
+
+        if (selections && selections.length > 0) {
+            // Creamos una operación de edición por cada selección
+            const edits = selections.map(sel => ({
+                range: sel,
+                text: textToInsert,
+                forceMoveMarkers: true,
+            }));
+
+            // Ejecutamos todas las ediciones en un solo paso
+            // Esto permite que "Deshacer" (Ctrl+Z) revierta todos los cambios a la vez
+            editor.executeEdits('my-source', edits);
+
+            editor.focus();
+        }
+    };
+
     return (
         <Box sx={{
             display: 'grid',
@@ -143,6 +169,11 @@ export default function DualEditorPage() {
                             onMount={handleLeftEditorDidMount}
                         />
                     </CardContent>
+                    <CardActions sx={{display: 'flex', justifyContent: 'end'}}>
+                        <SnippetsReplacements onReplace={(value) => {
+                            handleReplaceSelection(value)
+                        }} />
+                    </CardActions>
                 </Card>
             </Box>
 
