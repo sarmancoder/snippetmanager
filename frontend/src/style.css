@@ -2,3 +2,11 @@ body {
     margin: 0px;
     background-color: white;
 }
+
+.list-item .list-item__action {
+    opacity: 0;
+    transition: all .2s;
+}
+.list-item:hover .list-item__action {
+    opacity: 1;
+}

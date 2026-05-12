@@ -1,4 +1,4 @@
-import { Folder } from '@mui/icons-material'
+import { Delete, Folder } from '@mui/icons-material'
 import { Box, Button, colors, IconButton, Toolbar, Typography } from '@mui/material'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -7,13 +7,14 @@ import { useState } from 'react'
 import { AbrirCarpetaEnExplorador, SeleccionarYLeerCarpeta } from '../../wailsjs/go/main/AdministradorArchivos'
 import { useAppContext } from '../AppSnippetsContext'
 import { drawerWidth, filesExtension } from '../config'
+import { Paper, MenuList, MenuItem} from '@mui/material';
 
 export default function DrawerFiles() {
-    const {setCurrentPathFile, currentPathFile} = useAppContext()
+    const { setCurrentPathFile, currentPathFile } = useAppContext()
 
     const [files, setfiles] = useState<string[]>([])
     const [pathFolder, setPathFolder] = useState('')
-    
+
     return (
         <Box sx={{
             bgcolor: colors.grey[300],
@@ -35,30 +36,55 @@ export default function DrawerFiles() {
                     <Folder />
                 </IconButton>
                 <Typography title={pathFolder} variant="subtitle2" color="initial"
-                onClick={() => AbrirCarpetaEnExplorador(pathFolder)}
-                sx={{
-                    display: '-webkit-box',
-                    WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: 2,      // Aquí defines el máximo de líneas
-                    overflow: 'hidden',      // Oculta el texto que sobrepasa las 2 líneas
-                    wordBreak: "break-all",  // Útil para rutas largas sin espacios
-                    cursor: 'pointer',
-                    overflowWrap: "anywhere"
-                }}>
+                    onClick={() => AbrirCarpetaEnExplorador(pathFolder)}
+                    sx={{
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 2,      // Aquí defines el máximo de líneas
+                        overflow: 'hidden',      // Oculta el texto que sobrepasa las 2 líneas
+                        wordBreak: "break-all",  // Útil para rutas largas sin espacios
+                        cursor: 'pointer',
+                        overflowWrap: "anywhere"
+                    }}>
                     {pathFolder}
                 </Typography>
             </Box>
-            <List dense
-            >
-                {files.map((item) =>
-                    <ListItemButton key={item} selected={currentPathFile.endsWith(item)} onClick={async () => {
-                        setCurrentPathFile(pathFolder + '/' + item)
-                    }}>
-                        <ListItemText primary={item.replace('.' + filesExtension, '')} />
-                    </ListItemButton>
+            <MenuList dense>
+                {files.map((item) => {
+                    const isSelected = currentPathFile.endsWith(item);
+                    const fileName = item.replace('.' + filesExtension, '');
 
-                )}
-            </List>
+                    return (
+                        <MenuItem
+                            key={item}
+                            selected={isSelected}
+                            onClick={() => setCurrentPathFile(pathFolder + '/' + item)}
+                        >
+                            <ListItemText
+                                primary={fileName}
+                            />
+
+                            <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('Borrar:', item);
+                                }}
+                                sx={{
+                                    ml: 1,
+                                    p: 0.5,
+                                    color: isSelected ? 'inherit' : 'error.main',
+                                    // Solo mostrar el botón al hacer hover sobre el MenuItem
+                                    visibility: 'hidden',
+                                    '.MuiMenuItem-root:hover &': { visibility: 'visible' }
+                                }}
+                            >
+                                <Delete fontSize="inherit" />
+                            </IconButton>
+                        </MenuItem>
+                    );
+                })}
+            </MenuList>
             <Box sx={{ flexGrow: 1 }}></Box>
             <Button variant="contained" disableElevation size='small' disabled={pathFolder.length == 0} sx={{ margin: 1 }} color="primary">
                 Añadir archivo

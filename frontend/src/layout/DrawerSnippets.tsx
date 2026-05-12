@@ -1,7 +1,8 @@
-import { Box, Button, colors, List, ListItemButton, ListItemText, Toolbar } from '@mui/material'
+import { Box, Button, colors, IconButton, List, ListItemButton, ListItemText, Toolbar } from '@mui/material'
 import { useAppContext } from '../AppSnippetsContext'
 import { drawerWidth } from '../config'
 import createSnippet from '../utils/CreateSnippet'
+import { Delete } from '@mui/icons-material'
 
 export default function DrawerSnippets() {
     const { snippetsList, currentPathFile, lookForSave, insertSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
@@ -19,7 +20,7 @@ export default function DrawerSnippets() {
             <Toolbar />
             <List>
                 {snippetsList.map((snippet, index) => (
-                    <ListItemButton selected={currentSnippetKey == snippet.key} title={snippet.description} key={index} onClick={async () => {
+                    <ListItemButton className='list-item' selected={currentSnippetKey == snippet.key} title={snippet.description} key={index} onClick={async () => {
                         if (!(await lookForSave())) return
                         setCurrentSnippetKey(snippet.key)
                     }}>
@@ -36,6 +37,9 @@ export default function DrawerSnippets() {
                                 {snippet.description}
                             </span>
                         } />
+                        <IconButton className='list-item__action'>
+                            <Delete sx={{color: 'red'}} />
+                        </IconButton>
                     </ListItemButton>
                 ))}
             </List>
