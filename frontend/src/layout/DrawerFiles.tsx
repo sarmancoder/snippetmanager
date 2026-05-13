@@ -11,6 +11,7 @@ import { Paper, MenuList, MenuItem } from '@mui/material';
 import promptUser from '../utils/PromptUser'
 import alertMessage from '../utils/AlertMessage'
 import clsx from 'clsx'
+import confirmAction from '../utils/ConfirmAction'
 
 export default function DrawerFiles() {
     const { setCurrentPathFile, currentPathFile, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
@@ -157,7 +158,7 @@ function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }
             key={item}
             selected={isSelected}
             onClick={onClick}
-            className={clsx('droppable-newfile', { 'active': droppingSnippet })}
+            className={clsx('droppable-newfile list-item', { 'active': droppingSnippet })}
             onDragOver={(e) => e.preventDefault()}
             onDragEnter={(e) => {
                 e.preventDefault();
@@ -186,14 +187,19 @@ function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }
             <ListItemText primary={fileName} />
 
             <IconButton
+                className='list-item__action'
                 size="small"
                 onClick={async (e) => {
                     e.stopPropagation();
+                    const confirmed = await confirmAction({
+                        message: '¿Seguro que quieres borrar el archivo?'
+                    })
+                    if (!confirmed) return
                     onDelete();
                 }}
                 sx={{ ml: 1 }}
             >
-                {/* Tu icono de borrar */}
+                <Delete sx={{color: 'red'}} />
             </IconButton>
         </MenuItem>
     );
