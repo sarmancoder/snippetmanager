@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -91,8 +92,6 @@ func (f *AdministradorArchivos) LeerArchivo(ruta string) (string, error) {
 }
 
 func (f *AdministradorArchivos) EscribirArchivo(ruta string, contenido string) error {
-	// os.WriteFile crea el archivo si no existe.
-	// Si ya existe, lo trunca (borra el contenido previo) y escribe el nuevo.
 	err := os.WriteFile(ruta, []byte(contenido), 0644)
 
 	if err != nil {
@@ -114,5 +113,66 @@ func (f *AdministradorArchivos) EliminarArchivo(ruta string) error {
 	}
 
 	runtime.LogInfo(f.ctx, "Archivo eliminado: "+ruta)
+	return nil
+}
+
+// Snippet representa la estructura interna de cada snippet de VS Code, ahora con descripción
+type Snippet struct {
+	Prefix      string   `json:"prefix"`
+	Scope       string   `json:"scope"`
+	Description string   `json:"description,omitempty"` // omitempty hace que si está vacío, no se guarde en el JSON (opcional)
+	Body        []string `json:"body"`
+}
+
+// AgregarSnippet lee el JSON existente, parsea el nuevo snippet desde un string, y lo añade usando su Prefix como llave.
+func (f *AdministradorArchivos) AgregarSnippet(ruta string, nuevoSnippetJSON string) error {
+	// 1. Parsear el string recibido a la estructura Snippet
+	var nuevoSnippet Snippet
+	err := json.Unmarshal([]byte(nuevoSnippetJSON), &nuevoSnippet)
+	if err != nil {
+		return fmt.Errorf("el string del nuevo snippet no tiene un formato JSON válido: %w", err)
+	}
+
+	// Validar que al menos venga el prefix
+	if nuevoSnippet.Prefix == "" {
+		return fmt.Errorf("el snippet provisto no contiene un campo 'prefix' válido")
+	}
+
+	// 2. Leer el archivo JSON existente
+	contenidoBytes, err := os.ReadFile(ruta)
+	if err != nil {
+		if os.IsNotExist(err) {
+			contenidoBytes = []byte("{}")
+		} else {
+			return fmt.Errorf("error al leer el archivo: %w", err)
+		}
+	}
+
+	// 3. Parsear el JSON del archivo actual en un mapa
+	var snippetsExistentes map[string]Snippet
+	err = json.Unmarshal(contenidoBytes, &snippetsExistentes)
+	if err != nil {
+		return fmt.Errorf("error al deserializar el JSON actual del archivo: %w", err)
+	}
+
+	if snippetsExistentes == nil {
+		snippetsExistentes = make(map[string]Snippet)
+	}
+
+	// 4. Añadir o actualizar el snippet usando el prefix como llave
+	snippetsExistentes[nuevoSnippet.Prefix] = nuevoSnippet
+
+	// 5. Convertir el mapa de vuelta a JSON con indentación
+	nuevoJSON, err := json.MarshalIndent(snippetsExistentes, "", "    ")
+	if err != nil {
+		return fmt.Errorf("error al serializar el nuevo JSON completo: %w", err)
+	}
+
+	// 6. Guardar el archivo actualizado
+	err = os.WriteFile(ruta, nuevoJSON, 0644)
+	if err != nil {
+		return fmt.Errorf("error al escribir el archivo actualizado: %w", err)
+	}
+
 	return nil
 }

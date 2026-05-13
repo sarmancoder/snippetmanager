@@ -21,7 +21,7 @@ export default function DrawerSnippets() {
             <List>
                 {snippetsList.map((snippet, index) => (
                     <ListItemButton draggable={true} onDragStart={(e) => {
-                        const data = JSON.stringify(snippet, null, 4)
+                        const data = JSON.stringify({[snippet.key]: snippet}, null, 4)
                         e.dataTransfer.setData('text', data)
                     }} className='list-item' selected={currentSnippetKey == snippet.key} title={snippet.description} key={index} onClick={async () => {
                         if (!(await lookForSave())) return

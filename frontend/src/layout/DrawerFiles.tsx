@@ -4,7 +4,7 @@ import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import React, { DragEventHandler, useRef, useState } from 'react'
-import { AbrirCarpetaEnExplorador, EliminarArchivo, EscribirArchivo, SeleccionarYLeerCarpeta, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
+import { AbrirCarpetaEnExplorador, AgregarSnippet, EliminarArchivo, EscribirArchivo, SeleccionarYLeerCarpeta, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
 import { useAppContext } from '../AppSnippetsContext'
 import { drawerWidth, filesExtension } from '../config'
 import { Paper, MenuList, MenuItem } from '@mui/material';
@@ -13,7 +13,7 @@ import alertMessage from '../utils/AlertMessage'
 import clsx from 'clsx'
 
 export default function DrawerFiles() {
-    const { setCurrentPathFile, currentPathFile } = useAppContext()
+    const { setCurrentPathFile, currentPathFile, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
 
     const [files, setfiles] = useState<string[]>([])
     const [pathFolder, setPathFolder] = useState('')
@@ -32,9 +32,10 @@ export default function DrawerFiles() {
             return
         }
         const fullPath = await UnirRutas([pathFolder, fileName])
-        console.log(fullPath)
+        console.log('escribiendo archivo', fullPath, content)
         await EscribirArchivo(fullPath, content)
         setfiles([...files, fileName])
+        return true
     }
 
     const handleDragOnEmpty = async (e) => {
@@ -42,7 +43,14 @@ export default function DrawerFiles() {
         try {
             const data = e.dataTransfer.getData('text')
             if (!data) return
-            console.log(data)
+            const created = await createNewFile(data)
+            if (created !== true) return
+            const dataJSON = JSON.parse(data)
+            const snippetKey = dataJSON[Object.keys(dataJSON)[0]].key
+            console.log('limpiando...', JSON.parse(data))
+            if (currentSnippetKey == snippetKey)
+                setCurrentSnippetKey('')
+            deleteSnippet(snippetKey)
         } catch (error) {
             console.log(error)
         } finally {
@@ -84,9 +92,9 @@ export default function DrawerFiles() {
                     {pathFolder}
                 </Typography>
             </Box>
-            <MenuList dense sx={{pb: 0}}>
+            <MenuList dense sx={{ pb: 0 }}>
                 {files.map((item) =>
-                    <SnippetMenuItem key={item}
+                    <FileMenuItem key={item}
                         isSelected={currentPathFile.endsWith(item)} item={item}
                         onClick={() => setCurrentPathFile(pathFolder + '/' + item)}
                         onDelete={async () => {
@@ -96,10 +104,17 @@ export default function DrawerFiles() {
                             setfiles([...files.filter(f => f !== item)])
                             setCurrentPathFile('')
                         }}
-
-                        handleDropSnippet={(data) => {
-                            console.log('droppint snippet on', item)
-                            console.log(data)
+                        handleDropSnippet={async (data) => {
+                            const dataJSON = JSON.parse(data)
+                            const snippet = dataJSON[Object.keys(dataJSON)[0]]
+                            
+                            await AgregarSnippet(await UnirRutas([pathFolder, item]), JSON.stringify(snippet))
+                            
+                            const snippetKey = snippet.key
+                            console.log('limpiando...', JSON.parse(data))
+                            if (currentSnippetKey == snippetKey)
+                                setCurrentSnippetKey('')
+                            deleteSnippet(snippetKey)
                         }}
                     />
                 )}
@@ -124,7 +139,7 @@ export default function DrawerFiles() {
     )
 }
 
-type SnippetMenuItemProps = {
+type FileMenuItemProps = {
     isSelected: boolean,
     item: string,
     onClick: () => void
@@ -132,14 +147,14 @@ type SnippetMenuItemProps = {
     handleDropSnippet: (snippet: string) => void
 }
 
-function SnippetMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }: SnippetMenuItemProps) {
+function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }: FileMenuItemProps) {
     const fileName = item.replace('.' + filesExtension, '');
     const [droppingSnippet, setDroppingSnippet] = useState(false);
     const dragCounter = useRef(0);
 
     return (
-        <MenuItem 
-            key={item} 
+        <MenuItem
+            key={item}
             selected={isSelected}
             onClick={onClick}
             className={clsx('droppable-newfile', { 'active': droppingSnippet })}
@@ -158,14 +173,14 @@ function SnippetMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippe
                     setDroppingSnippet(false);
                 }
             }}
-            onDrop={(e) => { 
+            onDrop={(e) => {
                 e.preventDefault();
                 if (isSelected) return;
                 dragCounter.current = 0; // Reseteamos el contador
                 setDroppingSnippet(false);
-                
+
                 const data = e.dataTransfer.getData('text');
-                handleDropSnippet(data); 
+                handleDropSnippet(data);
             }}
         >
             <ListItemText primary={fileName} />
