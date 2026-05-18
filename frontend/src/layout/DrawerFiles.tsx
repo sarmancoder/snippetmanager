@@ -89,9 +89,6 @@ export default function DrawerFiles() {
             flexDirection: 'column'
         }}>
             <Toolbar />
-            <div className="bg-purple-500 text-white p-4">
-  Tailwind funciona
-</div>
             <Box sx={{ display: 'flex', pt: 2 }}>
                 <IconButton aria-label="abrir" onClick={() => abrirCarpeta('')}>
                     <Folder />
