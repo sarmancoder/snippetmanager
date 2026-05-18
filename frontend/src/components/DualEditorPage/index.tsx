@@ -1,5 +1,5 @@
 import { Editor, OnMount } from '@monaco-editor/react';
-import { Box, Card, CardContent, CardHeader, TextField } from '@mui/material';
+import { Box, Card, CardContent, CardHeader, FormControlLabel, Switch, TextField } from '@mui/material';
 import { useEffect, useMemo, useReducer, useRef } from 'react';
 import Select from "react-select";
 import { useAppContext } from '../../AppSnippetsContext';
@@ -12,10 +12,11 @@ type SnippetState = {
     description: string
     scope: string
     body: string
+    isFileTemplate: boolean
 }
 
 type SnippetAction =
-    | { type: 'SET_FIELD'; field: keyof SnippetState; value: string }
+    | { type: 'SET_FIELD'; field: keyof SnippetState; value: SnippetState[keyof SnippetState] } // ← acepta cualquier tipo
     | { type: 'RESET'; payload: SnippetState }
 
 function snippetReducer(state: SnippetState, action: SnippetAction): SnippetState {
@@ -34,6 +35,7 @@ const initialState: SnippetState = {
     description: '',
     scope: '',
     body: '',
+    isFileTemplate: false,
 }
 
 export default function DualEditorPage() {
@@ -41,10 +43,9 @@ export default function DualEditorPage() {
 
     const bodyEditor = useRef<any>(null)
     const jsonResultRef = useRef<any>(null)
-    const isUpdatingFromJSON = useRef(false) // 1️⃣ Se declara aquí, junto a los otros refs
 
     const [state, dispatch] = useReducer(snippetReducer, initialState)
-    const { prefix, description, scope, body } = state
+    const { prefix, description, scope, body, isFileTemplate } = state
 
     useEffect(() => {
         const newSnippet = {
@@ -55,21 +56,19 @@ export default function DualEditorPage() {
         if (jsonResultRef.current) {
             const { key, ...jsondata } = newSnippet
 
-            // Leer el JSON actual y mergear, preservando propiedades extra
             let currentJSON: Record<string, any> = {}
             try {
                 currentJSON = JSON.parse(jsonResultRef.current.getValue())
-            } catch {
-                // Si el JSON está roto, se parte de cero
-            }
+            } catch {}
 
             const merged = {
-                ...currentJSON,  // ← preserva propiedades extra
-                ...jsondata,     // ← sobreescribe solo las conocidas
+                ...currentJSON,
+                ...jsondata,
+                ...(isFileTemplate ? { isFileTemplate: true } : { isFileTemplate: undefined }),
             }
 
-            const jsonString = JSON.stringify(merged, null, 2)
-            jsonResultRef.current.setValue(jsonString)
+            Object.keys(merged).forEach(k => merged[k] === undefined && delete merged[k])
+            jsonResultRef.current.setValue(JSON.stringify(merged, null, 2))
         }
 
         const snippetEditingFromList = snippetsList.find(a => a.key == currentSnippetKey)
@@ -80,7 +79,7 @@ export default function DualEditorPage() {
 
         setsaved(false)
         setSnippetEditing({ prefix, description, scope, body: body.split('\n') })
-    }, [prefix, description, scope, body])
+    }, [prefix, description, scope, body, isFileTemplate])
 
     useEffect(() => {
         const snippet = snippetsList.find(a => a.key == currentSnippetKey)
@@ -97,6 +96,7 @@ export default function DualEditorPage() {
                 description: snippet.description,
                 scope: resolvedScope,
                 body: snippet.body.join('\n'),
+                isFileTemplate: (snippet as any).isFileTemplate ?? false,
             }
         })
 
@@ -132,13 +132,12 @@ export default function DualEditorPage() {
                         description: infoJSON.description ?? '',
                         scope: (infoJSON.scope ?? infoJSON.scopes ?? []).join?.(',') ?? infoJSON.scope ?? '',
                         body: (infoJSON.body ?? []).join('\n'),
+                        isFileTemplate: infoJSON.isFileTemplate ?? false,
                     }
                 })
 
                 bodyEditor.current?.setValue((infoJSON.body ?? []).join('\n'))
-            } catch {
-                // JSON inválido al salir, se ignora
-            }
+            } catch {}
         })
     }
 
@@ -166,12 +165,7 @@ export default function DualEditorPage() {
     }
 
     return (
-        <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 5,
-            p: 4
-        }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 5, p: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <TextField
                     fullWidth
@@ -184,6 +178,15 @@ export default function DualEditorPage() {
                     label="Descripción"
                     value={description}
                     onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })}
+                />
+                <FormControlLabel
+                    label="Es una plantilla"
+                    control={
+                        <Switch
+                            checked={isFileTemplate}
+                            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'isFileTemplate', value: e.target.checked })}
+                        />
+                    }
                 />
                 <Card variant="outlined">
                     <CardHeader
