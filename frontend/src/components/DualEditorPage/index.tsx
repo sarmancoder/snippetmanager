@@ -7,8 +7,6 @@ import { languageScopes, LanguageScopeValue } from '../../config';
 import { SnippetsReplacements } from './SnippetsReplacements';
 import CardActions from '@mui/material/CardActions';
 
-// --- Tipos y reducer ---
-
 type SnippetState = {
     prefix: string
     description: string
@@ -43,11 +41,11 @@ export default function DualEditorPage() {
 
     const bodyEditor = useRef<any>(null)
     const jsonResultRef = useRef<any>(null)
+    const isUpdatingFromJSON = useRef(false) // 1️⃣ Se declara aquí, junto a los otros refs
 
     const [state, dispatch] = useReducer(snippetReducer, initialState)
     const { prefix, description, scope, body } = state
 
-    // Sincroniza cambios del estado hacia el editor JSON y el contexto
     useEffect(() => {
         const newSnippet = {
             key: currentSnippetKey, prefix, description, scope,
@@ -55,7 +53,22 @@ export default function DualEditorPage() {
         }
 
         if (jsonResultRef.current) {
-            const jsonString = JSON.stringify(newSnippet, null, 2)
+            const { key, ...jsondata } = newSnippet
+
+            // Leer el JSON actual y mergear, preservando propiedades extra
+            let currentJSON: Record<string, any> = {}
+            try {
+                currentJSON = JSON.parse(jsonResultRef.current.getValue())
+            } catch {
+                // Si el JSON está roto, se parte de cero
+            }
+
+            const merged = {
+                ...currentJSON,  // ← preserva propiedades extra
+                ...jsondata,     // ← sobreescribe solo las conocidas
+            }
+
+            const jsonString = JSON.stringify(merged, null, 2)
             jsonResultRef.current.setValue(jsonString)
         }
 
@@ -69,7 +82,6 @@ export default function DualEditorPage() {
         setSnippetEditing({ prefix, description, scope, body: body.split('\n') })
     }, [prefix, description, scope, body])
 
-    // Carga el snippet seleccionado en el estado
     useEffect(() => {
         const snippet = snippetsList.find(a => a.key == currentSnippetKey)
         if (!snippet) return
@@ -108,21 +120,25 @@ export default function DualEditorPage() {
     const handleEditorDidMount: OnMount = (editor, monaco) => {
         jsonResultRef.current = editor
 
-        editor.onDidPaste(() => {
-            const content = editor.getValue()
-            const infoJSON = JSON.parse(content)
+        editor.onDidBlurEditorWidget(() => {
+            try {
+                const content = editor.getValue()
+                const infoJSON = JSON.parse(content)
 
-            dispatch({
-                type: 'RESET',
-                payload: {
-                    prefix: infoJSON.prefix ?? '',
-                    description: infoJSON.description ?? '',
-                    scope: (infoJSON.scopes ?? []).join(','),
-                    body: (infoJSON.body ?? []).join('\n'),
-                }
-            })
+                dispatch({
+                    type: 'RESET',
+                    payload: {
+                        prefix: infoJSON.prefix ?? '',
+                        description: infoJSON.description ?? '',
+                        scope: (infoJSON.scope ?? infoJSON.scopes ?? []).join?.(',') ?? infoJSON.scope ?? '',
+                        body: (infoJSON.body ?? []).join('\n'),
+                    }
+                })
 
-            bodyEditor.current?.setValue((infoJSON.body ?? []).join('\n'))
+                bodyEditor.current?.setValue((infoJSON.body ?? []).join('\n'))
+            } catch {
+                // JSON inválido al salir, se ignora
+            }
         })
     }
 

@@ -201,7 +201,7 @@ function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }
                 handleDropSnippet(data);
             }}
         >
-            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center'}}>
                 <Typography variant="subtitle1" color="initial">{fileName}</Typography>
 
                 <IconButton
