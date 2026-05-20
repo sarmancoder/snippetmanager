@@ -17,8 +17,8 @@ function App() {
                 paddingTop: 3
             }}>
                 <DualEditorPage />
+                <IAButton />
             </Box>
-            <IAButton />
             <Box sx={{
                 display: !isSnippetSelected ? 'none' : 'flex',
                 justifyContent: 'center',
