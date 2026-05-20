@@ -1,8 +1,8 @@
 import { Box, Typography } from '@mui/material';
 import { useAppContext } from './AppSnippetsContext';
-import DualEditorPage from './components/DualEditorPage';
 import { useMemo } from 'react';
 import IAButton from './components/IAButton';
+import EditorWraper from './components/EditorWraper';
 
 function App() {
     const {currentSnippetKey} = useAppContext()
@@ -16,7 +16,7 @@ function App() {
                 padding: 1,
                 paddingTop: 3
             }}>
-                <DualEditorPage />
+                <EditorWraper />
                 <IAButton />
             </Box>
             <Box sx={{

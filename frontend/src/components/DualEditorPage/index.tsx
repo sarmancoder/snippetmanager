@@ -1,7 +1,7 @@
 import { Editor, OnMount } from '@monaco-editor/react';
 import { Box, Card, CardContent, CardHeader, FormControlLabel, Switch, TextField } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
-import { useEffect, useMemo, useReducer, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useReducer, useRef } from 'react';
 import Select from "react-select";
 import { SnippetType, useAppContext } from '../../AppSnippetsContext';
 import { languageScopes, LanguageScopeValue } from '../../config';
@@ -38,81 +38,63 @@ const initialState: SnippetState = {
     isFileTemplate: false,
 }
 
-export default function DualEditorPage() {
-    const { snippetsList, currentSnippetKey, activeSnippet, setSnippetEditing, setsaved } = useAppContext()
-    const loadingSnippetRef = useRef(false)
+// 1. Defines la interfaz de los métodos que expones
+export interface EditorActions {
+    changeValues: (nuevoValor: SnippetState) => void;
+}
 
+// 2. Defines las props normales de tu componente
+interface EditorProps {
+    onChange: (nuevoValor: SnippetState) => void;
+}
+
+export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function DualEditorPage({ onChange }, ref) {
     const bodyEditor = useRef<any>(null)
     const jsonResultRef = useRef<any>(null)
-    // 💡 Bandera para evitar que salte el setSaved(false) al cargar el snippet
-    const isInitializing = useRef<boolean>(false) 
 
     const [state, dispatch] = useReducer(snippetReducer, initialState)
-    // const { prefix, description, scope, body, isFileTemplate } = state
+
+    useImperativeHandle(ref, () => ({
+        changeValues(snippet) {
+            const resolvedScope = (snippet.scope ?? '').split(',').map(a => {
+                return languageScopes.find(x => x.value == a)?.value
+            }).join(',')
+
+            const bodyContent = Array.isArray(snippet.body) ? snippet.body.join('\n') : snippet.body
+
+            dispatch({
+                type: 'RESET',
+                payload: {
+                    prefix: snippet.prefix ?? '',
+                    description: snippet.description ?? '',
+                    scope: resolvedScope,
+                    body: bodyContent,
+                    isFileTemplate: (snippet as any).isFileTemplate ?? false,
+                }
+            })
+
+            bodyEditor.current.setValue(bodyContent)
+        }
+    }))
 
     useEffect(() => {
         const snippetEditing: SnippetType = {
-            isFileTemplate: state.isFileTemplate ?? false,
-            description: state.description,
-            body: state.body.split('\n'),
             prefix: state.prefix,
-            scope: state.scope
+            description: state.description,
+            scope: state.scope,
+            isFileTemplate: state.isFileTemplate ?? false,
+            body: state.body.split('\n'),
         }
+
         if (jsonResultRef.current) {
             jsonResultRef.current.setValue(JSON.stringify(snippetEditing, null, 2))
         }
 
-        if (!activeSnippet) return
-        
-        const snippetSaved: SnippetType = {
-            isFileTemplate: activeSnippet.isFileTemplate ?? false,
-            description: activeSnippet.description,
-            body: activeSnippet.body,
-            prefix: activeSnippet.prefix,
-            scope: activeSnippet.scope
-        }
-
-        if (!loadingSnippetRef.current) {
-            const equal = JSON.stringify(snippetEditing) == JSON.stringify(snippetSaved)
-            console.log({equal, loading: loadingSnippetRef.current})
-            if (!equal) {
-                setsaved(false)
-            } else {
-                setsaved(true)
-            }
-        }
-
-        setSnippetEditing(snippetEditing)
-    }, [state])
-
-    useEffect(() => {
-        loadingSnippetRef.current = true
-        const snippet = snippetsList.find(a => a.key == currentSnippetKey)
-        if (!snippet) return
-
-        // 💡 Activamos el flag de inicialización justo antes de resetear el estado local
-        isInitializing.current = true;
-
-        const resolvedScope = (snippet.scope ?? '').split(',').map(a => {
-            return languageScopes.find(x => x.value == a)?.value
-        }).join(',')
-
-        dispatch({
-            type: 'RESET',
-            payload: {
-                prefix: snippet.prefix ?? '',
-                description: snippet.description ?? '',
-                scope: resolvedScope,
-                body: Array.isArray(snippet.body) ? snippet.body.join('\n') : '',
-                isFileTemplate: (snippet as any).isFileTemplate ?? false,
-            }
+        onChange({
+            ...snippetEditing,
+            body: snippetEditing.body.join('\n')
         })
-
-        if (bodyEditor.current) {
-            bodyEditor.current.setValue(Array.isArray(snippet.body) ? snippet.body.join('\n') : '')
-        }
-        loadingSnippetRef.current = false
-    }, [currentSnippetKey])
+    }, [state])
 
     const handleLeftEditorDidMount: OnMount = (editor, monaco: any) => {
         bodyEditor.current = editor
@@ -245,4 +227,6 @@ export default function DualEditorPage() {
             </Box>
         </Box>
     )
-}
+})
+
+export default DualEditorPage

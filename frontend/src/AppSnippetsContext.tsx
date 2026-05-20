@@ -25,7 +25,15 @@ function useAppSnippetsContext() {
     })
 
     const activeSnippet = useMemo(() => {
-        return snippetsList.find(a => a.key == currentSnippetKey)
+        const current = snippetsList.find(a => a.key == currentSnippetKey)
+        if (!current) return null
+        return {
+            prefix: current.prefix,
+            description: current.description,
+            scope: current.scope,
+            isFileTemplate: current.isFileTemplate ?? false,
+            body: current.body
+        }
     }, [currentSnippetKey])
 
     useEffect(() => {
@@ -38,7 +46,6 @@ function useAppSnippetsContext() {
         LeerArchivo(currentPathFile).then(r => {
             try {
                 const data: Record<string, SnippetType> = JSON.parse(r)
-                console.log({data})
                 const snippetsArray = Object.keys(data).reduce<SnippetArrayElem[]>((acc, key) => {
                     acc.push({ key, ...data[key] });
                     return acc;
@@ -54,7 +61,6 @@ function useAppSnippetsContext() {
 
     async function saveSnippet() {
         // await saveList();
-        console.log('guardando snippet')
         const newList = snippetsList.map(a => {
             if (a.key == currentSnippetKey) {
                 console.log({snippetEditing})
@@ -81,7 +87,6 @@ function useAppSnippetsContext() {
     }
 
     async function lookForSave() {
-        console.log({saved})
         if (saved) return true
         const change = await confirmAction({
             message: "¿Quieres salvar los cambios?",
