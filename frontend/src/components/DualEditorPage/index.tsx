@@ -48,7 +48,7 @@ export default function DualEditorPage() {
     const isInitializing = useRef<boolean>(false) 
 
     const [state, dispatch] = useReducer(snippetReducer, initialState)
-    const { prefix, description, scope, body, isFileTemplate } = state
+    // const { prefix, description, scope, body, isFileTemplate } = state
 
     useEffect(() => {
         const snippetEditing: SnippetType = {
@@ -151,12 +151,12 @@ export default function DualEditorPage() {
     }
 
     const currentScope = useMemo<LanguageScopeValue>(() => {
-        const _scope = scope.split(',')[0] as LanguageScopeValue
+        const _scope = state.scope.split(',')[0] as LanguageScopeValue
         if (_scope === 'javascriptreact') return 'javascript'
         if (_scope === 'typescriptreact') return 'typescript'
         if (_scope.length === 0) return 'plaintext' as any
         return _scope
-    }, [scope])
+    }, [state.scope])
 
     const handleReplaceSelection = (textToInsert: string) => {
         const editor = bodyEditor.current
@@ -179,20 +179,20 @@ export default function DualEditorPage() {
                 <TextField
                     fullWidth
                     label="Prefijo"
-                    value={prefix}
+                    value={state.prefix}
                     onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'prefix', value: e.target.value })}
                 />
                 <TextField
                     fullWidth
                     label="Descripción"
-                    value={description}
+                    value={state.description}
                     onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })}
                 />
                 <FormControlLabel
                     label="Es una plantilla"
                     control={
                         <Switch
-                            checked={isFileTemplate}
+                            checked={state.isFileTemplate}
                             onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'isFileTemplate', value: e.target.checked })}
                         />
                     }
@@ -210,7 +210,7 @@ export default function DualEditorPage() {
                                         menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                                         container: (base) => ({ ...base, width: '400px' })
                                     }}
-                                    value={languageScopes.filter(a => scope.split(',').includes(a.value))}
+                                    value={languageScopes.filter(a => state.scope.split(',').includes(a.value))}
                                     onChange={(c) => dispatch({
                                         type: 'SET_FIELD',
                                         field: 'scope',
