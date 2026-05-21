@@ -3,3 +3,5 @@
 import {ia} from '../models';
 
 export function PreguntarOllama(arg1:string,arg2:string):Promise<ia.SnippetState>;
+
+export function PreguntarVariosOllama(arg1:string,arg2:string):Promise<Array<ia.SnippetState>>;

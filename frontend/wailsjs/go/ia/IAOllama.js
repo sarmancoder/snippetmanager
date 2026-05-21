@@ -5,3 +5,7 @@
 export function PreguntarOllama(arg1, arg2) {
   return window['go']['ia']['IAOllama']['PreguntarOllama'](arg1, arg2);
 }
+
+export function PreguntarVariosOllama(arg1, arg2) {
+  return window['go']['ia']['IAOllama']['PreguntarVariosOllama'](arg1, arg2);
+}

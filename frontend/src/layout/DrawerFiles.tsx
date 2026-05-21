@@ -9,6 +9,7 @@ import alertMessage from '../utils/AlertMessage'
 import confirmAction from '../utils/ConfirmAction'
 import promptUser from '../utils/PromptUser'
 import OpenFolderButton from '../components/OpenFolderButton'
+import CreateNewFileButton from '../components/CreateNewFileButton'
 
 export default function DrawerFiles() {
     const { setCurrentPathFile, currentPathFile, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
@@ -19,11 +20,7 @@ export default function DrawerFiles() {
     const [draggingNew, setDraggingNew] = useState(false)
 
 
-    const createNewFile = async (content = '{}') => {
-        const response = await promptUser({
-            message: 'Que nombre le quieres poner al archivo'
-        })
-        const fileName = response?.endsWith('.' + filesExtension) ? response : response + `.${filesExtension}`
+    const createNewFile = async (fileName, content = '{}') => {
         if (fileName == null) return
         if (files.find(a => a === fileName)) {
             await alertMessage({ message: 'El fichero existe' })
@@ -39,9 +36,13 @@ export default function DrawerFiles() {
     const handleDragOnEmpty = async (e) => {
         e.preventDefault()
         try {
+            const response = await promptUser({
+                message: 'Que nombre le quieres poner al archivo'
+            })
+            const fileName = response?.endsWith('.' + filesExtension) ? response : response + `.${filesExtension}`
             const data = e.dataTransfer.getData('text')
             if (!data) return
-            const created = await createNewFile(data)
+            const created = await createNewFile(fileName, data)
             if (created !== true) return
             const dataJSON = JSON.parse(data)
             const snippetKey = dataJSON[Object.keys(dataJSON)[0]].key
@@ -67,7 +68,7 @@ export default function DrawerFiles() {
             display: 'flex',
             flexDirection: 'column'
         }}>
-            <Box sx={{overflow: 'auto', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
+            <Box sx={{ overflow: 'auto', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', pt: 2 }}>
                     <OpenFolderButton setfiles={setfiles} setPathFolder={setPathFolder} />
                     <Typography title={pathFolder} variant="subtitle2" color="initial"
@@ -118,16 +119,11 @@ export default function DrawerFiles() {
                     onDragLeave={() => setDraggingNew(false)}
                 />
             </Box>
-            <Button
-                variant="contained" disableElevation size='small'
-                disabled={pathFolder.length == 0} sx={{ margin: 1 }} color="primary"
-                onClick={async () => {
-                    createNewFile()
-                }}
-
-            >
-                Añadir archivo
-            </Button>
+            <Box sx={{margin: 1}}>
+                <CreateNewFileButton onCreateNewFile={async (fileName, content) => {
+                    createNewFile(fileName, content)
+                }} />
+            </Box>
         </Box>
     )
 }
