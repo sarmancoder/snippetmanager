@@ -60,66 +60,64 @@ export default function DrawerFiles() {
         <Box sx={{
             bgcolor: colors.grey[300],
             position: 'fixed',
-            top: 0,
+            top: (theme) => (theme.mixins.toolbar.minHeight as number) + 6,
             left: 0,
             bottom: 0,
             width: drawerWidth,
             display: 'flex',
             flexDirection: 'column'
         }}>
-            <Toolbar />
-            <Box sx={{ display: 'flex', pt: 2 }}>
-                <OpenFolderButton setfiles={setfiles} setPathFolder={setPathFolder} />
-                {/* <IconButton aria-label="abrir" onClick={() => abrirCarpeta('')}>
-                    <Folder />
-                </IconButton> */}
-                <Typography title={pathFolder} variant="subtitle2" color="initial"
-                    onClick={() => AbrirCarpetaEnExplorador(pathFolder)}
-                    sx={{
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: 2,      // Aquí defines el máximo de líneas
-                        overflow: 'hidden',      // Oculta el texto que sobrepasa las 2 líneas
-                        wordBreak: "break-all",  // Útil para rutas largas sin espacios
-                        cursor: 'pointer',
-                        overflowWrap: "anywhere"
-                    }}>
-                    {pathFolder}
-                </Typography>
+            <Box sx={{overflow: 'auto', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
+                <Box sx={{ display: 'flex', pt: 2 }}>
+                    <OpenFolderButton setfiles={setfiles} setPathFolder={setPathFolder} />
+                    <Typography title={pathFolder} variant="subtitle2" color="initial"
+                        onClick={() => AbrirCarpetaEnExplorador(pathFolder)}
+                        sx={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 2,      // Aquí defines el máximo de líneas
+                            overflow: 'hidden',      // Oculta el texto que sobrepasa las 2 líneas
+                            wordBreak: "break-all",  // Útil para rutas largas sin espacios
+                            cursor: 'pointer',
+                            overflowWrap: "anywhere"
+                        }}>
+                        {pathFolder}
+                    </Typography>
+                </Box>
+                <MenuList dense sx={{ pb: 0 }}>
+                    {files.map((item) =>
+                        <FileMenuItem key={item}
+                            isSelected={currentPathFile.endsWith(item)} item={item}
+                            onClick={() => setCurrentPathFile(pathFolder + '/' + item)}
+                            onDelete={async () => {
+                                await EliminarArchivo(
+                                    await UnirRutas([pathFolder, item])
+                                )
+                                setfiles([...files.filter(f => f !== item)])
+                                setCurrentPathFile('')
+                            }}
+                            handleDropSnippet={async (data) => {
+                                const dataJSON = JSON.parse(data)
+                                const snippet = dataJSON[Object.keys(dataJSON)[0]]
+
+                                await AgregarSnippet(await UnirRutas([pathFolder, item]), JSON.stringify(snippet))
+
+                                const snippetKey = snippet.key
+                                console.log('limpiando...', JSON.parse(data))
+                                if (currentSnippetKey == snippetKey)
+                                    setCurrentSnippetKey('')
+                                deleteSnippet(snippetKey)
+                            }}
+                        />
+                    )}
+                </MenuList>
+                <Box className={clsx('droppable-newfile', { 'active': draggingNew })} sx={{ minHeight: '200px', flexGrow: 2 }}
+                    onDrop={handleDragOnEmpty}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDragEnter={() => setDraggingNew(true)}
+                    onDragLeave={() => setDraggingNew(false)}
+                />
             </Box>
-            <MenuList dense sx={{ pb: 0 }}>
-                {files.map((item) =>
-                    <FileMenuItem key={item}
-                        isSelected={currentPathFile.endsWith(item)} item={item}
-                        onClick={() => setCurrentPathFile(pathFolder + '/' + item)}
-                        onDelete={async () => {
-                            await EliminarArchivo(
-                                await UnirRutas([pathFolder, item])
-                            )
-                            setfiles([...files.filter(f => f !== item)])
-                            setCurrentPathFile('')
-                        }}
-                        handleDropSnippet={async (data) => {
-                            const dataJSON = JSON.parse(data)
-                            const snippet = dataJSON[Object.keys(dataJSON)[0]]
-
-                            await AgregarSnippet(await UnirRutas([pathFolder, item]), JSON.stringify(snippet))
-
-                            const snippetKey = snippet.key
-                            console.log('limpiando...', JSON.parse(data))
-                            if (currentSnippetKey == snippetKey)
-                                setCurrentSnippetKey('')
-                            deleteSnippet(snippetKey)
-                        }}
-                    />
-                )}
-            </MenuList>
-            <Box className={clsx('droppable-newfile', { 'active': draggingNew })} style={{ flexGrow: 1 }}
-                onDrop={handleDragOnEmpty}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnter={() => setDraggingNew(true)}
-                onDragLeave={() => setDraggingNew(false)}
-            ></Box>
             <Button
                 variant="contained" disableElevation size='small'
                 disabled={pathFolder.length == 0} sx={{ margin: 1 }} color="primary"
@@ -178,7 +176,7 @@ function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }
                 handleDropSnippet(data);
             }}
         >
-            <Box sx={{display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center'}}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                 <Typography variant="subtitle1" color="initial">{fileName}</Typography>
 
                 <IconButton
