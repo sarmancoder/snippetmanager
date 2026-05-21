@@ -183,3 +183,56 @@ func (f *IAOllama) PreguntarVariosOllama(modelo string, pregunta string) ([]Snip
 
 	return wrapper.Snippets, nil
 }
+
+// OllamaModelsResponse representa la respuesta del endpoint /api/tags de Ollama
+type OllamaModelsResponse struct {
+	Models []OllamaModel `json:"models"`
+}
+
+// OllamaModel contiene la información detallada de un modelo de Ollama
+type OllamaModel struct {
+	Name       string       `json:"name"`
+	Model      string       `json:"model"`
+	ModifiedAt string       `json:"modified_at"`
+	Size       int64        `json:"size"`
+	Digest     string       `json:"digest"`
+	Details    ModelDetails `json:"details"`
+}
+
+// ModelDetails contiene especificaciones técnicas del modelo
+type ModelDetails struct {
+	ParentModel       string   `json:"parent_model"`
+	Format            string   `json:"format"`
+	Family            string   `json:"family"`
+	Families          []string `json:"families"`
+	ParameterSize     string   `json:"parameter_size"`
+	QuantizationLevel string   `json:"quantization_level"`
+}
+
+// ListarModelosOllama obtiene los modelos que están instalados en la instancia local de Ollama
+func (f *IAOllama) ListarModelosOllama() ([]OllamaModel, error) {
+	// Reemplazamos /api/chat por /api/tags
+	urlModelos := "http://localhost:11434/api/tags"
+
+	resp, err := http.Get(urlModelos)
+	if err != nil {
+		return nil, fmt.Errorf("error al conectar con Ollama para listar modelos: %w", err)
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error al leer los modelos de Ollama: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("ollama devolvió un estado de error al listar modelos (%d): %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	var modelosResp OllamaModelsResponse
+	if err := json.Unmarshal(bodyBytes, &modelosResp); err != nil {
+		return nil, fmt.Errorf("error al deserializar los modelos de Ollama: %w", err)
+	}
+
+	return modelosResp.Models, nil
+}
