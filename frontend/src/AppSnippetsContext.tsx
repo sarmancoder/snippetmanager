@@ -4,6 +4,8 @@ import { EscribirArchivo, LeerArchivo } from '../wailsjs/go/main/AdministradorAr
 import confirmAction from './utils/ConfirmAction';
 import { SnippetCreationObject } from './utils/CreateSnippet';
 import alertMessage from './utils/AlertMessage';
+import { useLocalStorage } from '@uidotdev/usehooks';
+import { PaletteMode } from '@mui/material';
 
 const MyContext = createContext<any>(null);
 
@@ -16,6 +18,7 @@ function useAppSnippetsContext() {
     const [snippetsList, setSnippetsList] = useState<SnippetArrayElem[]>([])
     const [currentSnippetKey, setCurrentSnippetKey] = useState('')
     const [saved, setsaved] = useState(true)
+    const [paletteMode, setPaletteMode] = useLocalStorage<PaletteMode>('palette-mode-mui', 'light')
     const [snippetEditing, setSnippetEditing] = useState<SnippetType>({
         body: [],
         scope: '',
@@ -103,6 +106,7 @@ function useAppSnippetsContext() {
     }, [currentPathFile])
 
     return {
+        paletteMode, setPaletteMode,
         currentPathFile, setCurrentPathFile,
         currentPathContent, setCurrentPathContent,
         setSnippetsList, snippetsList, saved, setsaved, activeSnippet,

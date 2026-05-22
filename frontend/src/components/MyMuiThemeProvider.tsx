@@ -1,10 +1,18 @@
-import { createTheme, CssBaseline, ScopedCssBaseline, StyledEngineProvider, ThemeProvider } from "@mui/material";
+import { createTheme, ScopedCssBaseline, StyledEngineProvider, ThemeProvider } from "@mui/material";
+import { useAppContext } from "../AppSnippetsContext";
 
-const theme = createTheme({
-  cssVariables: true,
-});
 
 export default function MyMuiThemeProvider({children}) {
+  const {paletteMode} = useAppContext()
+  console.log('color mode', paletteMode)
+
+  const theme = createTheme({
+    cssVariables: true,
+    palette: {
+      mode: paletteMode
+    }
+  });
+
   return (
     <StyledEngineProvider injectFirst>
       <ScopedCssBaseline>

@@ -10,7 +10,7 @@ function App() {
         return currentSnippetKey.length == 0
     }, [currentSnippetKey])
     return (
-        <Box sx={{height: '100%'}}>
+        <Box sx={{height: '100%', bgcolor: 'background.default'}}>
             <Box sx={{
                 display: isSnippetSelected ? 'none' : 'block',
                 padding: 1,

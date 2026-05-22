@@ -1,5 +1,5 @@
-import { Save } from '@mui/icons-material';
-import { Box, colors, IconButton } from '@mui/material';
+import { DarkMode, LightMode, Save } from '@mui/icons-material';
+import { Box, colors, IconButton, useColorScheme, useTheme } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
 import { useAppContext } from '../AppSnippetsContext';
 
 export default function MyAppBar() {
-    const { saved, setsaved, saveSnippet } = useAppContext();
+    const { saved, setsaved, saveSnippet, paletteMode, setPaletteMode } = useAppContext();
     const saveRef = useRef({ saved, setsaved, saveSnippet });
 
     useEffect(() => {
@@ -42,6 +42,21 @@ export default function MyAppBar() {
                         }}
                     >
                         <Save />
+                    </IconButton>
+                    <IconButton
+                        sx={{ color: saved ? 'white' : colors.red[700] }}
+                        onClick={async () => {
+                            console.log('alternando', paletteMode)
+                            if (paletteMode === 'dark') {
+                                console.log('cambiadno a light')
+                                setPaletteMode('light')
+                            } else {
+                                console.log('cambiadnoa dark')
+                                setPaletteMode('dark')
+                            }
+                        }}
+                    >
+                        {paletteMode == 'light' ? <DarkMode /> : <LightMode />}
                     </IconButton>
                 </Box>
             </Toolbar>
