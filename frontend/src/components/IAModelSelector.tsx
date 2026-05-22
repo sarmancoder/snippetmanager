@@ -34,13 +34,14 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
             setModels(models)
         } catch (error: any) {
             console.dir(error)
-            if (error.includes('no_apikey')) {
+            if (error.includes('no_apikey') || error.includes('user_not_found')) {
                 console.log('NO APIKEY')
                 const apiKey = await promptUser({
                     message: "Es necesaria la apikey de Open Router"
                 })
                 console.log(apiKey)
-                SetApiKeyOpenRouter(apiKey as any)
+                await SetApiKeyOpenRouter(apiKey as any)
+                await loadModels()
             } else {
                 console.log(error)
             }

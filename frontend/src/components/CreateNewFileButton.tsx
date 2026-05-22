@@ -6,6 +6,8 @@ import * as React from 'react';
 import { filesExtension } from '../config';
 import IAService from '../utils/IAUtils';
 import IAModelSelector from './IAModelSelector';
+import { SetApiKeyOpenRouter } from '../../wailsjs/go/ia/IAOpenRouter';
+import promptUser from '../utils/PromptUser';
 
 const style = {
     position: 'absolute',
@@ -25,6 +27,36 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
 
     const [message, setMessage] = React.useState('')
     const [unable, setUnable] = React.useState(false)
+
+    const createFile = async ({fname, desiredContent}) => {
+        try {
+            if (desiredContent.length > 0 && !modelSelected) {
+                setMessage("No has seleccionado el modelo")
+                return
+            }
+            console.log('creando contenido con el modelo:', modelSelected)
+            const contentResult = desiredContent.length == 0
+                ? ''
+                : await new IAService(iaPrefered).ia.preguntarVarios(modelSelected, desiredContent)
+            onCreateNewFile(fname, JSON.stringify(contentResult, null, 4))
+            handleClose()
+        } catch (error: any) {
+            console.log('errooor', error)
+            setMessage(error.message)
+            if (error.includes('no_apikey') || error.includes('User not found')) {
+                console.log('NO APIKEY')
+                const apiKey = await promptUser({
+                    message: "Es necesaria la apikey de Open Router"
+                })
+                await SetApiKeyOpenRouter(apiKey as any)
+                await createFile({fname, desiredContent})
+            } else {
+                console.log(error)
+            }
+        } finally {
+            setUnable(false)
+        }
+    }
 
     return (
         <div>
@@ -50,24 +82,8 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
                             return
                         }
                         const fname = data.fileName.endsWith('.' + filesExtension) ? data.fileName : data.fileName + `.${filesExtension}`
+                        createFile({fname, desiredContent: data.desiredContent})
 
-                        try {
-                            if (data.desiredContent.length > 0 && !modelSelected) {
-                                setMessage("No has seleccionado el modelo")
-                                return
-                            }
-                            console.log('creando contenido con el modelo:', modelSelected)
-                            const contentResult = data.desiredContent.length == 0
-                                ? ''
-                                : await new IAService(iaPrefered).ia.preguntarVarios(modelSelected, data.desiredContent)
-                            onCreateNewFile(fname, JSON.stringify(contentResult, null, 4))
-                            handleClose()
-                        } catch (error: any) {
-                            console.log('errooor', error)
-                            setMessage(error.message)
-                        } finally {
-                            setUnable(false)
-                        }
                     }}>
                         <CardHeader title="Abrir carpeta" />
                         <CardContent>

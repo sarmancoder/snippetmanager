@@ -1,4 +1,5 @@
 import { Box, Button, Card, CardActions, CardHeader, Modal, SxProps } from '@mui/material';
+import { useEffect } from 'react';
 import { confirmable, createConfirmation, type ConfirmDialogProps } from 'react-confirm';
 
 const style: SxProps = {
@@ -23,6 +24,25 @@ type ResponseType = null | boolean
 // 2. El componente que recibe las props de react-confirm + las nuestras
 // Usamos ConfirmDialogProps<Props_Que_Pasamos, Tipo_De_Respuesta>
 const MyDialog = ({ show, proceed, message }: ConfirmDialogProps<AdditionalProps, ResponseType>) => {
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Evita comportamientos por defecto del navegador
+                proceed(true);
+            }
+        };
+
+        // Solo añadimos el escuchador si el modal está abierto
+        if (show) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        // Limpieza fundamental: eliminamos el evento al desmontar o cerrar el modal
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [show, proceed]);
+
     return (
         <Modal
             open={show} 
