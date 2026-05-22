@@ -1,13 +1,11 @@
-import { Folder } from '@mui/icons-material';
-import { Alert, Autocomplete, ButtonGroup, Card, CardActions, CardContent, CardHeader, Divider, IconButton, Paper, TextField, Typography } from '@mui/material';
+import { Alert, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import * as React from 'react';
 import { filesExtension } from '../config';
-import { ia } from '../../wailsjs/go/models';
-import { ListarModelosOllama, PreguntarVariosOllama } from '../../wailsjs/go/ia/IAOllama';
-import { useClickAway, useLocalStorage } from '@uidotdev/usehooks';
+import IAService from '../utils/IAUtils';
+import IAModelSelector from './IAModelSelector';
 
 const style = {
     position: 'absolute',
@@ -23,6 +21,7 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
     const handleClose = () => setOpen(false);
 
     const [modelSelected, setModelSelected] = React.useState('')
+    const [iaPrefered, setIAPrefered] = React.useState('')
 
     const [message, setMessage] = React.useState('')
     const [unable, setUnable] = React.useState(false)
@@ -58,8 +57,9 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
                                 return
                             }
                             console.log('creando contenido con el modelo:', modelSelected)
-                            const contentResult = data.desiredContent.length == 0 ? '' : await PreguntarVariosOllama(modelSelected, data.desiredContent)
-                            console.log('resultado', contentResult)
+                            const contentResult = data.desiredContent.length == 0
+                                ? ''
+                                : await new IAService(iaPrefered).ia.preguntarVarios(modelSelected, data.desiredContent)
                             onCreateNewFile(fname, JSON.stringify(contentResult, null, 4))
                             handleClose()
                         } catch (error: any) {
@@ -77,8 +77,9 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
                                 </Alert>}
                                 <TextField label="Nombre del archivo" name='fileName' />
                                 <TextField label="Pedir contenido a la ia" name='desiredContent' multiline rows={3} />
-                                <OllamaModelSelector onChange={(e) => {
+                                <IAModelSelector onChange={(e) => {
                                     setModelSelected(e.model)
+                                    setIAPrefered(e.iaSelected)
                                 }} />
                             </Box>
                         </CardContent>
@@ -93,99 +94,4 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
             </Modal>
         </div>
     );
-}
-
-type IAEnum = 'ollama' | 'openRouter'
-
-type OllamaModelSelectorProps = {
-    onChange: (value: {model: string, iaSelected: IAEnum}) => void
-}
-function OllamaModelSelector({ onChange }: OllamaModelSelectorProps) {
-    const [models, setModels] = React.useState<ia.OllamaModel[]>([])
-    const [iaPrefered, setIaPrefered] = useLocalStorage<IAEnum>('ia-prefered', 'ollama')
-    const [modelPrefered, setModelPrefered] = useLocalStorage<string>('model-prefered', '')
-    const [open, setOpen] = React.useState(false);
-    const [loading, setLoading] = React.useState(false)
-
-    const ref = useClickAway((e) => {
-        setTimeout(() => {
-            setOpen(false);
-        }, (e.target as HTMLElement).tagName == 'LI' ? 500 : 70);
-    });
-
-    React.useEffect(() => void loadModels(), [])
-
-    const loadModels = async () => {
-        const models = await ListarModelosOllama()
-        setModels(models)
-    }
-
-    const setPreferedIa = async (e, value: IAEnum) => {
-        e.stopPropagation()
-        setIaPrefered(value)
-        setLoading(true)
-        await new Promise((r) => setTimeout(r, 500))
-        setLoading(false)
-    }
-
-    React.useEffect(() => onChange({model: modelPrefered, iaSelected: iaPrefered}) , [modelPrefered])
-
-    const loadingBox = (
-        <Box sx={{height: '250px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-            <Typography variant="body1" color="initial">loading</Typography>
-        </Box>
-    )
-
-    // Buscamos el objeto seleccionado actual dentro de la lista que vino de la API
-    const currentValue = models.find(a => a.model === modelPrefered) || null;
-
-    return (
-        <Autocomplete<ia.OllamaModel> 
-            ref={ref}
-            options={models}
-            open={open}
-            onOpen={() => setOpen(true)}
-            onClose={(event, reason) => {
-                if ((event.target as HTMLElement).tagName == 'LI') {
-                    setOpen(false)
-                }
-            }}
-            
-            // Pasamos el objeto encontrado o null si aún no cargan los modelos
-            value={currentValue}
-            
-            // Obligatorio para comparar objetos por su propiedad única
-            isOptionEqualToValue={(option, value) => option.model === value.model}
-            
-            getOptionLabel={(a) => a.name || ''}
-            getOptionKey={(a) => a.model}
-            
-            // CAMBIO CLAVE: Usamos onChange para capturar el objeto seleccionado, NO el texto escrito
-            onChange={(event, newValue) => {
-                if (newValue) {
-                    setModelPrefered(newValue.model); // Guardamos el ID técnico (ej: 'llama3')
-                } else {
-                    setModelPrefered(''); // Limpiamos si el usuario borra la selección
-                }
-            }}
-            
-            renderInput={(params) => <TextField {...params} label="Modelo ollama" />}
-            slots={{
-                paper: ({ children, ...other }) => {
-                    return (
-                        <Paper {...other}>
-                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', padding: 1 }}>
-                                <ButtonGroup size='small' disableElevation variant="contained" aria-label="Basic button group">
-                                    <Button className='ia-button-setter' onMouseDown={(e) => setPreferedIa(e, 'ollama')} variant={iaPrefered == 'ollama' ? 'contained' : 'text'}>Ollama</Button>
-                                    <Button className='ia-button-setter' onMouseDown={(e) => setPreferedIa(e, 'openRouter')} variant={iaPrefered == 'openRouter' ? 'contained' : 'text'}>OpenRouter</Button>
-                                </ButtonGroup>
-                            </Box>
-                            <Divider />
-                            {loading ? loadingBox : children}
-                        </Paper>
-                    );
-                }
-            }}
-        />
-    )
 }

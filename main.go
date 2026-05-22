@@ -17,6 +17,7 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 	archivos := &AdministradorArchivos{}
+	iAOpenRouter := &ia.IAOpenRouter{}
 	iaOllama := &ia.IAOllama{}
 
 	// Create application with options
@@ -36,6 +37,7 @@ func main() {
 			app,
 			archivos,
 			iaOllama,
+			iAOpenRouter,
 		},
 	})
 

@@ -9,15 +9,6 @@ import (
 	"net/http"
 )
 
-// SnippetState define la estructura exacta para Ollama con el body como array de strings
-type SnippetState struct {
-	Prefix         string   `json:"prefix"`
-	Description    string   `json:"description"`
-	Scope          string   `json:"scope"`
-	Body           []string `json:"body"`
-	IsFileTemplate bool     `json:"isFileTemplate"`
-}
-
 // IAOllama es el nuevo struct independiente para manejar la IA
 type IAOllama struct {
 	ctx context.Context
@@ -187,26 +178,6 @@ func (f *IAOllama) PreguntarVariosOllama(modelo string, pregunta string) ([]Snip
 // OllamaModelsResponse representa la respuesta del endpoint /api/tags de Ollama
 type OllamaModelsResponse struct {
 	Models []OllamaModel `json:"models"`
-}
-
-// OllamaModel contiene la información detallada de un modelo de Ollama
-type OllamaModel struct {
-	Name       string       `json:"name"`
-	Model      string       `json:"model"`
-	ModifiedAt string       `json:"modified_at"`
-	Size       int64        `json:"size"`
-	Digest     string       `json:"digest"`
-	Details    ModelDetails `json:"details"`
-}
-
-// ModelDetails contiene especificaciones técnicas del modelo
-type ModelDetails struct {
-	ParentModel       string   `json:"parent_model"`
-	Format            string   `json:"format"`
-	Family            string   `json:"family"`
-	Families          []string `json:"families"`
-	ParameterSize     string   `json:"parameter_size"`
-	QuantizationLevel string   `json:"quantization_level"`
 }
 
 // ListarModelosOllama obtiene los modelos que están instalados en la instancia local de Ollama
