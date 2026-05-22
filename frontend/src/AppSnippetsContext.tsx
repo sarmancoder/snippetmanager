@@ -13,6 +13,7 @@ export type SnippetType = { body: string[], scope: string, isFileTemplate: boole
 type SnippetArrayElem = SnippetType & { key: string }
 
 function useAppSnippetsContext() {
+    const [iaSnippet, setIaSnippet] = useState({})
     const [currentPathFile, setCurrentPathFile] = useState('');
     const [currentPathContent, setCurrentPathContent] = useState('');
     const [snippetsList, setSnippetsList] = useState<SnippetArrayElem[]>([])
@@ -106,6 +107,7 @@ function useAppSnippetsContext() {
     }, [currentPathFile])
 
     return {
+        iaSnippet, setIaSnippet,
         paletteMode, setPaletteMode,
         currentPathFile, setCurrentPathFile,
         currentPathContent, setCurrentPathContent,

@@ -4,16 +4,24 @@ import DualEditorPage, { EditorActions } from './DualEditorPage';
 
 export default function DualEditorWraper() {
     const editorRef = useRef<EditorActions>(null)
-    const { currentSnippetKey, activeSnippet, setSnippetEditing, setsaved } = useAppContext()
+    const { currentSnippetKey, activeSnippet, setSnippetEditing, setsaved, iaSnippet } = useAppContext()
 
-    // llamar a cuando se cambie el snippet, para actualizarlo en el componente
+    const replaceSnippet = (activeSnippet) => {
+        editorRef.current?.changeValues(activeSnippet)
+    }
+
     useEffect(() => {
-        if (activeSnippet) {
-            editorRef.current?.changeValues({
-                ...activeSnippet,
-                body: activeSnippet.body.join('\n')
-            })
-        }
+        console.log(iaSnippet)
+        if (iaSnippet && Object.keys(iaSnippet).length == 0) return
+        replaceSnippet(iaSnippet)
+    }, [iaSnippet])
+
+    useEffect(() => {
+        if (!activeSnippet) return
+        replaceSnippet({
+            ...activeSnippet,
+            body: activeSnippet.body.join('\n')
+        })
     }, [currentSnippetKey])
 
     return (
