@@ -44,7 +44,7 @@ export default function MyAppBar() {
                         <Save />
                     </IconButton>
                     <IconButton
-                        sx={{ color: saved ? 'white' : colors.red[700] }}
+                        sx={{color: 'white'}}
                         onClick={async () => {
                             console.log('alternando', paletteMode)
                             if (paletteMode === 'dark') {
