@@ -70,31 +70,6 @@ func (f *IAOpenRouter) PreguntarOllama(modelo string, pregunta string) (*Snippet
 		f.ctx = context.Background()
 	}
 
-	/*
-		// Formato estricto basado en JSON Schema para OpenRouter
-		jsonSchema := map[string]interface{}{
-			"type": "json_schema",
-			"json_schema": map[string]interface{}{
-				"name":   "snippet_schema",
-				"strict": true,
-				"schema": map[string]interface{}{
-					"type": "object",
-					"properties": map[string]interface{}{
-						"prefix":      map[string]string{"type": "string"},
-						"description": map[string]string{"type": "string"},
-						"scope":       map[string]string{"type": "string"},
-						"body": map[string]interface{}{
-							"type":  "array",
-							"items": map[string]string{"type": "string"},
-						},
-						"isFileTemplate": map[string]string{"type": "boolean"},
-					},
-					"required":             []string{"prefix", "description", "scope", "body", "isFileTemplate"},
-					"additionalProperties": false,
-				},
-			},
-		}*/
-
 	payload := map[string]interface{}{
 		"model": modelo,
 		"messages": []map[string]interface{}{

@@ -62,12 +62,16 @@ function IACardForm() {
     const [modelSelected, setModelSelected] = React.useState('')
     const [iaPrefered, setIAPrefered] = React.useState('')
 
-    const requestToIA = async (prompt) => {
+    const requestToIA = async (prompt, tries = 5) => {
         try {
             setUnable(true)
-            const response = await new IAService(iaPrefered).ia.preguntarVarios(modelSelected, prompt)
+            const response = await new IAService(iaPrefered).ia.preguntar(modelSelected, prompt)
+            if (response == null) {
+                await requestToIA(prompt, tries - 1)
+                return
+            }
             console.log({responseia: response})
-            setIaSnippet(response[0])
+            setIaSnippet(Array.isArray(response) ? response[0] : response)
         } catch (error: any) {
             console.log('errooor', error)
             setMessage(error.message)
@@ -80,6 +84,12 @@ function IACardForm() {
                 await requestToIA(prompt)
             } else {
                 console.log(error)
+                if (tries > 0) {
+                    console.log('volviendo a intentar', tries - 1)
+                    await requestToIA(prompt, tries - 1)
+                    return
+                }
+                setMessage('Intente mas tarde')
             }
         } finally {
             setUnable(false)
