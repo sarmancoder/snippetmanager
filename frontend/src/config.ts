@@ -1,3 +1,5 @@
+import { SxProps } from "@mui/material";
+
 export const drawerWidth = '200px'
 export const filesExtension = "code-snippets"
 
@@ -36,3 +38,13 @@ export const languageScopes = [
 ] as const;
 
 export type LanguageScopeValue = (typeof languageScopes)[number]['value'] | '';
+
+export const drawerStyle: SxProps<any> = {
+    backgroundColor: 'var(--drawer-color)',
+    position: 'fixed',
+    top: (theme) => (theme.mixins.toolbar.minHeight as number) + 6,
+    bottom: 0,
+    width: drawerWidth,
+    display: 'flex',
+    flexDirection: 'column'
+}

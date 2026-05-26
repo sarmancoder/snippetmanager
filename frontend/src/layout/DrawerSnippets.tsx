@@ -1,6 +1,6 @@
 import { Box, Button, colors, IconButton, List, ListItemButton, ListItemText, Toolbar, Typography } from '@mui/material'
 import { useAppContext } from '../AppSnippetsContext'
-import { drawerWidth } from '../config'
+import { drawerStyle, drawerWidth } from '../config'
 import createSnippet from '../utils/CreateSnippet'
 import { Delete } from '@mui/icons-material'
 
@@ -8,14 +8,8 @@ export default function DrawerSnippets() {
     const { snippetsList, currentPathFile, lookForSave, insertSnippet, deleteSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
     return (
         <Box sx={{
-            bgcolor: colors.grey[300],
-            position: 'fixed',
-            top: (theme) => (theme.mixins.toolbar.minHeight as number) + 6,
-            right: 0,
-            bottom: 0,
-            width: drawerWidth,
-            display: 'flex',
-            flexDirection: 'column'
+            ...drawerStyle,
+            right: '0px'
         }}>
             <Box sx={{flexGrow: '1', overflow: 'auto'}}>
                 <List>

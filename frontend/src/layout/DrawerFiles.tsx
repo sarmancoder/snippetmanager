@@ -1,15 +1,15 @@
-import { Delete, Folder } from '@mui/icons-material'
-import { Box, Button, colors, IconButton, MenuItem, MenuList, Toolbar, Typography } from '@mui/material'
+import { Delete } from '@mui/icons-material'
+import { Box, colors, IconButton, MenuItem, MenuList, SxProps, Typography } from '@mui/material'
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
-import { AbrirCarpetaEnExplorador, AgregarSnippet, EliminarArchivo, EscribirArchivo, LoadLastDirectory, SeleccionarYLeerCarpeta, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
+import { useRef, useState } from 'react'
+import { AbrirCarpetaEnExplorador, AgregarSnippet, EliminarArchivo, EscribirArchivo, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
 import { useAppContext } from '../AppSnippetsContext'
-import { drawerWidth, filesExtension } from '../config'
+import CreateNewFileButton from '../components/CreateNewFileButton'
+import OpenFolderButton from '../components/OpenFolderButton'
+import { drawerStyle, filesExtension } from '../config'
 import alertMessage from '../utils/AlertMessage'
 import confirmAction from '../utils/ConfirmAction'
 import promptUser from '../utils/PromptUser'
-import OpenFolderButton from '../components/OpenFolderButton'
-import CreateNewFileButton from '../components/CreateNewFileButton'
 
 export default function DrawerFiles() {
     const { setCurrentPathFile, currentPathFile, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
@@ -58,15 +58,9 @@ export default function DrawerFiles() {
     }
 
     return (
-        <Box sx={{
-            bgcolor: colors.grey[300],
-            position: 'fixed',
-            top: (theme) => (theme.mixins.toolbar.minHeight as number) + 6,
-            left: 0,
-            bottom: 0,
-            width: drawerWidth,
-            display: 'flex',
-            flexDirection: 'column'
+        <Box className={'drawer'} sx={{
+            ...drawerStyle,
+            left: '0px'
         }}>
             <Box sx={{ overflow: 'auto', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', pt: 2 }}>
@@ -119,7 +113,7 @@ export default function DrawerFiles() {
                     onDragLeave={() => setDraggingNew(false)}
                 />
             </Box>
-            <Box sx={{margin: 1}}>
+            <Box sx={{ margin: 1 }}>
                 <CreateNewFileButton onCreateNewFile={async (fileName, content) => {
                     createNewFile(fileName, content)
                 }} />

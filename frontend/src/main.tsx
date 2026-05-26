@@ -1,9 +1,9 @@
+import './style.css'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import AppContextProvider from './AppSnippetsContext'
 import LayoutApp from './layout'
-import './style.css'
 import MyMuiThemeProvider from './components/MyMuiThemeProvider'
 
 const container = document.getElementById('root')

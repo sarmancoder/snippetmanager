@@ -7,7 +7,8 @@ import { useEffect, useRef } from 'react';
 import { useAppContext } from '../AppSnippetsContext';
 
 export default function MyAppBar() {
-    const { saved, setsaved, saveSnippet, paletteMode, setPaletteMode } = useAppContext();
+    const {mode, setMode} = useColorScheme()
+    const { saved, setsaved, saveSnippet } = useAppContext();
     const saveRef = useRef({ saved, setsaved, saveSnippet });
 
     useEffect(() => {
@@ -28,7 +29,7 @@ export default function MyAppBar() {
     }, []);
 
     return (
-        <AppBar elevation={0} position="fixed">
+        <AppBar elevation={0} position="fixed" sx={{backgroundColor: 'var(--primary-color)'}}>
             <Toolbar>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     AiSnippets
@@ -46,17 +47,16 @@ export default function MyAppBar() {
                     <IconButton
                         sx={{color: 'white'}}
                         onClick={async () => {
-                            console.log('alternando', paletteMode)
-                            if (paletteMode === 'dark') {
+                            if (mode !== 'dark') {
                                 console.log('cambiadno a light')
-                                setPaletteMode('light')
+                                setMode('dark')
                             } else {
                                 console.log('cambiadnoa dark')
-                                setPaletteMode('dark')
+                                setMode('light')
                             }
                         }}
                     >
-                        {paletteMode == 'light' ? <DarkMode /> : <LightMode />}
+                        {mode == 'light' ? <DarkMode /> : <LightMode />}
                     </IconButton>
                 </Box>
             </Toolbar>
