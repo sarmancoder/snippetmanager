@@ -10,6 +10,10 @@ export function AgregarSnippet(arg1, arg2) {
   return window['go']['main']['AdministradorArchivos']['AgregarSnippet'](arg1, arg2);
 }
 
+export function CambiarColorHex() {
+  return window['go']['main']['AdministradorArchivos']['CambiarColorHex']();
+}
+
 export function EliminarArchivo(arg1) {
   return window['go']['main']['AdministradorArchivos']['EliminarArchivo'](arg1);
 }
