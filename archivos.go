@@ -12,8 +12,6 @@ import (
 	goruntime "runtime"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime" // Este es el de Wails
-	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
-	"golang.org/x/sys/windows/registry"
 )
 
 // Estructura para devolver datos combinados al frontend
@@ -33,44 +31,6 @@ func (f *AdministradorArchivos) SetContext(ctx context.Context) {
 // UnirRutas recibe un array de strings desde el frontend y los une
 func (f *AdministradorArchivos) UnirRutas(partes []string) string {
 	return filepath.Join(partes...)
-}
-
-// ObtenerColorEnfasisSistema detecta el color de Windows o macOS
-func ObtenerColorEnfasisSistema() string {
-	// Por defecto usamos tu color tomato como fallback por si algo falla
-	colorHex := "#e24c4c"
-
-	// Si el usuario está en Windows
-	if goruntime.GOOS == "windows" {
-		// Leemos la clave del registro donde Windows guarda el color de énfasis en formato ABGR/RGBA hex
-		k, err := registry.OpenKey(registry.CURRENT_USER, `Software\Microsoft\Windows\DWM`, registry.QUERY_VALUE)
-		if err == nil {
-			defer k.Close()
-			val, _, err := k.GetIntegerValue("AccentColor")
-			if err == nil {
-				// El valor viene como un número uint32 (formato ABGR: Alfa, Azul, Verde, Rojo)
-				// Lo convertimos a formato CSS Hex estándar (#RRGGBB) ignorando el canal alfa
-				r := val & 0xFF
-				g := (val >> 8) & 0xFF
-				b := (val >> 16) & 0xFF
-				colorHex = fmt.Sprintf("#%02x%02x%02x", r, g, b)
-			}
-		}
-	}
-
-	// Si el usuario está en macOS (opcional, por si compilas para Mac)
-	if goruntime.GOOS == "darwin" {
-		// Nota: En macOS leerlo requiere ejecutar un comando de "defaults read"
-		// o usar Cgo. Si necesitas soporte estricto para Mac me avisas y te paso el código.
-	}
-
-	return colorHex
-}
-
-func (a *AdministradorArchivos) CambiarColorHex() {
-	color := ObtenerColorEnfasisSistema()
-	script := fmt.Sprintf("document.documentElement.style.setProperty('--main-color', '%s');", color)
-	wailsRuntime.WindowExecJS(a.ctx, script)
 }
 
 func (f *AdministradorArchivos) SeleccionarYLeerCarpeta(dir string) (*ResultadoCarpeta, error) {

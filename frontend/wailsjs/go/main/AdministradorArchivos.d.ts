@@ -7,8 +7,6 @@ export function AbrirCarpetaEnExplorador(arg1:string):Promise<void>;
 
 export function AgregarSnippet(arg1:string,arg2:string):Promise<void>;
 
-export function CambiarColorHex():Promise<void>;
-
 export function EliminarArchivo(arg1:string):Promise<void>;
 
 export function EscribirArchivo(arg1:string,arg2:string):Promise<void>;

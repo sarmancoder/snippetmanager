@@ -2,7 +2,8 @@ import { Delete } from '@mui/icons-material'
 import { Box, colors, IconButton, MenuItem, MenuList, SxProps, Typography, Button } from '@mui/material'
 import clsx from 'clsx'
 import { useRef, useState } from 'react'
-import { AbrirCarpetaEnExplorador, AgregarSnippet, CambiarColorHex, EliminarArchivo, EscribirArchivo, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
+import { AbrirCarpetaEnExplorador, AgregarSnippet, EliminarArchivo, EscribirArchivo, UnirRutas } from '../../wailsjs/go/main/AdministradorArchivos'
+import { CambiarColorHex } from '../../wailsjs/go/main/GestorColor'
 import { useAppContext } from '../AppSnippetsContext'
 import CreateNewFileButton from '../components/CreateNewFileButton'
 import OpenFolderButton from '../components/OpenFolderButton'
@@ -114,11 +115,6 @@ export default function DrawerFiles() {
                 />
             </Box>
             <Box sx={{ margin: 1 }}>
-                <Button variant="contained" color="primary" onClick={() => {
-                    CambiarColorHex()
-                }}>
-                  Probar
-                </Button>
                 <CreateNewFileButton onCreateNewFile={async (fileName, content) => {
                     createNewFile(fileName, content)
                 }} />

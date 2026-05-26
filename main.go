@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"embed"
+	"fmt"
 	"snippetmanagerwails/ia"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed all:frontend/dist
@@ -17,6 +19,7 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 	archivos := &AdministradorArchivos{}
+	gestorColor := &GestorColor{}
 	iAOpenRouter := &ia.IAOpenRouter{}
 	iaOllama := &ia.IAOllama{}
 
@@ -32,10 +35,17 @@ func main() {
 		OnStartup: func(ctx context.Context) {
 			app.startup(ctx)
 			archivos.SetContext(ctx) // <--- ¡IMPORTANTE! Le pasamos el contexto
+			gestorColor.SetContext(ctx)
+		},
+		OnDomReady: func(ctx context.Context) {
+			color := gestorColor.CambiarColorHex()
+			script := fmt.Sprintf("document.documentElement.style.setProperty('--main-color', '%s');", color)
+			wailsRuntime.WindowExecJS(ctx, script)
 		},
 		Bind: []interface{}{
 			app,
 			archivos,
+			gestorColor,
 			iaOllama,
 			iAOpenRouter,
 		},
