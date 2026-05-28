@@ -1,9 +1,10 @@
 import { Editor, OnMount } from '@monaco-editor/react';
-import { Box, Card, CardContent, CardHeader, FormControlLabel, Switch, TextField } from '@mui/material';
+import { Box, Card, CardContent, CardHeader, FormControlLabel, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useReducer, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from 'react';
 import Select from "react-select";
-import { SnippetType, useAppContext } from '../../AppSnippetsContext';
+import { WrapText } from '@mui/icons-material';
+import { SnippetType } from '../../AppSnippetsContext';
 import { languageScopes, LanguageScopeValue } from '../../config';
 import { SnippetsReplacements } from './SnippetsReplacements';
 
@@ -46,9 +47,10 @@ export interface EditorActions {
 // 2. Defines las props normales de tu componente
 interface EditorProps {
     onChange: (nuevoValor: SnippetState) => void;
+    wordWrap: boolean
 }
 
-export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function DualEditorPage({ onChange }, ref) {
+export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function DualEditorPage({ onChange, wordWrap }, ref) {
     const bodyEditor = useRef<any>(null)
     const jsonResultRef = useRef<any>(null)
 
@@ -170,15 +172,17 @@ export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function Du
                     value={state.description}
                     onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })}
                 />
-                <FormControlLabel
-                    label="Es una plantilla"
-                    control={
-                        <Switch
-                            checked={state.isFileTemplate}
-                            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'isFileTemplate', value: e.target.checked })}
-                        />
-                    }
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <FormControlLabel
+                        label="Es una plantilla"
+                        control={
+                            <Switch
+                                checked={state.isFileTemplate}
+                                onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'isFileTemplate', value: e.target.checked })}
+                            />
+                        }
+                    />
+                </Box>
                 <Card variant="outlined">
                     <CardHeader
                         title="Contenido"
@@ -207,6 +211,7 @@ export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function Du
                             language={currentScope}
                             theme="vs-dark"
                             height="350px"
+                            options={{ wordWrap: wordWrap ? 'on' : 'off' }}
                             onChange={(value) => dispatch({ type: 'SET_FIELD', field: 'body', value: value || '' })}
                             onMount={handleLeftEditorDidMount}
                         />
@@ -221,7 +226,7 @@ export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function Du
                     language="json"
                     theme="vs-dark"
                     height="100%"
-                    options={{ minimap: { enabled: false } }}
+                    options={{ minimap: { enabled: false }, wordWrap: wordWrap ? 'on' : 'off' }}
                     onMount={handleEditorDidMount}
                 />
             </Box>

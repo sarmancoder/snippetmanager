@@ -1,4 +1,4 @@
-import { DarkMode, LightMode, Save } from '@mui/icons-material';
+import { DarkMode, LightMode, Save, WrapText } from '@mui/icons-material';
 import { Box, colors, IconButton, useColorScheme, useTheme } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -7,8 +7,8 @@ import { useEffect, useRef } from 'react';
 import { useAppContext } from '../AppSnippetsContext';
 
 export default function MyAppBar() {
-    const {mode, setMode} = useColorScheme()
-    const { saved, setsaved, saveSnippet } = useAppContext();
+    const { mode, setMode } = useColorScheme()
+    const { saved, setsaved, saveSnippet, wordWrapOn, setWordWrapOn } = useAppContext();
     const saveRef = useRef({ saved, setsaved, saveSnippet });
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export default function MyAppBar() {
     }, []);
 
     return (
-        <AppBar elevation={0} position="fixed" sx={{backgroundColor: 'var(--primary-color)'}}>
+        <AppBar elevation={0} position="fixed" sx={{ backgroundColor: 'var(--primary-color)' }}>
             <Toolbar>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     AiSnippets
@@ -45,7 +45,7 @@ export default function MyAppBar() {
                         <Save />
                     </IconButton>
                     <IconButton
-                        sx={{color: 'white'}}
+                        sx={{ color: 'white' }}
                         onClick={async () => {
                             if (mode !== 'dark') {
                                 console.log('cambiadno a light')
@@ -57,6 +57,13 @@ export default function MyAppBar() {
                         }}
                     >
                         {mode == 'light' ? <DarkMode /> : <LightMode />}
+                    </IconButton>
+                    <IconButton
+                        onClick={() => setWordWrapOn(!wordWrapOn)}
+                        sx={{ color: wordWrapOn ? 'color-mix(in srgb, var(--main-color) 80%, white)' : 'white' }}
+                        size="medium"
+                    >
+                        <WrapText />
                     </IconButton>
                 </Box>
             </Toolbar>

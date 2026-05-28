@@ -19,6 +19,7 @@ function useAppSnippetsContext() {
     const [snippetsList, setSnippetsList] = useState<SnippetArrayElem[]>([])
     const [currentSnippetKey, setCurrentSnippetKey] = useState('')
     const [saved, setsaved] = useState(true)
+    const [wordWrapOn, setWordWrapOn] = useLocalStorage('word-wrap', false)
     const [paletteMode, setPaletteMode] = useLocalStorage<PaletteMode>('palette-mode-mui', 'light')
     const [snippetEditing, setSnippetEditing] = useState<SnippetType>({
         body: [],
@@ -118,6 +119,7 @@ function useAppSnippetsContext() {
         setCurrentSnippetKey, currentSnippetKey,
         snippetEditing, setSnippetEditing,
         saveSnippet, lookForSave,
+        wordWrapOn, setWordWrapOn,
 
         insertSnippet(snippet: SnippetCreationObject) {
             const newSnippet: SnippetArrayElem = {
