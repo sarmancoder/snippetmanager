@@ -13,7 +13,7 @@ import confirmAction from '../utils/ConfirmAction'
 import promptUser from '../utils/PromptUser'
 
 export default function DrawerFiles() {
-    const { setCurrentPathFile, currentPathFile, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
+    const { setCurrentPathFile, currentPathFile, lookForSave, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
 
     const [files, setfiles] = useState<string[]>([])
     const [pathFolder, setPathFolder] = useState('')
@@ -84,7 +84,10 @@ export default function DrawerFiles() {
                     {files.map((item) =>
                         <FileMenuItem key={item}
                             isSelected={currentPathFile.endsWith(item)} item={item}
-                            onClick={() => setCurrentPathFile(pathFolder + '/' + item)}
+                            onClick={async () => {
+                                if (!(await lookForSave())) return
+                                setCurrentPathFile(pathFolder + '/' + item)
+                            }}
                             onDelete={async () => {
                                 await EliminarArchivo(
                                     await UnirRutas([pathFolder, item])

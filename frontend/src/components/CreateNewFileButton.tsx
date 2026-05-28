@@ -8,6 +8,7 @@ import IAService from '../utils/IAUtils';
 import IAModelSelector from './IAModelSelector';
 import { SetApiKeyOpenRouter } from '../../wailsjs/go/ia/IAOpenRouter';
 import promptUser from '../utils/PromptUser';
+import { useAppContext } from '../AppSnippetsContext';
 
 const style = {
     position: 'absolute',
@@ -18,8 +19,12 @@ const style = {
 };
 
 export default function CreateNewFileButton({ onCreateNewFile }) {
+    const { lookForSave } = useAppContext()
     const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
+    const handleOpen = async () => {
+        if (!(await lookForSave())) return
+        setOpen(true);
+    }
     const handleClose = () => {
         if (unable) return;
         setOpen(false)
