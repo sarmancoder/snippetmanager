@@ -20,7 +20,10 @@ const style = {
 export default function CreateNewFileButton({ onCreateNewFile }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleClose = () => {
+        if (unable) return;
+        setOpen(false)
+    };
 
     const [modelSelected, setModelSelected] = React.useState('')
     const [iaPrefered, setIAPrefered] = React.useState('')
@@ -28,7 +31,7 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
     const [message, setMessage] = React.useState('')
     const [unable, setUnable] = React.useState(false)
 
-    const createFile = async ({fname, desiredContent}) => {
+    const createFile = async ({ fname, desiredContent }) => {
         try {
             if (desiredContent.length > 0 && !modelSelected) {
                 setMessage("No has seleccionado el modelo")
@@ -49,7 +52,7 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
                     message: "Es necesaria la apikey de Open Router"
                 })
                 await SetApiKeyOpenRouter(apiKey as any)
-                await createFile({fname, desiredContent})
+                await createFile({ fname, desiredContent })
             } else {
                 console.log(error)
             }
@@ -82,7 +85,7 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
                             return
                         }
                         const fname = data.fileName.endsWith('.' + filesExtension) ? data.fileName : data.fileName + `.${filesExtension}`
-                        createFile({fname, desiredContent: data.desiredContent})
+                        createFile({ fname, desiredContent: data.desiredContent })
 
                     }}>
                         <CardHeader title="Abrir carpeta" />

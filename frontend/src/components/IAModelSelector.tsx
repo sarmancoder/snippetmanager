@@ -9,12 +9,12 @@ import IAService, { IAEnum } from '../utils/IAUtils';
 import promptUser from '../utils/PromptUser';
 
 type IAModelSelectorProps = {
-    onChange: (value: {model: string, iaSelected: IAEnum}) => void
+    onChange: (value: { model: string, iaSelected: IAEnum }) => void
 }
 export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
     const [models, setModels] = React.useState<ia.OllamaModel[]>([])
     const [iaPrefered, setIaPrefered] = useLocalStorage<IAEnum>('ia-prefered', 'ollama')
-    const [modelPrefered, setModelPrefered] = useLocalStorage<string>('model-prefered', '')
+    const [modelPrefered, setModelPrefered] = useLocalStorage<Record<IAEnum, string>>('model-prefered', {})
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false)
 
@@ -28,6 +28,8 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
 
     const loadModels = async () => {
         try {
+            setLoading(true)
+            setModels([])
             console.log(iaPrefered)
             setIaPrefered(iaPrefered)
             const models = await new IAService(iaPrefered).ia.listarModelos()
@@ -45,30 +47,39 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
             } else {
                 console.log(error)
             }
+        } finally {
+            setLoading(false)
         }
     }
 
     const setPreferedIa = async (e, value: IAEnum) => {
         e.stopPropagation()
         setIaPrefered(value)
-        setLoading(true)
-        await new Promise((r) => setTimeout(r, 500))
-        setLoading(false)
     }
 
-    React.useEffect(() => onChange({model: modelPrefered, iaSelected: iaPrefered}) , [modelPrefered])
+    React.useEffect(() => {
+        onChange({
+            model: modelPrefered[iaPrefered] || '',
+            iaSelected: iaPrefered
+        });
+    }, [iaPrefered, modelPrefered, onChange]);
+
+    const currentModel = React.useMemo(() => {
+        return models.find(a => modelPrefered[iaPrefered] == a.model)
+    }, [iaPrefered, modelPrefered, models])
+
+    React.useEffect(() => {
+        console.log('current model', currentModel)
+    }, [currentModel])
 
     const loadingBox = (
-        <Box sx={{height: '250px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <Box sx={{ height: '250px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Typography variant="body1" color="initial">loading</Typography>
         </Box>
     )
 
-    // Buscamos el objeto seleccionado actual dentro de la lista que vino de la API
-    const currentValue = models.find(a => a.model === modelPrefered) || null;
-
     return (
-        <Autocomplete<ia.OllamaModel> 
+        <Autocomplete<ia.OllamaModel>
             ref={ref}
             options={models}
             open={open}
@@ -78,26 +89,41 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
                     setOpen(false)
                 }
             }}
-            
+
             // Pasamos el objeto encontrado o null si aún no cargan los modelos
-            value={currentValue}
-            
+            value={currentModel || null}
+
             // Obligatorio para comparar objetos por su propiedad única
-            isOptionEqualToValue={(option, value) => option.model === value.model}
-            
-            getOptionLabel={(a) => a.name || ''}
-            getOptionKey={(a) => a.model}
-            
+            isOptionEqualToValue={(option, value) => !value || option.model === value.model}
+
+            getOptionLabel={(a) => {
+                console.log('option label', a)
+                return a.name || ''
+            }}
+            getOptionKey={(a) => {
+                console.log('option key', a)
+                return a.model
+            }}
+
             // CAMBIO CLAVE: Usamos onChange para capturar el objeto seleccionado, NO el texto escrito
             onChange={(event, newValue) => {
                 if (newValue) {
-                    setModelPrefered(newValue.model); // Guardamos el ID técnico (ej: 'llama3')
+                    console.log('model prefered onc', modelPrefered)
+                    setModelPrefered({
+                        ...modelPrefered,
+                        [iaPrefered as any]: newValue.model
+                    }); // Guardamos el ID técnico (ej: 'llama3')
                 } else {
-                    setModelPrefered(''); // Limpiamos si el usuario borra la selección
+                    setModelPrefered({
+                        ...modelPrefered,
+                        [iaPrefered as any]: ''
+                    });
                 }
             }}
-            
-            renderInput={(params) => <TextField {...params} label="Modelo" />}
+
+            renderInput={(params) => {
+                return <TextField {...params} label="Modelo" placeholder={currentModel?.name ?? ''} />
+            }}
             slots={{
                 paper: ({ children, ...other }) => {
                     return (
