@@ -74,30 +74,36 @@ export default function DrawerSnippets() {
                             if (!(await lookForSave())) return
                             setCurrentSnippetKey(snippet.key)
                         }}>
-                            <ListItemText primary={(
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography>{snippet.prefix}</Typography>
-                                    <IconButton className='list-item__action'>
-                                        <Delete sx={{ color: 'red' }} onClick={(e) => {
+                            <ListItemText
+                                disableTypography
+                                primary={(
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Typography variant="body1">{snippet.prefix}</Typography>
+                                        <IconButton className='list-item__action' onClick={(e) => {
                                             e.stopPropagation()
                                             e.preventDefault()
                                             deleteSnippet(snippet.key)
-                                        }} />
-                                    </IconButton>
-                                </Box>
-                            )} secondary={(!snippet.description || snippet.description?.length == 0) ? <Box /> :
-                                <span style={{
-                                    display: '-webkit-box',
-                                    WebkitBoxOrient: 'vertical',
-                                    WebkitLineClamp: 2,
-                                    overflow: 'hidden',
-                                    wordBreak: "break-all",
-                                    cursor: 'pointer',
-                                    overflowWrap: "anywhere"
-                                }}>
-                                    {snippet.description}
-                                </span>
-                            } />
+                                        }}>
+                                            <Delete sx={{ color: 'red' }} />
+                                        </IconButton>
+                                    </Box>
+                                )} secondary={(!snippet.description || snippet.description?.length == 0) ? null :
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{
+                                            display: '-webkit-box',
+                                            WebkitBoxOrient: 'vertical',
+                                            WebkitLineClamp: 2,
+                                            overflow: 'hidden',
+                                            wordBreak: "break-all",
+                                            cursor: 'pointer',
+                                            overflowWrap: "anywhere"
+                                        }}
+                                    >
+                                        {snippet.description}
+                                    </Typography>
+                                } />
 
                         </ListItemButton>
                     ))}
