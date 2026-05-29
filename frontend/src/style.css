@@ -33,3 +33,15 @@ html.dark {
     background-color: var(--primary-color) !important;
     color: white !important;
 }
+
+.list-item__action {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease-in-out !important;
+}
+
+.list-item:hover .list-item__action {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: 0.2s !important;
+}
