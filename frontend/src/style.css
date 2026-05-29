@@ -29,4 +29,5 @@ html.dark {
 
 .Mui-selected {
     background-color: var(--primary-color) !important;
+    color: white !important;
 }
