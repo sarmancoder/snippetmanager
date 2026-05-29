@@ -8,34 +8,34 @@ import { Delete } from '@mui/icons-material'
 export default function DrawerSnippets() {
     const { snippetsList, currentPathFile, lookForSave, insertSnippet, deleteSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.ctrlKey && e.key === 'Tab') {
-                e.preventDefault();
-                const keys = snippetsList.map(s => s.key);
-                const currentIndex = keys.indexOf(currentSnippetKey);
+    const changeSnippetShortcut = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key === 'Tab') {
+            e.preventDefault();
+            const keys = snippetsList.map(s => s.key);
+            const currentIndex = keys.indexOf(currentSnippetKey);
 
-                if (e.shiftKey) {
-                    if (currentIndex === 0 || currentIndex === -1) return;
-                    lookForSave().then((canNavigate: boolean) => {
-                        if (canNavigate) {
-                            setCurrentSnippetKey(keys[currentIndex - 1]);
-                        }
-                    });
-                } else {
-                    if (currentIndex === keys.length - 1 || currentIndex === -1) return;
-                    lookForSave().then((canNavigate: boolean) => {
-                        if (canNavigate) {
-                            setCurrentSnippetKey(keys[currentIndex + 1]);
-                        }
-                    });
-                }
+            if (e.shiftKey) {
+                if (currentIndex === 0 || currentIndex === -1) return;
+                lookForSave().then((canNavigate: boolean) => {
+                    if (canNavigate) {
+                        setCurrentSnippetKey(keys[currentIndex - 1]);
+                    }
+                });
+            } else {
+                if (currentIndex === keys.length - 1 || currentIndex === -1) return;
+                lookForSave().then((canNavigate: boolean) => {
+                    if (canNavigate) {
+                        setCurrentSnippetKey(keys[currentIndex + 1]);
+                    }
+                });
             }
-        };
+        }
+    };
 
-        window.addEventListener('keydown', handleKeyDown);
+    useEffect(() => {
+        window.addEventListener('keydown', changeSnippetShortcut);
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keydown', changeSnippetShortcut);
         };
     }, [snippetsList, currentSnippetKey, lookForSave, setCurrentSnippetKey]);
 
