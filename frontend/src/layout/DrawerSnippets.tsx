@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Box, Button, colors, IconButton, List, ListItemButton, ListItemText, Toolbar, Typography } from '@mui/material'
 import { useAppContext } from '../AppSnippetsContext'
 import { drawerStyle, drawerWidth } from '../config'
@@ -6,12 +7,44 @@ import { Delete } from '@mui/icons-material'
 
 export default function DrawerSnippets() {
     const { snippetsList, currentPathFile, lookForSave, insertSnippet, deleteSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.key === 'Tab') {
+                e.preventDefault();
+                const keys = snippetsList.map(s => s.key);
+                const currentIndex = keys.indexOf(currentSnippetKey);
+
+                if (e.shiftKey) {
+                    if (currentIndex === 0 || currentIndex === -1) return;
+                    lookForSave().then((canNavigate: boolean) => {
+                        if (canNavigate) {
+                            setCurrentSnippetKey(keys[currentIndex - 1]);
+                        }
+                    });
+                } else {
+                    if (currentIndex === keys.length - 1 || currentIndex === -1) return;
+                    lookForSave().then((canNavigate: boolean) => {
+                        if (canNavigate) {
+                            setCurrentSnippetKey(keys[currentIndex + 1]);
+                        }
+                    });
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [snippetsList, currentSnippetKey, lookForSave, setCurrentSnippetKey]);
+
     return (
         <Box sx={{
             ...drawerStyle,
             right: '0px'
         }}>
-            <Box sx={{flexGrow: '1', overflow: 'auto'}}>
+            <Box sx={{ flexGrow: '1', overflow: 'auto' }}>
                 <List>
                     {snippetsList.map((snippet, index) => (
                         <ListItemButton draggable={true} onDragStart={(e) => {
