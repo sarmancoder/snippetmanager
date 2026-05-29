@@ -8,11 +8,13 @@
     --primary-color: var(--main-color);
     --appbar-color: var(--primary-color);
     --drawer-color: color-mix(in srgb, var(--primary-color) 30%, #fff);
+    --drawer-header-color: color-mix(in srgb, var(--primary-color) 85%, #fff);
 }
 
 html.dark {
     --primary-color: color-mix(in srgb, var(--main-color) 80%, #000);
-    --drawer-color: color-mix(in srgb, var(--primary-color) 80%, #fff);
+    --drawer-color: rgb(94, 94, 94);
+    --drawer-header-color: rgb(58, 58, 58);
     --mui-palette-AppBar-darkBg: var(--primary-color);
 }
 

@@ -17,7 +17,7 @@ const style = {
 };
 
 export default function OpenFolderButton({ setfiles, setPathFolder }) {
-    const {setSnippetsList, setCurrentPathFile} = useAppContext()
+    const { setSnippetsList, setCurrentPathFile } = useAppContext()
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -47,7 +47,7 @@ export default function OpenFolderButton({ setfiles, setPathFolder }) {
 
     return (
         <div>
-            <IconButton onClick={handleOpen}>
+            <IconButton onClick={handleOpen} sx={{ color: 'white' }}>
                 <Folder />
             </IconButton>
             <Modal

@@ -62,7 +62,7 @@ export default function DrawerFiles() {
             left: '0px'
         }}>
             <Box sx={{ overflow: 'auto', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', pt: 2 }}>
+                <Box sx={{ display: 'flex', py: 1, backgroundColor: 'var(--drawer-header-color)', color: 'white' }}>
                     <OpenFolderButton setfiles={setfiles} setPathFolder={setPathFolder} />
                     <Typography title={pathFolder} variant="subtitle2" color="initial"
                         onClick={() => AbrirCarpetaEnExplorador(pathFolder)}
