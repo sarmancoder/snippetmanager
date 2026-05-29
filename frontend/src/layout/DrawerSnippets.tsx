@@ -39,6 +39,26 @@ export default function DrawerSnippets() {
         };
     }, [snippetsList, currentSnippetKey, lookForSave, setCurrentSnippetKey]);
 
+    const handleAddSnippetShortcut = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'n') {
+            if (currentPathFile.length === 0) return;
+            e.preventDefault();
+            lookForSave().then(async (canProceed: boolean) => {
+                if (!canProceed) return;
+                const snippet = await createSnippet({});
+                if (snippet == null) return;
+                await insertSnippet(snippet);
+            });
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleAddSnippetShortcut);
+        return () => {
+            window.removeEventListener('keydown', handleAddSnippetShortcut);
+        };
+    }, [currentPathFile, lookForSave, insertSnippet]);
+
     return (
         <Box sx={{
             ...drawerStyle,

@@ -15,7 +15,7 @@ const style: SxProps = {
 };
 
 // 1. Definimos qué datos EXTRAS le pasaremos nosotros (solo el mensaje)
-interface AdditionalProps {}
+interface AdditionalProps { }
 
 export type SnippetCreationObject = Pick<SnippetType, 'prefix' | 'description'>
 
@@ -26,7 +26,7 @@ type ResponseType = null | SnippetCreationObject
 const CreateSnippetDialog = ({ show, proceed }: ConfirmDialogProps<AdditionalProps, ResponseType>) => {
     return (
         <Modal
-            open={show} 
+            open={show}
             onClose={() => proceed(null)} // Si cierran el modal sin clickar botones
         >
             <Box sx={style}>
@@ -40,8 +40,8 @@ const CreateSnippetDialog = ({ show, proceed }: ConfirmDialogProps<AdditionalPro
                     proceed(snippet)
                 }}>
                     <CardHeader title={'Nuevo snippet'} />
-                    <CardContent sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                        <TextField label="Prefix" name="prefix" />
+                    <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField autoFocus label="Prefix" name="prefix" />
                         <TextField label="Descripción" name="description" />
                     </CardContent>
                     <CardActions sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 4 }}>

@@ -161,6 +161,7 @@ export const DualEditorPage = forwardRef<EditorActions, EditorProps>(function Du
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 5, p: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <TextField
+                    autoFocus
                     fullWidth
                     label="Prefijo"
                     value={state.prefix}
