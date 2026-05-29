@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 
-	"snippetmanagerwails/storage"
+	"snippetmanager/storage"
 )
 
 // IAOpenRouter mantiene las firmas idénticas (puedes renombrar el struct si quieres,

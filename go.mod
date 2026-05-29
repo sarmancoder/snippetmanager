@@ -1,4 +1,4 @@
-module snippetmanagerwails
+module snippetmanager
 
 go 1.24
 

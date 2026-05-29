@@ -5,13 +5,13 @@
 !include "FileFunc.nsh"
 
 !ifndef INFO_PROJECTNAME
-    !define INFO_PROJECTNAME "snippetmanagerwails"
+    !define INFO_PROJECTNAME "snippetmanager"
 !endif
 !ifndef INFO_COMPANYNAME
-    !define INFO_COMPANYNAME "snippetmanagerwails"
+    !define INFO_COMPANYNAME "snippetmanager"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "snippetmanagerwails"
+    !define INFO_PRODUCTNAME "snippetmanager"
 !endif
 !ifndef INFO_PRODUCTVERSION
     !define INFO_PRODUCTVERSION "1.0.0"
