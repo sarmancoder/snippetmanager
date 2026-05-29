@@ -25,7 +25,6 @@ export default function OpenFolderButton({ setfiles, setPathFolder }) {
     const abrirCarpeta = async (dir: string) => {
         try {
             // Pasamos 'dir' a Go. Si es "", Go debe decidir si abrir Dialog o usar LastPath
-            console.log(dir)
             const r = await SeleccionarYLeerCarpeta(dir ?? '')
             if (r) {
                 setfiles(r.archivos || [])

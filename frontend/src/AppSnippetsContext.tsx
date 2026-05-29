@@ -68,7 +68,6 @@ function useAppSnippetsContext() {
         // await saveList();
         const newList = snippetsList.map(a => {
             if (a.key == currentSnippetKey) {
-                console.log({ snippetEditing })
                 return {
                     ...snippetEditing,
                     key: a.key
@@ -76,7 +75,6 @@ function useAppSnippetsContext() {
             }
             return a
         })
-        console.log({ newList })
         setSnippetsList(newList as any)
     }
 
@@ -87,21 +85,17 @@ function useAppSnippetsContext() {
             return acc;
         }, {});
         const jsonString = JSON.stringify(snippetObj, null, 4);
-        console.log(snippetObj);
         await EscribirArchivo(currentPathFile, jsonString);
     }
 
     async function lookForSave() {
         if (saved) return true
-        console.log('salvando cambios')
         const change = await confirmAction({
             message: "¿Quieres salvar los cambios?",
         })
-        console.log('cambio', change)
         if (change == null) return false
         if (change == true) await saveSnippet()
         setsaved(true)
-        console.log('retornando true')
         return true
     }
 
@@ -135,7 +129,6 @@ function useAppSnippetsContext() {
         },
 
         deleteSnippet(key: string) {
-            console.log({ key, currentSnippetKey })
             setSnippetsList([...snippetsList.filter(a => a.key != key)])
             if (key == currentSnippetKey) setCurrentSnippetKey('')
         }

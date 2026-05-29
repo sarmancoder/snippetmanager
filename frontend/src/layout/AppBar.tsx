@@ -48,10 +48,8 @@ export default function MyAppBar() {
                         sx={{ color: 'white' }}
                         onClick={async () => {
                             if (mode !== 'dark') {
-                                console.log('cambiadno a light')
                                 setMode('dark')
                             } else {
-                                console.log('cambiadnoa dark')
                                 setMode('light')
                             }
                         }}

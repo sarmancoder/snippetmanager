@@ -70,22 +70,17 @@ function IACardForm() {
                 await requestToIA(prompt, tries - 1)
                 return
             }
-            console.log({responseia: response})
             setIaSnippet(Array.isArray(response) ? response[0] : response)
         } catch (error: any) {
-            console.log('errooor', error)
             setMessage(error.message)
             if (error.includes('no_apikey') || error.includes('User not found')) {
-                console.log('NO APIKEY')
                 const apiKey = await promptUser({
                     message: "Es necesaria la apikey de Open Router"
                 })
                 await SetApiKeyOpenRouter(apiKey as any)
                 await requestToIA(prompt)
             } else {
-                console.log(error)
                 if (tries > 0) {
-                    console.log('volviendo a intentar', tries - 1)
                     await requestToIA(prompt, tries - 1)
                     return
                 }

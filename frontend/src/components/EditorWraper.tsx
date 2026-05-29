@@ -11,7 +11,6 @@ export default function DualEditorWraper() {
     }
 
     useEffect(() => {
-        console.log(iaSnippet)
         if (iaSnippet && Object.keys(iaSnippet).length == 0) return
         replaceSnippet(iaSnippet)
     }, [iaSnippet])
@@ -34,9 +33,6 @@ export default function DualEditorWraper() {
             }
 
             setSnippetEditing(snippetEditing)
-
-            console.log(JSON.stringify(snippetEditing))
-            console.log(JSON.stringify(activeSnippet))
 
             const equal = JSON.stringify(snippetEditing) == JSON.stringify(activeSnippet)
             if (!equal) {

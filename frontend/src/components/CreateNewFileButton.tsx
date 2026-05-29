@@ -42,24 +42,19 @@ export default function CreateNewFileButton({ onCreateNewFile }) {
                 setMessage("No has seleccionado el modelo")
                 return
             }
-            console.log('creando contenido con el modelo:', modelSelected)
             const contentResult = desiredContent.length == 0
                 ? ''
                 : await new IAService(iaPrefered).ia.preguntarVarios(modelSelected, desiredContent)
             onCreateNewFile(fname, JSON.stringify(contentResult, null, 4))
             handleClose()
         } catch (error: any) {
-            console.log('errooor', error)
             setMessage(error.message)
             if (error.includes('no_apikey') || error.includes('User not found')) {
-                console.log('NO APIKEY')
                 const apiKey = await promptUser({
                     message: "Es necesaria la apikey de Open Router"
                 })
                 await SetApiKeyOpenRouter(apiKey as any)
                 await createFile({ fname, desiredContent })
-            } else {
-                console.log(error)
             }
         } finally {
             setUnable(false)

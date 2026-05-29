@@ -24,7 +24,6 @@ const MyDialog = ({ show, proceed, message }: ConfirmDialogProps<AdditionalProps
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        console.log('fd response', formData.get('value'))
         proceed(formData.get('value') as string);
     };
 

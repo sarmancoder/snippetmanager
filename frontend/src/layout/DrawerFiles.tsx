@@ -28,7 +28,6 @@ export default function DrawerFiles() {
             return
         }
         const fullPath = await UnirRutas([pathFolder, fileName])
-        console.log('escribiendo archivo', fullPath, content)
         await EscribirArchivo(fullPath, content)
         setfiles([...files, fileName])
         return true
@@ -47,12 +46,11 @@ export default function DrawerFiles() {
             if (created !== true) return
             const dataJSON = JSON.parse(data)
             const snippetKey = dataJSON[Object.keys(dataJSON)[0]].key
-            console.log('limpiando...', JSON.parse(data))
             if (currentSnippetKey == snippetKey)
                 setCurrentSnippetKey('')
             deleteSnippet(snippetKey)
         } catch (error) {
-            console.log(error)
+            // Ignorado
         } finally {
             setDraggingNew(false)
         }
@@ -102,7 +100,6 @@ export default function DrawerFiles() {
                                 await AgregarSnippet(await UnirRutas([pathFolder, item]), JSON.stringify(snippet))
 
                                 const snippetKey = snippet.key
-                                console.log('limpiando...', JSON.parse(data))
                                 if (currentSnippetKey == snippetKey)
                                     setCurrentSnippetKey('')
                                 deleteSnippet(snippetKey)

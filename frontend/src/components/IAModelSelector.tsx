@@ -30,22 +30,17 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
         try {
             setLoading(true)
             setModels([])
-            console.log(iaPrefered)
             setIaPrefered(iaPrefered)
             const models = await new IAService(iaPrefered).ia.listarModelos()
             setModels(models)
         } catch (error: any) {
             console.dir(error)
             if (error.includes('no_apikey') || error.includes('user_not_found')) {
-                console.log('NO APIKEY')
                 const apiKey = await promptUser({
                     message: "Es necesaria la apikey de Open Router"
                 })
-                console.log(apiKey)
                 await SetApiKeyOpenRouter(apiKey as any)
                 await loadModels()
-            } else {
-                console.log(error)
             }
         } finally {
             setLoading(false)
@@ -68,9 +63,7 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
         return models.find(a => modelPrefered[iaPrefered] == a.model)
     }, [iaPrefered, modelPrefered, models])
 
-    React.useEffect(() => {
-        console.log('current model', currentModel)
-    }, [currentModel])
+
 
     const loadingBox = (
         <Box sx={{ height: '250px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -96,19 +89,12 @@ export default function IAModelSelector({ onChange }: IAModelSelectorProps) {
             // Obligatorio para comparar objetos por su propiedad única
             isOptionEqualToValue={(option, value) => !value || option.model === value.model}
 
-            getOptionLabel={(a) => {
-                console.log('option label', a)
-                return a.name || ''
-            }}
-            getOptionKey={(a) => {
-                console.log('option key', a)
-                return a.model
-            }}
+            getOptionLabel={(a) => a.name || ''}
+            getOptionKey={(a) => a.model}
 
             // CAMBIO CLAVE: Usamos onChange para capturar el objeto seleccionado, NO el texto escrito
             onChange={(event, newValue) => {
                 if (newValue) {
-                    console.log('model prefered onc', modelPrefered)
                     setModelPrefered({
                         ...modelPrefered,
                         [iaPrefered as any]: newValue.model
