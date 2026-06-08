@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	goruntime "runtime"
+	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime" // Este es el de Wails
 )
@@ -63,7 +64,9 @@ func (f *AdministradorArchivos) SeleccionarYLeerCarpeta(dir string) (*ResultadoC
 
 	var nombres []string
 	for _, entrada := range entradas {
-		nombres = append(nombres, entrada.Name())
+		if strings.HasSuffix(entrada.Name(), "code-snippets") {
+			nombres = append(nombres, entrada.Name())
+		}
 	}
 
 	f.saveLastDirectory(dir)
