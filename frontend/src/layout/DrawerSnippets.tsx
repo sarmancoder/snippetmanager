@@ -4,6 +4,7 @@ import { useAppContext } from '../AppSnippetsContext'
 import { drawerStyle, drawerWidth } from '../config'
 import createSnippet from '../utils/CreateSnippet'
 import { Delete } from '@mui/icons-material'
+import confirmAction from '../utils/ConfirmAction'
 
 export default function DrawerSnippets() {
     const { snippetsList, currentPathFile, lookForSave, insertSnippet, deleteSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
@@ -79,10 +80,15 @@ export default function DrawerSnippets() {
                                 primary={(
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <Typography variant="body1">{snippet.prefix}</Typography>
-                                        <IconButton className='list-item__action' onClick={(e) => {
+                                        <IconButton className='list-item__action' onClick={async (e) => {
                                             e.stopPropagation()
                                             e.preventDefault()
-                                            deleteSnippet(snippet.key)
+                                            const confirmed = await confirmAction({
+                                                message: '¿Estás seguro que quieres eliminar el snippet?'
+                                            })
+                                            if (confirmed == true){
+                                                deleteSnippet(snippet.key)
+                                            }
                                         }}>
                                             <Delete sx={{ color: 'red' }} />
                                         </IconButton>
