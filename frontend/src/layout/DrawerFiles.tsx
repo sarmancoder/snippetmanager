@@ -178,7 +178,7 @@ function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }
                         const confirmed = await confirmAction({
                             message: '¿Seguro que quieres borrar el archivo?'
                         })
-                        if (!confirmed) return
+                        if (confirmed !== true) return
                         onDelete();
                     }}
                     sx={{ ml: 1 }}
