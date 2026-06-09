@@ -7,6 +7,8 @@ import alertMessage from './utils/AlertMessage';
 import { useLocalStorage } from '@uidotdev/usehooks';
 import { PaletteMode } from '@mui/material';
 
+
+
 const MyContext = createContext<any>(null);
 
 export type SnippetType = { body: string[], scope: string, isFileTemplate: boolean, description: string, prefix: string }

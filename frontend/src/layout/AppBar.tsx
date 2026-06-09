@@ -5,6 +5,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useEffect, useRef } from 'react';
 import { useAppContext } from '../AppSnippetsContext';
+import AppConfigDialogWraper from '../components/config/AppConfigDialog';
 
 export default function MyAppBar() {
     const { mode, setMode } = useColorScheme()
@@ -35,6 +36,7 @@ export default function MyAppBar() {
                     AiSnippets
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2 }}>
+                    <AppConfigDialogWraper />
                     <IconButton
                         sx={{ color: saved ? 'white' : colors.red[700] }}
                         onClick={async () => {
