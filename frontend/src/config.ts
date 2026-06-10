@@ -3,13 +3,6 @@ import { SxProps } from "@mui/material";
 export const drawerWidth = '200px'
 export const filesExtension = "code-snippets"
 
-export const langLocalStorageKey = 'lang'
-
-export const languagesAvailable = [
-    {label: 'Español', value: 'es-ES'},
-    {label: 'Ingles', value: 'en-UK'},
-]
-
 export const languageScopes = [
     // Web Core
     { value: 'javascriptreact', label: 'React JS (JSX)' },

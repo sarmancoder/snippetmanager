@@ -1,9 +1,8 @@
 import { Box, List, ListItem, ListItemText, MenuItem, Select } from '@mui/material'
-import { useLocalStorage } from '@uidotdev/usehooks'
-import { langLocalStorageKey, languagesAvailable } from '../../../config'
+import { useI18nProviderContext } from '../../../I18nProvider'
 
 export default function GeneralConfigTab() {
-    const [lang, setLang] = useLocalStorage(langLocalStorageKey, languagesAvailable[0].value)
+    const { lang, setLang, languagesAvailable } = useI18nProviderContext()
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <List sx={{width: '100%'}}>
