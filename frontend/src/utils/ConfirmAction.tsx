@@ -1,6 +1,7 @@
 import { Box, Button, Card, CardActions, CardHeader, Modal, SxProps } from '@mui/material';
 import { useEffect } from 'react';
 import { confirmable, createConfirmation, type ConfirmDialogProps } from 'react-confirm';
+import I18nProviderContextProvider, { getMessage, useI18nProviderContext } from '../I18nProvider';
 
 const style: SxProps = {
     position: 'absolute',
@@ -21,9 +22,18 @@ interface AdditionalProps {
 
 type ResponseType = null | boolean
 
+function ConfirmDialog(props: ConfirmDialogProps<AdditionalProps, ResponseType>) {
+    return (
+        <I18nProviderContextProvider>
+            <ConfirmDialogInner {...props} />
+        </I18nProviderContextProvider>
+    )
+}
+
 // 2. El componente que recibe las props de react-confirm + las nuestras
 // Usamos ConfirmDialogProps<Props_Que_Pasamos, Tipo_De_Respuesta>
-const MyDialog = ({ show, proceed, message }: ConfirmDialogProps<AdditionalProps, ResponseType>) => {
+function ConfirmDialogInner({ show, proceed, message }: ConfirmDialogProps<AdditionalProps, ResponseType>) {
+    const {$t} = useI18nProviderContext()
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Enter') {
@@ -45,7 +55,7 @@ const MyDialog = ({ show, proceed, message }: ConfirmDialogProps<AdditionalProps
 
     return (
         <Modal
-            open={show} 
+            open={show}
             onClose={() => proceed(null)} // Si cierran el modal sin clickar botones
         >
             <Box sx={style}>
@@ -53,20 +63,20 @@ const MyDialog = ({ show, proceed, message }: ConfirmDialogProps<AdditionalProps
                     <CardHeader title={message} />
                     <CardActions sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 4 }}>
                         <Button variant="contained" disableElevation color="error" onClick={() => proceed(false)}>
-                            No
+                            {$t('response-yes')}
                         </Button>
                         <Button variant="contained" disableElevation color="success" onClick={() => proceed(true)}>
-                            Sí
+                            {$t('response-no')}
                         </Button>
                     </CardActions>
                 </Card>
             </Box>
         </Modal>
     );
-};
+}
 
 // 3. LA CLAVE: confirmable(MyDialog) devuelve un componente que TS ya entiende 
 // que no necesita recibir 'show' o 'proceed' externamente.
-export const confirmAction = createConfirmation(confirmable(MyDialog));
+export const confirmAction = createConfirmation(confirmable(ConfirmDialog));
 
 export default confirmAction;

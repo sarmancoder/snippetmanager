@@ -5,8 +5,10 @@ import { drawerStyle, drawerWidth } from '../config'
 import createSnippet from '../utils/CreateSnippet'
 import { Delete } from '@mui/icons-material'
 import confirmAction from '../utils/ConfirmAction'
+import { useI18nProviderContext } from '../I18nProvider'
 
 export default function DrawerSnippets() {
+    const {$t} = useI18nProviderContext()
     const { snippetsList, currentPathFile, lookForSave, insertSnippet, deleteSnippet, currentSnippetKey, setCurrentSnippetKey } = useAppContext()
 
     const changeSnippetShortcut = (e: KeyboardEvent) => {
@@ -84,9 +86,9 @@ export default function DrawerSnippets() {
                                             e.stopPropagation()
                                             e.preventDefault()
                                             const confirmed = await confirmAction({
-                                                message: '¿Estás seguro que quieres eliminar el snippet?'
+                                                message: $t('confirm-delete-snippet')
                                             })
-                                            if (confirmed == true){
+                                            if (confirmed == true) {
                                                 deleteSnippet(snippet.key)
                                             }
                                         }}>
@@ -121,7 +123,7 @@ export default function DrawerSnippets() {
                 if (snippet == null) return;
                 await insertSnippet(snippet)
             }}>
-                Añadir snippet
+                {$t('action-addsnippet')}
             </Button>
         </Box>
     )

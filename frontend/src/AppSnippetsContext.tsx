@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { EscribirArchivo, LeerArchivo } from '../wailsjs/go/main/AdministradorArchivos';
 import confirmAction from './utils/ConfirmAction';
@@ -6,8 +5,7 @@ import { SnippetCreationObject } from './utils/CreateSnippet';
 import alertMessage from './utils/AlertMessage';
 import { useLocalStorage } from '@uidotdev/usehooks';
 import { PaletteMode } from '@mui/material';
-
-
+import { useI18nProviderContext } from './I18nProvider';
 
 const MyContext = createContext<any>(null);
 
@@ -15,6 +13,8 @@ export type SnippetType = { body: string[], scope: string, isFileTemplate: boole
 type SnippetArrayElem = SnippetType & { key: string }
 
 function useAppSnippetsContext() {
+    const { $t } = useI18nProviderContext();
+
     const [iaSnippet, setIaSnippet] = useState({})
     const [currentPathFile, setCurrentPathFile] = useState('');
     const [currentPathContent, setCurrentPathContent] = useState('');
@@ -60,14 +60,15 @@ function useAppSnippetsContext() {
                 setCurrentPathContent(r)
                 setSnippetsList(snippetsArray);
             } catch (error) {
-                alertMessage({ message: 'Archivo JSON no válido' })
+                alertMessage({
+                    message: $t('error-invalid-json-file')
+                })
                 setCurrentPathFile('')
             }
         })
     }, [currentPathFile])
 
     async function saveSnippet() {
-        // await saveList();
         const newList = snippetsList.map(a => {
             if (a.key == currentSnippetKey) {
                 return {
@@ -82,26 +83,35 @@ function useAppSnippetsContext() {
 
     async function saveList() {
         if (currentPathFile === '') return
+
         const snippetObj = snippetsList.reduce((acc, { key, ...curr }) => {
             acc[key] = key == currentSnippetKey ? snippetEditing : curr;
             return acc;
         }, {});
+
         const jsonString = JSON.stringify(snippetObj, null, 4);
         await EscribirArchivo(currentPathFile, jsonString);
     }
 
     async function lookForSave() {
         if (saved) return true
+
         const change = await confirmAction({
-            message: "¿Quieres salvar los cambios?",
+            message: $t('confirm-save-changes'),
         })
+
         if (change == null) return false
-        if (change == true) await saveSnippet()
+
+        if (change == true) {
+            await saveSnippet()
+        }
+
         setsaved(true)
         return true
     }
 
     useEffect(() => void saveList(), [snippetsList])
+
     useEffect(() => {
         setCurrentSnippetKey('')
     }, [currentPathFile])
@@ -125,20 +135,26 @@ function useAppSnippetsContext() {
                 scope: '',
                 isFileTemplate: false
             }
+
             const newSnippetList: typeof snippetsList = [...snippetsList, newSnippet]
+
             setSnippetsList(newSnippetList)
             setCurrentSnippetKey(newSnippet.key)
         },
 
         deleteSnippet(key: string) {
             setSnippetsList([...snippetsList.filter(a => a.key != key)])
-            if (key == currentSnippetKey) setCurrentSnippetKey('')
+
+            if (key == currentSnippetKey) {
+                setCurrentSnippetKey('')
+            }
         }
     };
 }
 
 export default function AppContextProvider({ children }) {
     const data = useAppSnippetsContext();
+
     return (
         <MyContext.Provider value={data}>
             {children}
@@ -148,6 +164,10 @@ export default function AppContextProvider({ children }) {
 
 export function useAppContext() {
     const data = useContext<ReturnType<typeof useAppSnippetsContext>>(MyContext);
-    if (!data) throw new Error('useMyContext must be used within a MyProvider');
+
+    if (!data) {
+        throw new Error('useMyContext must be used within a MyProvider');
+    }
+
     return data;
 }

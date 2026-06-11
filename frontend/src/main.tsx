@@ -13,14 +13,14 @@ const root = createRoot(container!)
 
 root.render(
     <React.StrictMode>
-        <AppContextProvider>
-            <MyMuiThemeProvider>
-                <I18nProviderContextProvider>
+        <I18nProviderContextProvider>
+            <AppContextProvider>
+                <MyMuiThemeProvider>
                     <LayoutApp>
                         <App />
                     </LayoutApp>
-                </I18nProviderContextProvider>
-            </MyMuiThemeProvider>
-        </AppContextProvider>
+                </MyMuiThemeProvider>
+            </AppContextProvider>
+        </I18nProviderContextProvider>
     </React.StrictMode>
 )

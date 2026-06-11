@@ -11,8 +11,10 @@ import { drawerStyle, filesExtension } from '../config'
 import alertMessage from '../utils/AlertMessage'
 import confirmAction from '../utils/ConfirmAction'
 import promptUser from '../utils/PromptUser'
+import { useI18nProviderContext } from '../I18nProvider'
 
 export default function DrawerFiles() {
+    const { $t } = useI18nProviderContext()
     const { setCurrentPathFile, currentPathFile, lookForSave, currentSnippetKey, setCurrentSnippetKey, deleteSnippet } = useAppContext()
 
     const [files, setfiles] = useState<string[]>([])
@@ -24,7 +26,7 @@ export default function DrawerFiles() {
     const createNewFile = async (fileName, content = '{}') => {
         if (fileName == null) return
         if (files.find(a => a === fileName)) {
-            await alertMessage({ message: 'El fichero existe' })
+            await alertMessage({ message: $t('error-file-exists') })
             return
         }
         const fullPath = await UnirRutas([pathFolder, fileName])
@@ -37,7 +39,7 @@ export default function DrawerFiles() {
         e.preventDefault()
         try {
             const response = await promptUser({
-                message: 'Que nombre le quieres poner al archivo'
+                message: $t('prompt-ask-filename')
             })
             const fileName = response?.endsWith('.' + filesExtension) ? response : response + `.${filesExtension}`
             const data = e.dataTransfer.getData('text')
@@ -132,6 +134,7 @@ type FileMenuItemProps = {
 }
 
 function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }: FileMenuItemProps) {
+    const { $t } = useI18nProviderContext() // Añadido aquí también para el modal de confirmación
     const fileName = item.replace('.' + filesExtension, '');
     const [droppingSnippet, setDroppingSnippet] = useState(false);
     const dragCounter = useRef(0);
@@ -176,7 +179,7 @@ function FileMenuItem({ item, isSelected, onClick, onDelete, handleDropSnippet }
                     onClick={async (e) => {
                         e.stopPropagation();
                         const confirmed = await confirmAction({
-                            message: '¿Seguro que quieres borrar el archivo?'
+                            message: $t('confirm-delete-file')
                         })
                         if (confirmed !== true) return
                         onDelete();
