@@ -23,11 +23,11 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
     }, [])
 
     return (
-        <aside className={cn('p-2',
+        <aside className={cn('py-2',
             'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) left-0',
             'bg-gray-200 dark:bg-gray-800'
         )}>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center px-2">
                 <div className="text-2xl dark:text-white">
                     <FaFolder onClick={async () => {
                         const folder = await invoke<string>('select_directory')
@@ -43,10 +43,20 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
             </div>
             <hr className="mb-4" />
             <div>
-                {files.map((item) => <div key={item}>
-                    <Button variant={"ghost"} className={'dark:text-white'}>{item.replace(extensionSnippetFiles, '')}</Button>
-                </div>)}
+                {files.map((item) => <FileItem item={item} />)}
             </div>
         </aside>
     );
+}
+
+function FileItem({ item }: { item: string }) {
+    return (
+        <div key={item} className={cn(
+            "py-1 hover:bg-primary px-2 text-xl hover:text-white transition-colors cursor-pointer"
+        )}>
+            <span>
+                {item.replace(extensionSnippetFiles, '')}
+            </span>
+        </div>
+    )
 }
