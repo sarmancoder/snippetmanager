@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 import {FaSave} from 'react-icons/fa'
 import ModeToggle from '../ModeToggle';
+import FilesDrawer from './FilesDrawer';
 type LayoutProps = {
   children: ReactNode;
 };
@@ -16,12 +17,7 @@ export default function LayoutApp({ children }: LayoutProps) {
                 <ModeToggle />
             </div>
         </header>
-        <aside className={cn('p-2',
-                'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) left-0',
-                'bg-(--color-sidebar-primary)'
-            )}>
-            <p>Aside left</p>
-        </aside>
+        <FilesDrawer />
         <aside className={cn('p-2',
                 'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) right-0',
                 'bg-(--color-sidebar-primary)'

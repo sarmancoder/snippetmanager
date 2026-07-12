@@ -1,0 +1,45 @@
+import { invoke } from "@tauri-apps/api/core";
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { useAppProviderContext } from '../providers/AppProvider';
+import { Button } from "../ui/button";
+import {FaFolder} from 'react-icons/fa'
+import { extensionSnippetFiles } from "@/vars";
+type FilesDrawerProps = {
+};
+
+export default function FilesDrawer({}: FilesDrawerProps) {
+    const {pathFolder, setPathFolder} = useAppProviderContext()
+    const [files, setFiles] = useState<string[]>([])
+
+    useEffect(() => {
+        invoke<any>('get_snippet_files').then((r) => {
+            setPathFolder(r.path)
+            setFiles(r.files)
+        })
+    }, [])
+
+    return (
+        <aside className={cn('p-2',
+            'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) left-0',
+            'bg-gray-200 dark:bg-gray-800'
+        )}>
+            <div className="flex gap-2 items-center">
+                <div  className="text-2xl dark:text-white">
+                    <FaFolder />
+                </div>
+                <span className="cursor-pointer dark:text-white overflow-hidden text-wrap wrap-break-word" onClick={() => {
+                    invoke('open_folder', {path: pathFolder})
+                }}>
+                    {pathFolder}
+                </span>
+            </div>
+            <hr className="mb-4" />
+            <div>
+                {files.map((item) => <div key={item}>
+                    <Button variant={"ghost"} className={'dark:text-white'}>{item.replace(extensionSnippetFiles, '')}</Button>
+                </div>)}
+            </div>
+        </aside>
+    );
+}
