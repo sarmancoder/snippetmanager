@@ -1,25 +1,11 @@
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
-import { useState } from "react";
-import { Button } from "./components/ui/button";
+import LayoutApp from "./components/layout/layout";
+import "./styles.css";
 
 function App() {
-  const [message, setMessage] = useState('')
   return (
-    <main>
+    <LayoutApp>
       <p>Holaa</p>
-      <button onClick={() => {
-        invoke<string>('greet', {name: 'Raúl'}).then((r) => {
-          console.log(r)
-          setMessage(r)
-        })
-      }}>
-        llamar
-      </button>
-      <span>{message}</span>
-      <h1 className="text-2xl">tailwind instalado</h1>
-      <Button>Hola shadcn</Button>
-    </main>
+    </LayoutApp>
   );
 }
 
