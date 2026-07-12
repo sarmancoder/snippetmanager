@@ -16,6 +16,7 @@ function App() {
         llamar
       </button>
       <span>{message}</span>
+      <h1 className="text-2xl">tailwind instalado</h1>
     </main>
   );
 }
