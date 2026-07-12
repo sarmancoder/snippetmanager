@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
 import { FaFolder } from 'react-icons/fa'
 import { extensionSnippetFiles, localstoragekeys } from "@/vars";
+
 type FilesDrawerProps = {
 };
 
@@ -49,10 +50,16 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
 }
 
 function FileItem({ item }: { item: string }) {
+    const {pathFolder, activeFile, setJsonSnippets, setActiveFile} = useAppProviderContext()
     return (
         <div key={item} className={cn(
-            "py-1 hover:bg-primary px-2 text-xl hover:text-white transition-colors cursor-pointer"
-        )}>
+            "py-1 hover:bg-primary px-2 text-xl hover:text-white transition-colors cursor-pointer",
+            {'text-white bg-primary': activeFile == item}
+        )} onClick={async () => {
+            setActiveFile(item)
+            const contents = await invoke<string>('read_file', {path: pathFolder, filename: item})
+            setJsonSnippets(contents)
+        }}>
             <span>
                 {item.replace(extensionSnippetFiles, '')}
             </span>

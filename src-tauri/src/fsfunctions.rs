@@ -167,3 +167,15 @@ pub fn open_folder(path: &str) -> Result<(), String> {
 
     Err("unsupported platform".into())
 }
+
+#[tauri::command]
+pub fn read_file(path: &str, filename: &str) -> Result<String, String> {
+    if path.is_empty() || filename.is_empty() {
+        return Err("empty path or filename".into());
+    }
+
+    let full_path = std::path::Path::new(path).join(filename);
+    std::fs::read_to_string(full_path).map_err(|e| e.to_string())
+}
+
+

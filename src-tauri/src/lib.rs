@@ -3,8 +3,7 @@ mod fsfunctions;
 use fsfunctions::open_folder; // <--- AGREGA ESTA LÍNEA
 use fsfunctions::get_snippet_files; // <--- AGREGA ESTA LÍNEA
 use fsfunctions::select_directory; // <--- AGREGA ESTA LÍNEA
-
-use serde::Serialize;
+use fsfunctions::read_file; // <--- AGREGA ESTA LÍNEA
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -20,6 +19,7 @@ pub fn run() {
             greet,
             get_snippet_files,
             select_directory,
+            read_file,
             open_folder
         ])
         .run(tauri::generate_context!())

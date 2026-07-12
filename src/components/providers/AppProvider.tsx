@@ -5,12 +5,17 @@ const AppProviderContext = createContext<any>(null);
 
 type AppProviderContextProviderProps = {
     pathFolder?: string
+    activeFile?: string
 }
 
 function useAppProviderContextData() {
     const [pathFolder, setPathFolder] = useState('')
+    const [activeFile, setActiveFile] = useState('')
+    const [jsonSnippets, setJsonSnippets] = useState('')
     return {
-        pathFolder, setPathFolder
+        pathFolder, setPathFolder,
+        activeFile, setActiveFile,
+        jsonSnippets, setJsonSnippets
     };
 }
 
