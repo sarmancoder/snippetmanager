@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import {FaSave} from 'react-icons/fa'
 import ModeToggle from '../ModeToggle';
 import FilesDrawer from './FilesDrawer';
+import SnippetsDrawer from './SnippetsDrawer';
 type LayoutProps = {
   children: ReactNode;
 };
@@ -18,12 +19,7 @@ export default function LayoutApp({ children }: LayoutProps) {
             </div>
         </header>
         <FilesDrawer />
-        <aside className={cn('p-2',
-                'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) right-0',
-                'bg-(--color-sidebar-primary)'
-            )}>
-            <p>Aside right</p>
-        </aside>
+        <SnippetsDrawer />
         <main className='fixed top-(--height-appbar) left-(--drawer-width) right-(--drawer-width)'>
             <div className="p-2">
                 {children}

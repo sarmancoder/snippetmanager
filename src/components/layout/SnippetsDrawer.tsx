@@ -1,0 +1,54 @@
+import { cn } from '@/lib/utils';
+import { useEffect, useMemo } from 'react';
+import { useAppProviderContext } from '../providers/AppProvider';
+
+type SnippetsDrawerProps = {
+};
+
+type SnippetItem = {
+    key: string,
+    description: string,
+    isFileTemplate: boolean,
+    body: string[],
+    scope: string,
+    prefix: string
+}
+
+export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
+    const {jsonSnippets} = useAppProviderContext()
+
+    const snippetsList = useMemo<SnippetItem[]>(() => {
+        if (jsonSnippets.length == 0) return []
+        try {
+            const dataSnippets = JSON.parse(jsonSnippets)
+            return Object.keys(dataSnippets).map((a) => {
+                return {
+                    key: a,
+                    ...dataSnippets[a]
+                }
+            })
+        } catch (error) {
+            console.log('Hubo un error:', error)
+            console.log(jsonSnippets)
+            return []
+        }
+    }, [jsonSnippets])
+
+    useEffect(() => {
+        console.log('valor de la variable snippetsList', snippetsList)
+    }, [snippetsList])
+
+    return (
+        <aside className={cn('py-2',
+            'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) right-0',
+            'bg-gray-200 dark:bg-gray-800'
+        )}>
+            <div>
+                {snippetsList.map((item) => <div key={item.key} className='hover:bg-primary px-2 hover:text-white cursor-pointer'>
+                    <h3 className='font-bold text-lg'>{item.prefix}</h3>
+                    <p>{item.description}</p>
+                </div>)}
+            </div>
+        </aside>
+    );
+}
