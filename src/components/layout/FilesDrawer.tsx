@@ -2,7 +2,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
-import { Button } from "../ui/button";
 import { FaFolder } from 'react-icons/fa'
 import { extensionSnippetFiles, localstoragekeys } from "@/vars";
 type FilesDrawerProps = {
