@@ -3,20 +3,23 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
 import { Button } from "../ui/button";
-import {FaFolder} from 'react-icons/fa'
-import { extensionSnippetFiles } from "@/vars";
+import { FaFolder } from 'react-icons/fa'
+import { extensionSnippetFiles, localstoragekeys } from "@/vars";
 type FilesDrawerProps = {
 };
 
-export default function FilesDrawer({}: FilesDrawerProps) {
-    const {pathFolder, setPathFolder} = useAppProviderContext()
+export default function FilesDrawer({ }: FilesDrawerProps) {
+    const { pathFolder, setPathFolder } = useAppProviderContext()
     const [files, setFiles] = useState<string[]>([])
 
+    const openFolder = (folder: string) => invoke<any>('get_snippet_files', { folder }).then((r) => {
+        setPathFolder(r.path)
+        setFiles(r.files)
+    })
+
     useEffect(() => {
-        invoke<any>('get_snippet_files').then((r) => {
-            setPathFolder(r.path)
-            setFiles(r.files)
-        })
+        const lastOpened = localStorage.getItem(localstoragekeys.last_opened) ?? ''
+        openFolder(lastOpened)
     }, [])
 
     return (
@@ -25,11 +28,15 @@ export default function FilesDrawer({}: FilesDrawerProps) {
             'bg-gray-200 dark:bg-gray-800'
         )}>
             <div className="flex gap-2 items-center">
-                <div  className="text-2xl dark:text-white">
-                    <FaFolder />
+                <div className="text-2xl dark:text-white">
+                    <FaFolder onClick={async () => {
+                        const folder = await invoke<string>('select_directory')
+                        localStorage.setItem(localstoragekeys.last_opened, folder)
+                        openFolder(folder)
+                    }} />
                 </div>
                 <span className="cursor-pointer dark:text-white overflow-hidden text-wrap wrap-break-word" onClick={() => {
-                    invoke('open_folder', {path: pathFolder})
+                    invoke('open_folder', { path: pathFolder })
                 }}>
                     {pathFolder}
                 </span>
