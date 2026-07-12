@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { useState } from "react";
+import { Button } from "./components/ui/button";
 
 function App() {
   const [message, setMessage] = useState('')
@@ -17,6 +18,7 @@ function App() {
       </button>
       <span>{message}</span>
       <h1 className="text-2xl">tailwind instalado</h1>
+      <Button>Hola shadcn</Button>
     </main>
   );
 }
