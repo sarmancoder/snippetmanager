@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 import {FaSave} from 'react-icons/fa'
+import ModeToggle from '../ModeToggle';
 type LayoutProps = {
   children: ReactNode;
 };
@@ -12,6 +13,7 @@ export default function LayoutApp({ children }: LayoutProps) {
             <h1 className='text-xl text-white'>Snippets app</h1>
             <div className="flex flex-row gap-2">
                 <SaveButton />
+                <ModeToggle />
             </div>
         </header>
         <aside className={cn('p-2',

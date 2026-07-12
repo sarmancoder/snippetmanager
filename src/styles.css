@@ -3,5 +3,5 @@
 :root {
     --height-appbar: 50px;
     --drawer-width: 250px;
-    --color-sidebar-primary: color-mix(in srgb, var(--sidebar-primary) 40%, white);
+    /*--color-sidebar-primary: color-mix(in srgb, var(--sidebar-primary) 40%, white);*/
 }

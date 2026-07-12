@@ -1,11 +1,14 @@
 import LayoutApp from "./components/layout/layout";
+import { ThemeProvider } from "./components/providers/ThemeProvider";
 import "./styles.css";
 
 function App() {
   return (
-    <LayoutApp>
-      <p>Holaa</p>
-    </LayoutApp>
+    <ThemeProvider>
+      <LayoutApp>
+        <p>Holaa</p>
+      </LayoutApp>
+    </ThemeProvider>
   );
 }
 
