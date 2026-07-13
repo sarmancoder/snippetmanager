@@ -25,7 +25,6 @@ export default function DualEditor({ }: DualEditorProps) {
             prefix, description, isTemplateFile, body
         }, null, 4)
         setJsonSnippetResult(newData)
-        console.log(resultref.current)
         if (!resultref.current.isFocused?.()) {
             resultref.current.changeContent?.(newData)
         }
