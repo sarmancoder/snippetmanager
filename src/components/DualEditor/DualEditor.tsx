@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { Field, FieldLabel } from '../ui/field';
@@ -20,21 +20,13 @@ export default function DualEditor({ }: DualEditorProps) {
     const resultref = useRef(null);
     const editorRef = useRef(null)
 
-    const updateJSONSnippet = (setStateFN: () => void, key: string, value: any) => {
-        setStateFN()
-        const newData = {
-            ...{prefix, description, isTemplateFile, body},
-            [key]: value
-        }
-        if (key == 'body') {
-            console.log({jsonSnippetResult, newData})
-        }
-        setJsonSnippetResult(JSON.stringify(newData, null, 2))
-    }
-
     useEffect(() => {
-        console.log('valor de la variable jsonSnippetResult', jsonSnippetResult)
-    }, [jsonSnippetResult])
+        const newData = JSON.stringify({
+            prefix, description, isTemplateFile, body
+        }, null, 2)
+        setJsonSnippetResult(newData)
+        console.log('valor de la variable jsonSnippetResult', newData)
+    }, [prefix, description, isTemplateFile, body])
 
     return (
         <div className="flex gap-2 h-[800px]">
@@ -42,19 +34,35 @@ export default function DualEditor({ }: DualEditorProps) {
                 <div className="flex flex-col gap-2 h-full">
                     <Field>
                         <FieldLabel htmlFor='prefix-field'>Prefijo</FieldLabel>
-                        <Input id='prefix-field' value={prefix}
-                            onChange={(e) => updateJSONSnippet(() => setPrefix(e.target.value), 'prefix', e.target.value)}
+                        <Input
+                            id='prefix-field'
+                            value={prefix}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                setPrefix(newValue);
+                            }}
                         />
                     </Field>
+
                     <Field>
                         <FieldLabel htmlFor='desc-field'>Descripción</FieldLabel>
-                        <Input id='desc-field' value={description}
-                            onChange={(e) => updateJSONSnippet(() => setDescription(e.target.value), 'description', e.target.value)}
+                        <Input
+                            id='desc-field'
+                            value={description}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                setDescription(newValue);
+                            }}
                         />
                     </Field>
+
                     <Field orientation="horizontal">
-                        <Checkbox id="template-field" checked={isTemplateFile}
-                            onCheckedChange={(e) => updateJSONSnippet(() => setIsTemplateFile(e), 'isTemplateFile', e)}
+                        <Checkbox
+                            id="template-field"
+                            checked={isTemplateFile}
+                            onCheckedChange={(checked) => {
+                                setIsTemplateFile(checked);
+                            }}
                         />
                         <Label htmlFor="template-field">Es una plantilla</Label>
                     </Field>
@@ -65,7 +73,7 @@ export default function DualEditor({ }: DualEditorProps) {
                         <CardContent ref={editorRef} className='h-full'>
                             <CodeEditor ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
                                 const body = content.split('\n').map((e) => e.replace('\r', ''))
-                                updateJSONSnippet(() => setBody(body), 'body', body)
+                                setBody(body)
                             }} />
                         </CardContent>
                     </Card>
@@ -77,7 +85,7 @@ export default function DualEditor({ }: DualEditorProps) {
                         <CardTitle>Resultado</CardTitle>
                     </CardHeader>
                     <CardContent ref={resultref} className='h-full'>
-                        <CodeEditor ref={resultref} defaultLanguage='json' />
+                        <CodeEditor ref={resultref} defaultLanguage='json' value={jsonSnippetResult} />
                     </CardContent>
                 </Card>
             </div>
