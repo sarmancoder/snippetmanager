@@ -34,16 +34,6 @@ export default function CodeEditor({ ref, value, theme = 'vs-dark', onChange, ..
     }
 
     useEffect(() => {
-        if (!value) return
-        if (editor.current === null) return
-        const estaEnFocus = editor.current.hasWidgetFocus();
-        if (estaEnFocus) return
-        if (editor.current.getValue() !== value) {
-            editor.current.setValue(value);
-        }
-    }, [value])
-
-    useEffect(() => {
         if (!ref.current) return;
         const observer = new ResizeObserver((entries) => {
             for (let entry of entries) {

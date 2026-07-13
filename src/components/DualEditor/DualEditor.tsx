@@ -25,6 +25,10 @@ export default function DualEditor({ }: DualEditorProps) {
             prefix, description, isTemplateFile, body
         }, null, 4)
         setJsonSnippetResult(newData)
+        console.log(resultref.current)
+        if (!resultref.current.isFocused?.()) {
+            resultref.current.changeContent?.(newData)
+        }
         console.log('valor de la variable jsonSnippetResult', newData)
     }, [prefix, description, isTemplateFile, body])
 
@@ -88,7 +92,7 @@ export default function DualEditor({ }: DualEditorProps) {
                         <CodeEditor id="resultsnippet" ref={resultref} defaultLanguage='json' value={jsonSnippetResult} onChange={(c) => {
                             try {
                                 if (!resultref.current!.isFocused()) return
-                                
+
                                 const snippetData = JSON.parse(c)
                                 console.log(snippetData)
                                 setPrefix(snippetData.prefix)
