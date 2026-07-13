@@ -23,7 +23,7 @@ export default function DualEditor({ }: DualEditorProps) {
     useEffect(() => {
         const newData = JSON.stringify({
             prefix, description, isTemplateFile, body
-        }, null, 2)
+        }, null, 4)
         setJsonSnippetResult(newData)
         console.log('valor de la variable jsonSnippetResult', newData)
     }, [prefix, description, isTemplateFile, body])
