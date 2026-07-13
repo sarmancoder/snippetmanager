@@ -1,30 +1,47 @@
-import Editor from '@monaco-editor/react';
-import { useEffect, useState } from 'react';
+import Editor, { EditorProps } from '@monaco-editor/react';
+import { useEffect, useRef, useState } from 'react';
 
 type CodeEditorProps = {
-    ref: React.RefObject<any>
+    ref: React.RefObject<any>,
+    defaultLanguage: EditorProps['language'],
+    theme?: EditorProps['theme'],
+    onChange?: (value: string) => void,
+    value?: string
 }
 
-export default function CodeEditor ({ref}: CodeEditorProps) {
-    const [heightInPixels, setHeightInPixels] = useState(400); // Un alto por defecto
+export default function CodeEditor({ ref, value, theme = 'vs-dark', onChange, ...other }: CodeEditorProps) {
+    const editor = useRef<any>(null)
+    const [heightInPixels, setHeightInPixels] = useState(400);
+
+    function handleEditorDidMount(e: any) {
+        editor.current = e;
+        e.onDidChangeModelContent(() => {
+            const currentCode = e.getValue();
+            onChange?.(currentCode)
+        });
+    }
+
+    useEffect(() => {
+        if (!value) return
+        if (editor.current === null) return
+        if (editor.current.getValue() !== value) {
+            editor.current.setValue(value);
+        }
+    }, [value])
 
     useEffect(() => {
         if (!ref.current) return;
-
-        // Creamos un observador que mide el contenedor en tiempo real
         const observer = new ResizeObserver((entries) => {
             for (let entry of entries) {
-                // Guardamos la altura real en píxeles
                 setHeightInPixels(entry.contentRect.height);
             }
         });
-
         observer.observe(ref.current);
-
-        // Limpiamos el observador cuando el componente se desmonte
         return () => observer.disconnect();
     }, []);
+
     return (
-        <Editor height={`${heightInPixels}px`} theme='vs-dark' defaultLanguage="javascript" options={{ automaticLayout: true }} />
+        <Editor {...other} theme='vs-dark' onMount={handleEditorDidMount}
+            height={`${heightInPixels}px`} options={{ automaticLayout: true }} />
     )
 }
