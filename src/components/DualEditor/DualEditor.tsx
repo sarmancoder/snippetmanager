@@ -17,8 +17,8 @@ export default function DualEditor({ }: DualEditorProps) {
     const [isTemplateFile, setIsTemplateFile] = useState(false)
     const [body, setBody] = useState<string[]>([])
 
-    const resultref = useRef(null);
-    const editorRef = useRef(null)
+    const resultref = useRef<any>(null);
+    const editorRef = useRef<any>(null)
 
     useEffect(() => {
         const newData = JSON.stringify({
@@ -71,7 +71,7 @@ export default function DualEditor({ }: DualEditorProps) {
                             <CardTitle>Editor</CardTitle>
                         </CardHeader>
                         <CardContent ref={editorRef} className='h-full'>
-                            <CodeEditor ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
+                            <CodeEditor id="snippeteditor" ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
                                 const body = content.split('\n').map((e) => e.replace('\r', ''))
                                 setBody(body)
                             }} />
@@ -85,7 +85,21 @@ export default function DualEditor({ }: DualEditorProps) {
                         <CardTitle>Resultado</CardTitle>
                     </CardHeader>
                     <CardContent ref={resultref} className='h-full'>
-                        <CodeEditor ref={resultref} defaultLanguage='json' value={jsonSnippetResult} />
+                        <CodeEditor id="resultsnippet" ref={resultref} defaultLanguage='json' value={jsonSnippetResult} onChange={(c) => {
+                            try {
+                                if (!resultref.current!.isFocused()) return
+                                
+                                const snippetData = JSON.parse(c)
+                                console.log(snippetData)
+                                setPrefix(snippetData.prefix)
+                                setDescription(snippetData.description)
+                                setBody(snippetData.body)
+                                setIsTemplateFile(snippetData.isTemplateFile)
+                                editorRef.current!.changeContent(snippetData.body.join('\n'))
+                            } catch (error) {
+                                console.log('No es valido el input', error)
+                            }
+                        }} />
                     </CardContent>
                 </Card>
             </div>

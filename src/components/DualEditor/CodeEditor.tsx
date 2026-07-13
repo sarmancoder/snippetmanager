@@ -1,5 +1,5 @@
 import Editor, { EditorProps } from '@monaco-editor/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 type CodeEditorProps = {
     ref: React.RefObject<any>,
@@ -7,11 +7,23 @@ type CodeEditorProps = {
     theme?: EditorProps['theme'],
     onChange?: (value: string) => void,
     value?: string
+    id: string
 }
 
 export default function CodeEditor({ ref, value, theme = 'vs-dark', onChange, ...other }: CodeEditorProps) {
     const editor = useRef<any>(null)
     const [heightInPixels, setHeightInPixels] = useState(400);
+
+    useImperativeHandle(ref, () => ({
+        changeContent(content: string) {
+            console.log(content)
+            editor.current.setValue(content);
+        },
+        isFocused() {
+            const estaEnFocus = editor.current.hasWidgetFocus();
+            return estaEnFocus
+        }
+    }))
 
     function handleEditorDidMount(e: any) {
         editor.current = e;
@@ -43,7 +55,9 @@ export default function CodeEditor({ ref, value, theme = 'vs-dark', onChange, ..
     }, []);
 
     return (
-        <Editor {...other} theme='vs-dark' onMount={handleEditorDidMount}
-            height={`${heightInPixels}px`} options={{ automaticLayout: true }} />
+        <div ref={ref}>
+            <Editor {...other} theme='vs-dark' onMount={handleEditorDidMount}
+                height={`${heightInPixels}px`} options={{ automaticLayout: true }} />
+        </div>
     )
 }
