@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { useEffect, useMemo } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
+import { VsCodeSnippet } from '@/lib/validations';
 
 type SnippetsDrawerProps = {
 };
@@ -15,7 +16,7 @@ type SnippetItem = {
 }
 
 export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
-    const {jsonSnippets, selectedSnippet, setSelectedSnippet, dualEditorRef} = useAppProviderContext()
+    const {jsonSnippets, selectedSnippet, setSaved, setSelectedSnippet, dualEditorRef} = useAppProviderContext()
 
     const snippetsList = useMemo<SnippetItem[]>(() => {
         if (jsonSnippets.length == 0) return []
@@ -44,10 +45,10 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
             'bg-gray-200 dark:bg-gray-800'
         )}>
             <div>
-                {snippetsList.map((item) => <SnippetItem selectedSnippet={selectedSnippet} item={item}
+                {snippetsList.map((item) => <SnippetItem selectedSnippet={selectedSnippet.key!} item={item}
                     onSelect={(e) => {
                         setSelectedSnippet(e)
-                        dualEditorRef.current!.setContent(JSON.stringify(item, null, 4))
+                        setSaved(false)
                     }}
                 />)}
             </div>
@@ -55,12 +56,18 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
     );
 }
 
-function SnippetItem({item, onSelect, selectedSnippet}: {item: any, selectedSnippet: string, onSelect: (e: string) => void}) {
+type SnippetItemProps = {
+    item: VsCodeSnippet,
+    selectedSnippet: string,
+    onSelect: (e: VsCodeSnippet) => void
+}
+
+function SnippetItem({item, onSelect, selectedSnippet}: SnippetItemProps) {
     return (
         <div className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
             {'bg-primary text-white': selectedSnippet == item.key}
-        )} onClick={() => onSelect(item.key)}>
+        )} onClick={() => onSelect(item)}>
             <h3 className='font-bold text-lg'>{item.prefix}</h3>
             <p>{item.description}</p>
         </div>

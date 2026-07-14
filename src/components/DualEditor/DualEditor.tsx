@@ -11,20 +11,24 @@ import {play} from 'cuelume'
 
 type DualEditorProps = {
     ref: React.Ref<any>
+    onChange?: (content: any) => void
 };
 
-export default function DualEditor({ ref }: DualEditorProps) {
+export default function DualEditor({ ref, onChange }: DualEditorProps) {
     const [jsonSnippetResult, setJsonSnippetResult] = useState('{}')
 
     const [prefix, setPrefix] = useState('')
     const [description, setDescription] = useState('')
-    const [isTemplateFile, setIsTemplateFile] = useState(false)
+    const [isFileTemplate, setIsTemplateFile] = useState(false)
     const [body, setBody] = useState<string[]>([])
 
     const resultref = useRef<any>(null);
     const editorRef = useRef<any>(null)
 
     useImperativeHandle(ref, () => ({
+        getCurrentContent() {
+            return JSON.parse(jsonSnippetResult)
+        },
         setContent(content: string) {
             try {
                 const data = JSON.parse(content)
@@ -42,14 +46,15 @@ export default function DualEditor({ ref }: DualEditorProps) {
 
     useEffect(() => {
         const newData = JSON.stringify({
-            prefix, description, isTemplateFile, body
+            prefix, description, isFileTemplate, body
         }, null, 4)
         setJsonSnippetResult(newData)
         if (!resultref.current.isFocused?.()) {
             resultref.current.changeContent?.(newData)
         }
-        console.log('valor de la variable jsonSnippetResult', newData)
-    }, [prefix, description, isTemplateFile, body])
+        onChange?.(newData)
+        // console.log('valor de la variable jsonSnippetResult', newData)
+    }, [prefix, description, isFileTemplate, body])
 
     return (
         <div ref={ref} className="flex gap-2 h-[800px]">
@@ -82,7 +87,7 @@ export default function DualEditor({ ref }: DualEditorProps) {
                     <Field orientation="horizontal">
                         <Checkbox
                             id="template-field"
-                            checked={isTemplateFile}
+                            checked={isFileTemplate}
                             onCheckedChange={(checked) => {
                                 setIsTemplateFile(checked);
                             }}
@@ -125,7 +130,7 @@ export default function DualEditor({ ref }: DualEditorProps) {
                                 setPrefix(snippetData.prefix)
                                 setDescription(snippetData.description)
                                 setBody(snippetData.body)
-                                setIsTemplateFile(snippetData.isTemplateFile)
+                                setIsTemplateFile(snippetData.isFileTemplate)
                                 editorRef.current!.changeContent(snippetData.body.join('\n'))
                             } catch (error) {
                                 console.log('No es valido el input', error)
@@ -149,7 +154,7 @@ export default function DualEditor({ ref }: DualEditorProps) {
                                     e.trigger('source', 'undo', null);
                                     if (e.getValue().length == 0) {
                                         const newData = JSON.stringify({
-                                            prefix, description, isTemplateFile, body
+                                            prefix, description, isFileTemplate, body
                                         }, null, 4)
                                         e.setValue(newData)
                                     }

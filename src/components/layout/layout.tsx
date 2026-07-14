@@ -3,6 +3,8 @@ import ModeToggle from '../ModeToggle';
 import FilesDrawer from './FilesDrawer';
 import MainContent from './MainContent';
 import SnippetsDrawer from './SnippetsDrawer';
+import { useAppProviderContext } from '../providers/AppProvider';
+import { cn } from '@/lib/utils';
 type LayoutProps = {
 };
 
@@ -24,7 +26,13 @@ export default function LayoutApp({}: LayoutProps) {
 }
 
 function SaveButton() {
+    const {saved} = useAppProviderContext()
     return (
-        <FaSave className='text-white text-2xl' />
+        <FaSave className={cn(
+            {
+                'text-white text-2xl': saved,
+                'text-red-500 text-2xl': !saved,
+            }
+        )} />
     )
 }

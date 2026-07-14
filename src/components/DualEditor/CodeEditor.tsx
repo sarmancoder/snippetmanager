@@ -17,7 +17,6 @@ export default function CodeEditor({ ref, value, theme = 'vs-dark', onMounted, o
 
     useImperativeHandle(ref, () => ({
         changeContent(content: string) {
-            console.log(content)
             editor.current.setValue(content);
         },
         isFocused() {

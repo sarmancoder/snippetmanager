@@ -1,5 +1,8 @@
 
-import { createContext, PropsWithChildren, useContext, useRef, useState } from 'react';
+import deepEqual from '@/lib/deepEqual';
+import { VsCodeSnippet } from '@/lib/validations';
+import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 const AppProviderContext = createContext<any>(null);
 
@@ -14,14 +17,42 @@ function useAppProviderContextData() {
     const [pathFolder, setPathFolder] = useState('')
     const [activeFile, setActiveFile] = useState('')
     const [jsonSnippets, setJsonSnippets] = useState('')
-    const [selectedSnippet, setSelectedSnippet] = useState('')
+    const [selectedSnippet, setSelectedSnippet] = useState<Partial<VsCodeSnippet>>({})
+    const [saved, setSaved] = useState(true)
+
+    useEffect(() => {
+        dualEditorRef.current!.setContent(JSON.stringify(selectedSnippet, null, 4))
+    }, [selectedSnippet])
+
+    function save() {
+        toast('Guardando datos')
+        setSaved(true)
+    }
+
+    function areEqual() {
+        const currentSnippet = dualEditorRef.current.getCurrentContent()
+        const {key, scope, ...snippet} = selectedSnippet
+        const equal = deepEqual(currentSnippet, snippet)
+        if (!equal) {
+            console.log('are equal', {currentSnippet, snippet, equal})
+        }
+        return deepEqual(currentSnippet, snippet)
+    }
 
     return {
         dualEditorRef,
+        save, areEqual,
         pathFolder, setPathFolder,
         activeFile, setActiveFile,
         jsonSnippets, setJsonSnippets,
-        selectedSnippet, setSelectedSnippet
+        selectedSnippet, setSelectedSnippet,
+        saved, setSaved: (e: boolean) => {
+            if (!e) {
+                console.log('saved false')
+                console.trace()
+            }
+            setSaved(e)
+        }
     };
 }
 
