@@ -7,6 +7,7 @@ import { Label } from '../ui/label';
 import CodeEditor from './CodeEditor';
 import { toast } from 'sonner';
 import { vsCodeSnippetSchema } from '@/lib/validations';
+import {play} from 'cuelume'
 
 type DualEditorProps = {
 };
@@ -124,6 +125,7 @@ export default function DualEditor({ }: DualEditorProps) {
                                     const newData = JSON.stringify(data, null, 4)
                                     e.setValue(newData)
                                 } catch (error) {
+                                    play('bloom')
                                     toast.error('Error de validación', {
                                         description: 'El formato del snippet de VS Code no es válido'
                                     });
