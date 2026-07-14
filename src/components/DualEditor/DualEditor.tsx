@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { Field, FieldLabel } from '../ui/field';
@@ -10,9 +10,10 @@ import { vsCodeSnippetSchema } from '@/lib/validations';
 import {play} from 'cuelume'
 
 type DualEditorProps = {
+    ref: React.Ref<any>
 };
 
-export default function DualEditor({ }: DualEditorProps) {
+export default function DualEditor({ ref }: DualEditorProps) {
     const [jsonSnippetResult, setJsonSnippetResult] = useState('{}')
 
     const [prefix, setPrefix] = useState('')
@@ -22,6 +23,22 @@ export default function DualEditor({ }: DualEditorProps) {
 
     const resultref = useRef<any>(null);
     const editorRef = useRef<any>(null)
+
+    useImperativeHandle(ref, () => ({
+        setContent(content: string) {
+            try {
+                const data = JSON.parse(content)
+                resultref.current.changeContent(content)
+                setPrefix(data.prefix)
+                setDescription(data.description),
+                setIsTemplateFile(data.isFileTemplate)
+                setBody(data.body)
+                editorRef.current.changeContent(data.body.join('\n'))
+            } catch (error) {
+                toast('Snippet no válido')
+            }
+        }
+    }))
 
     useEffect(() => {
         const newData = JSON.stringify({
@@ -35,7 +52,7 @@ export default function DualEditor({ }: DualEditorProps) {
     }, [prefix, description, isTemplateFile, body])
 
     return (
-        <div className="flex gap-2 h-[800px]">
+        <div ref={ref} className="flex gap-2 h-[800px]">
             <div className='grow'>
                 <div className="flex flex-col gap-2 h-full">
                     <Field>

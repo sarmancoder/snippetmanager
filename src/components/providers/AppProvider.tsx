@@ -1,5 +1,5 @@
 
-import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useRef, useState } from 'react';
 
 const AppProviderContext = createContext<any>(null);
 
@@ -9,13 +9,19 @@ type AppProviderContextProviderProps = {
 }
 
 function useAppProviderContextData() {
+    const dualEditorRef = useRef<any>(null)
+
     const [pathFolder, setPathFolder] = useState('')
     const [activeFile, setActiveFile] = useState('')
     const [jsonSnippets, setJsonSnippets] = useState('')
+    const [selectedSnippet, setSelectedSnippet] = useState('')
+
     return {
+        dualEditorRef,
         pathFolder, setPathFolder,
         activeFile, setActiveFile,
-        jsonSnippets, setJsonSnippets
+        jsonSnippets, setJsonSnippets,
+        selectedSnippet, setSelectedSnippet
     };
 }
 

@@ -15,7 +15,7 @@ type SnippetItem = {
 }
 
 export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
-    const {jsonSnippets} = useAppProviderContext()
+    const {jsonSnippets, selectedSnippet, setSelectedSnippet, dualEditorRef} = useAppProviderContext()
 
     const snippetsList = useMemo<SnippetItem[]>(() => {
         if (jsonSnippets.length == 0) return []
@@ -44,11 +44,25 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
             'bg-gray-200 dark:bg-gray-800'
         )}>
             <div>
-                {snippetsList.map((item) => <div key={item.key} className='hover:bg-primary px-2 hover:text-white cursor-pointer'>
-                    <h3 className='font-bold text-lg'>{item.prefix}</h3>
-                    <p>{item.description}</p>
-                </div>)}
+                {snippetsList.map((item) => <SnippetItem selectedSnippet={selectedSnippet} item={item}
+                    onSelect={(e) => {
+                        setSelectedSnippet(e)
+                        dualEditorRef.current!.setContent(JSON.stringify(item, null, 4))
+                    }}
+                />)}
             </div>
         </aside>
     );
+}
+
+function SnippetItem({item, onSelect, selectedSnippet}: {item: any, selectedSnippet: string, onSelect: (e: string) => void}) {
+    return (
+        <div className={cn(
+            'hover:bg-primary px-2 hover:text-white cursor-pointer',
+            {'bg-primary text-white': selectedSnippet == item.key}
+        )} onClick={() => onSelect(item.key)}>
+            <h3 className='font-bold text-lg'>{item.prefix}</h3>
+            <p>{item.description}</p>
+        </div>
+    )
 }
