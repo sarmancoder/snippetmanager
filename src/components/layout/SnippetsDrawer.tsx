@@ -48,7 +48,7 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                 {snippetsList.map((item) => <SnippetItem selectedSnippet={selectedSnippet.key!} item={item}
                     onSelect={(e) => {
                         setSelectedSnippet(e)
-                        setSaved(false)
+                        setSaved(true)
                     }}
                 />)}
             </div>
