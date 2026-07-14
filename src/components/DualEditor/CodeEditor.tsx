@@ -8,9 +8,10 @@ type CodeEditorProps = {
     onChange?: (value: string) => void,
     value?: string
     id: string
+    onMounted?: (e: any, m: any) => void
 }
 
-export default function CodeEditor({ ref, value, theme = 'vs-dark', onChange, ...other }: CodeEditorProps) {
+export default function CodeEditor({ ref, value, theme = 'vs-dark', onMounted, onChange, ...other }: CodeEditorProps) {
     const editor = useRef<any>(null)
     const [heightInPixels, setHeightInPixels] = useState(400);
 
@@ -25,12 +26,14 @@ export default function CodeEditor({ ref, value, theme = 'vs-dark', onChange, ..
         }
     }))
 
-    function handleEditorDidMount(e: any) {
+    function handleEditorDidMount(e: any, m: any) {
         editor.current = e;
         e.onDidChangeModelContent(() => {
             const currentCode = e.getValue();
             onChange?.(currentCode)
         });
+        
+        onMounted?.(e, m)
     }
 
     useEffect(() => {

@@ -1,15 +1,12 @@
-import { cn } from '@/lib/utils';
-import { ReactNode } from 'react';
-import {FaSave} from 'react-icons/fa'
+import { FaSave } from 'react-icons/fa';
 import ModeToggle from '../ModeToggle';
 import FilesDrawer from './FilesDrawer';
-import SnippetsDrawer from './SnippetsDrawer';
 import MainContent from './MainContent';
+import SnippetsDrawer from './SnippetsDrawer';
 type LayoutProps = {
-  children: ReactNode;
 };
 
-export default function LayoutApp({ children }: LayoutProps) {
+export default function LayoutApp({}: LayoutProps) {
   return (
     <div>
         <header className='bg-primary h-(--height-appbar) fixed w-screen flex justify-between items-center px-2'>

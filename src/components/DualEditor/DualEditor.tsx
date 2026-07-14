@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { Field, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import CodeEditor from './CodeEditor';
+import { toast } from 'sonner';
+import { vsCodeSnippetSchema } from '@/lib/validations';
 
 type DualEditorProps = {
 };
@@ -77,6 +79,15 @@ export default function DualEditor({ }: DualEditorProps) {
                             <CodeEditor id="snippeteditor" ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
                                 const body = content.split('\n').map((e) => e.replace('\r', ''))
                                 setBody(body)
+                            }} onMounted={(_, monaco) => {
+                                monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+                                    noSemanticValidation: true,
+                                    noSyntaxValidation: true,
+                                })
+                                monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+                                    noSemanticValidation: true,
+                                    noSyntaxValidation: true,
+                                })
                             }} />
                         </CardContent>
                     </Card>
@@ -91,7 +102,6 @@ export default function DualEditor({ }: DualEditorProps) {
                         <CodeEditor id="resultsnippet" ref={resultref} defaultLanguage='json' value={jsonSnippetResult} onChange={(c) => {
                             try {
                                 if (!resultref.current!.isFocused()) return
-
                                 const snippetData = JSON.parse(c)
                                 console.log(snippetData)
                                 setPrefix(snippetData.prefix)
@@ -102,6 +112,30 @@ export default function DualEditor({ }: DualEditorProps) {
                             } catch (error) {
                                 console.log('No es valido el input', error)
                             }
+                        }} onMounted={(e) => {
+                            e.onDidPaste((event: any) => {
+                                const todo = e.getValue()
+                                try {
+                                    const data = JSON.parse(todo)
+                                    const resultado = vsCodeSnippetSchema.safeParse(data);
+                                    if (!resultado.success) {
+                                        throw new Error('No válido')
+                                    }
+                                    const newData = JSON.stringify(data, null, 4)
+                                    e.setValue(newData)
+                                } catch (error) {
+                                    toast.error('Error de validación', {
+                                        description: 'El formato del snippet de VS Code no es válido'
+                                    });
+                                    e.trigger('source', 'undo', null);
+                                    if (e.getValue().length == 0) {
+                                        const newData = JSON.stringify({
+                                            prefix, description, isTemplateFile, body
+                                        }, null, 4)
+                                        e.setValue(newData)
+                                    }
+                                }
+                            });
                         }} />
                     </CardContent>
                 </Card>
