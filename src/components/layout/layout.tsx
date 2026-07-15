@@ -28,17 +28,14 @@ export default function LayoutApp({ }: LayoutProps) {
 function SaveButton() {
     const { saved, save } = useAppProviderContext()
     return (
-        <span className='cursor-pointer' onClick={() => {
-            console.log(saved)
+        <FaSave onClick={() => {
             if (saved) return
             save()
-        }}>
-            <FaSave className={cn(
-                {
-                    'text-white text-2xl': saved,
-                    'text-red-500 text-2xl': !saved,
-                }
-            )} />
-        </span>
+        }} className={cn(
+            {
+                'text-white text-2xl': saved,
+                'text-red-500 text-2xl cursor-pointer': !saved,
+            }
+        )} />
     )
 }
