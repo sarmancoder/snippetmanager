@@ -178,4 +178,18 @@ pub fn read_file(path: &str, filename: &str) -> Result<String, String> {
     std::fs::read_to_string(full_path).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+pub fn write_file(folder: &str, filename: &str, content: &str) -> Result<(), String> {
+    if folder.is_empty() || filename.is_empty() {
+        return Err("empty folder or filename".into());
+    }
+
+    let full_path = std::path::Path::new(folder).join(filename);
+    if let Some(parent) = full_path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+
+    std::fs::write(full_path, content).map_err(|e| e.to_string())
+}
+
 

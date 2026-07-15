@@ -4,6 +4,7 @@ use fsfunctions::open_folder; // <--- AGREGA ESTA LÍNEA
 use fsfunctions::get_snippet_files; // <--- AGREGA ESTA LÍNEA
 use fsfunctions::select_directory; // <--- AGREGA ESTA LÍNEA
 use fsfunctions::read_file; // <--- AGREGA ESTA LÍNEA
+use fsfunctions::write_file;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -20,7 +21,8 @@ pub fn run() {
             get_snippet_files,
             select_directory,
             read_file,
-            open_folder
+            open_folder,
+            write_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
