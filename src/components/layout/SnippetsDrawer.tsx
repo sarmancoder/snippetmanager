@@ -5,6 +5,7 @@ import { VsCodeSnippet } from '@/lib/validations';
 import { Button } from '../ui/button';
 import { useI18nProviderContext } from '@/I18nProvider';
 import createSnippet from '@/dialogs/CreateSnippet';
+import {FaTrash} from 'react-icons/fa'
 
 type SnippetsDrawerProps = {
 };
@@ -95,10 +96,16 @@ function SnippetItem({ item, onSelect, selectedSnippet }: SnippetItemProps) {
     return (
         <div className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
-            { 'bg-primary text-white': selectedSnippet == item.key }
+            { 'bg-primary text-white': selectedSnippet == item.key },
+            'flex items-center item_list'
         )} onClick={() => onSelect(item)}>
-            <h3 className='font-bold text-lg'>{item.prefix}</h3>
-            <p>{item.description}</p>
+            <div>
+                <h3 className='font-bold text-lg'>{item.prefix}</h3>
+                <p className='line-clamp-2'>{item.description}</p>
+            </div>
+            <div className='ml-auto'>
+                <FaTrash className='text-red-500 text-2xl item_list-remove' />
+            </div>
         </div>
     )
 }

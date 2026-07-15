@@ -5,3 +5,14 @@
     --drawer-width: 250px;
     /*--color-sidebar-primary: color-mix(in srgb, var(--sidebar-primary) 40%, white);*/
 }
+
+.item_list-remove {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.item_list:hover .item_list-remove {
+    opacity: 0.75;
+}
+.item_list:hover .item_list-remove:hover {
+    opacity: 1;
+}
