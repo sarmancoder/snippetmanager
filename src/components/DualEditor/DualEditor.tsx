@@ -31,7 +31,9 @@ export default function DualEditor({ ref, onChange }: DualEditorProps) {
         },
         setContent(content: string) {
             try {
+                if (content.length == 0) return
                 const data = JSON.parse(content)
+                if (Object.keys(data).length == 0) return
                 resultref.current.changeContent(content)
                 setPrefix(data.prefix)
                 setDescription(data.description),
