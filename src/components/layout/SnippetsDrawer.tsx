@@ -63,11 +63,11 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                     const snippet = await createSnippet({
 
                     })!
+                    if (!snippet) return
                     console.log(snippet)
                     const keySnippet = snippet!.prefix + new Date().getTime()
                     const newSnippet: VsCodeSnippet = {
-                        description: snippet!.description,
-                        prefix: snippet!.prefix,
+                        ...snippet,
                         key: keySnippet,
                         body: [],
                         scope: '',
