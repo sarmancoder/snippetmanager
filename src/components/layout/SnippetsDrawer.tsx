@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { useI18nProviderContext } from '@/I18nProvider';
 import createSnippet from '@/dialogs/CreateSnippet';
 import {FaTrash} from 'react-icons/fa'
+import confirmDialog from '@/dialogs/Confirm';
 
 type SnippetsDrawerProps = {
 };
@@ -56,16 +57,34 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                             setSelectedSnippet(e)
                             setSaved(true)
                         }}
+                        onRemove={async (e) => {
+                            try {
+                                const response = await confirmDialog({
+                                    title: 'Eliminar snippet',
+                                    description: '¿Realmente quieres eliminar el snippet? Esta acción no se puede deshacer'
+                                })
+                                if (response !== true) return
+                                const parsedSnippets = JSON.parse(jsonSnippets || '{}')
+                                if (parsedSnippets && typeof parsedSnippets === 'object' && e.key! in parsedSnippets) {
+                                    delete parsedSnippets[e.key!]
+                                    const filestr = JSON.stringify(parsedSnippets)
+                                    setJsonSnippets(filestr)
+                                    writeInFile(filestr)
+                                }
+                                if (selectedSnippet.key == e.key) {
+                                    setSelectedSnippet({})
+                                }
+                            } catch (error) {
+                                console.error('Error removing snippet:', error)
+                            }
+                        }}
                     />)}
                 </div>
             </div>
             {activeFile.length > 0 && <div className='px-2 pt-2'>
                 <Button className={'w-full'} onClick={async () => {
-                    const snippet = await createSnippet({
-
-                    })!
+                    const snippet = await createSnippet({})
                     if (!snippet) return
-                    console.log(snippet)
                     const keySnippet = snippet!.prefix + new Date().getTime()
                     const newSnippet: VsCodeSnippet = {
                         ...snippet,
@@ -90,9 +109,10 @@ type SnippetItemProps = {
     item: VsCodeSnippet,
     selectedSnippet: string,
     onSelect: (e: VsCodeSnippet) => void
+    onRemove: (e: VsCodeSnippet) => void
 }
 
-function SnippetItem({ item, onSelect, selectedSnippet }: SnippetItemProps) {
+function SnippetItem({ item, onSelect, onRemove, selectedSnippet }: SnippetItemProps) {
     return (
         <div className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
@@ -104,7 +124,10 @@ function SnippetItem({ item, onSelect, selectedSnippet }: SnippetItemProps) {
                 <p className='line-clamp-2'>{item.description}</p>
             </div>
             <div className='ml-auto'>
-                <FaTrash className='text-red-500 text-2xl item_list-remove' />
+                <FaTrash className='text-red-500 text-2xl item_list-remove' onClick={(event) => {
+                    event.stopPropagation()
+                    onRemove(item)
+                }} />
             </div>
         </div>
     )
