@@ -45,5 +45,6 @@ export const messagesEsEs = {
     'text-language': 'Idioma',
     'response-yes': 'Si',
     'response-no': 'No',
-    'model-prefered': 'Modelo preferido'
+    'model-prefered': 'Modelo preferido',
+    'message-nosnippetopened': 'No hay ningún snippet abierto'
 }

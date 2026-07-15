@@ -9,7 +9,7 @@ type FilesDrawerProps = {
 };
 
 export default function FilesDrawer({ }: FilesDrawerProps) {
-    const { pathFolder, setPathFolder } = useAppProviderContext()
+    const { pathFolder, setPathFolder, setSelectedSnippet } = useAppProviderContext()
     const [files, setFiles] = useState<string[]>([])
 
     const openFolder = (folder: string) => invoke<any>('get_snippet_files', { folder }).then((r) => {
@@ -50,7 +50,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
 }
 
 function FileItem({ item }: { item: string }) {
-    const {pathFolder, activeFile, setJsonSnippets, setActiveFile} = useAppProviderContext()
+    const {pathFolder, activeFile, setJsonSnippets, setSelectedSnippet, setActiveFile} = useAppProviderContext()
     return (
         <div key={item} className={cn(
             "py-1 hover:bg-primary px-2 text-xl hover:text-white transition-colors cursor-pointer",
@@ -59,6 +59,7 @@ function FileItem({ item }: { item: string }) {
             setActiveFile(item)
             const contents = await invoke<string>('read_file', {path: pathFolder, filename: item})
             setJsonSnippets(contents)
+            setSelectedSnippet({})
         }}>
             <span>
                 {item.replace(extensionSnippetFiles, '')}

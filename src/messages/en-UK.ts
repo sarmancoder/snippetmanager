@@ -45,6 +45,6 @@ export const messagesEnUk = {
     'text-language': 'language',
     'response-yes': 'Yes',
     'response-no': 'No',
-    'model-prefered': 'Model prefered'
-
+    'model-prefered': 'Model prefered',
+    'message-nosnippetopened': 'No snippet opened'
 };
