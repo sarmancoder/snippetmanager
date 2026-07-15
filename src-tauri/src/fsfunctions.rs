@@ -192,4 +192,18 @@ pub fn write_file(folder: &str, filename: &str, content: &str) -> Result<(), Str
     std::fs::write(full_path, content).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+pub fn delete_file(folder: &str, filename: &str) -> Result<(), String> {
+    if folder.is_empty() || filename.is_empty() {
+        return Err("empty folder or filename".into());
+    }
+
+    let full_path = std::path::Path::new(folder).join(filename);
+    if full_path.exists() {
+        std::fs::remove_file(full_path).map_err(|e| e.to_string())
+    } else {
+        Err("file not found".into())
+    }
+}
+
 

@@ -3,23 +3,40 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
 import { useI18nProviderContext } from '@/I18nProvider';
-import { FaFolder } from 'react-icons/fa'
+import { FaFolder, FaTrash } from 'react-icons/fa'
 import { extensionSnippetFiles, localstoragekeys } from "@/vars";
 import { Button } from '../ui/button';
 import createFile from '@/dialogs/CreateFile';
+import confirmDialog from '@/dialogs/Confirm';
 
 type FilesDrawerProps = {
 };
 
 export default function FilesDrawer({ }: FilesDrawerProps) {
     const { $t } = useI18nProviderContext()
-    const { pathFolder, setPathFolder, setSelectedSnippet, setJsonSnippets, setActiveFile } = useAppProviderContext()
+    const { pathFolder, setPathFolder, setSelectedSnippet, setJsonSnippets, setActiveFile, activeFile } = useAppProviderContext()
     const [files, setFiles] = useState<string[]>([])
 
     const openFolder = (folder: string) => invoke<any>('get_snippet_files', { folder }).then((r) => {
         setPathFolder(r.path)
         setFiles(r.files)
     })
+
+    const removeFile = async (filename: string) => {
+        if (!pathFolder) return
+        const response = await confirmDialog({
+            title: $t('confirm-delete-file'),
+            description: $t('confirm-delete-file')
+        })
+        if (response !== true) return
+        await invoke('delete_file', { folder: pathFolder, filename })
+        setFiles((prev) => prev.filter((item) => item !== filename))
+        if (filename === activeFile) {
+            setActiveFile('')
+            setJsonSnippets('')
+            setSelectedSnippet({})
+        }
+    }
 
     useEffect(() => {
         const lastOpened = localStorage.getItem(localstoragekeys.last_opened) ?? ''
@@ -47,7 +64,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
             </div>
             <hr className="mb-4" />
             <div className="flex-1 overflow-auto px-2">
-                {files.map((item) => <FileItem key={item} item={item} />)}
+                {files.map((item) => <FileItem key={item} item={item} onRemove={removeFile} />)}
             </div>
             <div className='px-2 pt-2'>
                 <Button className='w-full' onClick={async () => {
@@ -68,21 +85,33 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
     );
 }
 
-function FileItem({ item }: { item: string }) {
+type FileItemProps = {
+    item: string
+    onRemove: (item: string) => void
+}
+
+function FileItem({ item, onRemove }: FileItemProps) {
     const {pathFolder, activeFile, setJsonSnippets, setSelectedSnippet, setActiveFile} = useAppProviderContext()
     return (
-        <div key={item} className={cn(
-            "py-1 hover:bg-primary px-2 text-xl hover:text-white transition-colors cursor-pointer",
-            {'text-white bg-primary': activeFile == item}
+        <div className={cn(
+            'hover:bg-primary px-2 hover:text-white cursor-pointer',
+            { 'bg-primary text-white': activeFile == item },
+            'flex items-center item_list'
         )} onClick={async () => {
             setActiveFile(item)
             const contents = await invoke<string>('read_file', {path: pathFolder, filename: item})
             setJsonSnippets(contents)
             setSelectedSnippet({})
         }}>
-            <span>
-                {item.replace(extensionSnippetFiles, '')}
-            </span>
+            <div>
+                <h3 className='font-bold text-lg'>{item.replace(extensionSnippetFiles, '')}</h3>
+            </div>
+            <div className='ml-auto'>
+                <FaTrash className='text-red-500 text-2xl item_list-remove' onClick={(event) => {
+                    event.stopPropagation()
+                    onRemove(item)
+                }} />
+            </div>
         </div>
     )
 }
