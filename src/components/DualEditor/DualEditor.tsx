@@ -12,9 +12,10 @@ import {play} from 'cuelume'
 type DualEditorProps = {
     ref: React.Ref<any>
     onChange?: (content: any) => void
+    adjust?: boolean
 };
 
-export default function DualEditor({ ref, onChange }: DualEditorProps) {
+export default function DualEditor({ ref, adjust = false, onChange }: DualEditorProps) {
     const [jsonSnippetResult, setJsonSnippetResult] = useState('{}')
 
     const [prefix, setPrefix] = useState('')
@@ -101,7 +102,7 @@ export default function DualEditor({ ref, onChange }: DualEditorProps) {
                             <CardTitle>Editor</CardTitle>
                         </CardHeader>
                         <CardContent ref={editorRef} className='h-full'>
-                            <CodeEditor id="snippeteditor" ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
+                            <CodeEditor adjust={adjust} id="snippeteditor" ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
                                 const body = content.split('\n').map((e) => e.replace('\r', ''))
                                 setBody(body)
                             }} onMounted={(_, monaco) => {
@@ -124,7 +125,7 @@ export default function DualEditor({ ref, onChange }: DualEditorProps) {
                         <CardTitle>Resultado</CardTitle>
                     </CardHeader>
                     <CardContent ref={resultref} className='h-full'>
-                        <CodeEditor id="resultsnippet" ref={resultref} defaultLanguage='json' value={jsonSnippetResult} onChange={(c) => {
+                        <CodeEditor adjust={adjust} id="resultsnippet" ref={resultref} defaultLanguage='json' value={jsonSnippetResult} onChange={(c) => {
                             try {
                                 if (!resultref.current!.isFocused()) return
                                 const snippetData = JSON.parse(c)

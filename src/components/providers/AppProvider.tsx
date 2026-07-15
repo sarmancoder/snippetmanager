@@ -2,6 +2,7 @@
 import deepEqual from '@/lib/deepEqual';
 import { VsCodeSnippet } from '@/lib/validations';
 import { invoke } from '@tauri-apps/api/core';
+import { useLocalStorage } from '@uidotdev/usehooks';
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -14,7 +15,7 @@ type AppProviderContextProviderProps = {
 
 function useAppProviderContextData() {
     const dualEditorRef = useRef<any>(null)
-
+    const [adjust, setAdjust] = useLocalStorage('adjust', false)
     const [pathFolder, setPathFolder] = useState('')
     const [activeFile, setActiveFile] = useState('')
     const [jsonSnippets, setJsonSnippets] = useState('')
@@ -63,6 +64,7 @@ function useAppProviderContextData() {
         dualEditorRef,
         save, areEqual, writeInFile,
         pathFolder, setPathFolder,
+        adjust, setAdjust,
         activeFile, setActiveFile,
         jsonSnippets, setJsonSnippets,
         selectedSnippet, setSelectedSnippet,

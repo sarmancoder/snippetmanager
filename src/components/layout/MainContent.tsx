@@ -8,12 +8,12 @@ type MainContentProps = {
 
 export default function MainContent({ }: MainContentProps) {
     const {$t} = useI18nProviderContext()
-    const {dualEditorRef, areEqual, selectedSnippet, setSaved} = useAppProviderContext()
+    const {dualEditorRef, areEqual, selectedSnippet, setSaved, adjust} = useAppProviderContext()
     return (
         <main className='fixed top-(--height-appbar) left-(--drawer-width) right-(--drawer-width)'>
             <div className="p-2">
                 <div className={cn({'hidden': !selectedSnippet.key, 'block': selectedSnippet.key})}>
-                    <DualEditor ref={dualEditorRef} onChange={(c) => {
+                    <DualEditor adjust={adjust} ref={dualEditorRef} onChange={(c) => {
                         setTimeout(() => {
                             setSaved(areEqual())
                         }, 100);

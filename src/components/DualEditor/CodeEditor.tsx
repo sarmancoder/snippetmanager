@@ -9,9 +9,10 @@ type CodeEditorProps = {
     value?: string
     id: string
     onMounted?: (e: any, m: any) => void
+    adjust?: boolean
 }
 
-export default function CodeEditor({ ref, value, theme = 'vs-dark', onMounted, onChange, ...other }: CodeEditorProps) {
+export default function CodeEditor({ ref, value, theme = 'vs-dark', onMounted, adjust = false, onChange, ...other }: CodeEditorProps) {
     const editor = useRef<any>(null)
     const [heightInPixels, setHeightInPixels] = useState(400);
 
@@ -49,7 +50,7 @@ export default function CodeEditor({ ref, value, theme = 'vs-dark', onMounted, o
     return (
         <div ref={ref}>
             <Editor {...other} theme='vs-dark' onMount={handleEditorDidMount}
-                height={`${heightInPixels}px`} options={{ automaticLayout: true }} />
+                height={`${heightInPixels}px`} options={{ automaticLayout: true, wordWrap: adjust ? 'on' : 'off' }} />
         </div>
     )
 }
