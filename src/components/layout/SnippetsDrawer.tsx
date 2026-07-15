@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
 import { VsCodeSnippet } from '@/lib/validations';
 import { Button } from '../ui/button';
+import { useI18nProviderContext } from '@/I18nProvider';
 
 type SnippetsDrawerProps = {
 };
@@ -17,7 +18,8 @@ type SnippetItem = {
 }
 
 export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
-    const { jsonSnippets, selectedSnippet, setSaved, setSelectedSnippet, dualEditorRef } = useAppProviderContext()
+    const {$t} = useI18nProviderContext()
+    const { jsonSnippets, selectedSnippet, setSaved, setSelectedSnippet, activeFile } = useAppProviderContext()
 
     const snippetsList = useMemo<SnippetItem[]>(() => {
         if (jsonSnippets.length == 0) return []
@@ -55,9 +57,9 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                     />)}
                 </div>
             </div>
-            <div className='px-2 pt-2'>
-                <Button className={'w-full'}>Añadir snippet</Button>
-            </div>
+            {activeFile.length > 0 && <div className='px-2 pt-2'>
+                <Button className={'w-full'}>{$t('action-addsnippet')}</Button>
+            </div>}
         </aside>
     );
 }
