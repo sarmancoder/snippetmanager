@@ -25,6 +25,14 @@ function useAppProviderContextData() {
         dualEditorRef.current!.setContent(JSON.stringify(selectedSnippet, null, 4))
     }, [selectedSnippet])
 
+    async function writeInFile(datastr: string) {
+        await invoke('write_file', {
+            folder: pathFolder,
+            filename: activeFile,
+            content: datastr
+        })
+    }
+
     async function save() {
         toast('Guardando datos')
         const dataSnippets: VsCodeSnippet[] = JSON.parse(jsonSnippets)
@@ -32,11 +40,7 @@ function useAppProviderContextData() {
         dataSnippets[selectedSnippet.key as any] = dataCurrent
         const datastr = JSON.stringify(dataSnippets, null, 4)
         setJsonSnippets(datastr)
-        await invoke('write_file', {
-            folder: pathFolder,
-            filename: activeFile,
-            content: datastr
-        })
+        await writeInFile(datastr)
         setSelectedSnippet({
             ...dataSnippets[selectedSnippet.key as any],
             key: selectedSnippet.key
@@ -47,17 +51,17 @@ function useAppProviderContextData() {
     function areEqual() {
         if (!selectedSnippet.key) return true
         const currentSnippet = dualEditorRef.current.getCurrentContent()
-        const {key, scope, ...snippet} = selectedSnippet
+        const { key, scope, ...snippet } = selectedSnippet
         const equal = deepEqual(currentSnippet, snippet)
         if (!equal) {
-            console.log('are equal', {currentSnippet, snippet, equal})
+            console.log('are equal', { currentSnippet, snippet, equal })
         }
         return deepEqual(currentSnippet, snippet)
     }
 
     return {
         dualEditorRef,
-        save, areEqual,
+        save, areEqual, writeInFile,
         pathFolder, setPathFolder,
         activeFile, setActiveFile,
         jsonSnippets, setJsonSnippets,

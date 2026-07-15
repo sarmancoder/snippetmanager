@@ -19,8 +19,8 @@ type SnippetItem = {
 }
 
 export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
-    const {$t} = useI18nProviderContext()
-    const { jsonSnippets, selectedSnippet, setSaved, setSelectedSnippet, activeFile } = useAppProviderContext()
+    const { $t } = useI18nProviderContext()
+    const { jsonSnippets, selectedSnippet, setJsonSnippets, writeInFile, setSaved, setSelectedSnippet, activeFile } = useAppProviderContext()
 
     const snippetsList = useMemo<SnippetItem[]>(() => {
         if (jsonSnippets.length == 0) return []
@@ -62,8 +62,23 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                 <Button className={'w-full'} onClick={async () => {
                     const snippet = await createSnippet({
 
-                    })
+                    })!
                     console.log(snippet)
+                    const keySnippet = snippet!.prefix + new Date().getTime()
+                    const newSnippet: VsCodeSnippet = {
+                        description: snippet!.description,
+                        prefix: snippet!.prefix,
+                        key: keySnippet,
+                        body: [],
+                        scope: '',
+                        isFileTemplate: false
+                    }
+                    const filestr = JSON.stringify({
+                        ...JSON.parse(jsonSnippets),
+                        [keySnippet]: newSnippet
+                    })
+                    setJsonSnippets(filestr)
+                    writeInFile(filestr)
                 }}>{$t('action-addsnippet')}</Button>
             </div>}
         </aside>

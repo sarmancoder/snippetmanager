@@ -29,6 +29,8 @@ function CreateSnippetDialog(props: ConfirmDialogProps<AdditionalProps, Response
     )
 }
 
+const formId = 'snippet-form'
+
 // 2. El componente que recibe las props de react-confirm + las nuestras
 // Usamos ConfirmDialogProps<Props_Que_Pasamos, Tipo_De_Respuesta>
 function CreateSnippetDialogInner({ show, proceed }: ConfirmDialogProps<AdditionalProps, ResponseType>) {
@@ -45,12 +47,12 @@ function CreateSnippetDialogInner({ show, proceed }: ConfirmDialogProps<Addition
         >
             {/* 1. Definimos el formulario con un ID único */}
             <form
-                id="snippet-form"
+                id={formId}
                 onSubmit={(e) => {
                     e.preventDefault()
                     const fd = new FormData(e.currentTarget)
-                    const data = Object.fromEntries(fd)
-                    console.log(data)
+                    const data = Object.fromEntries(fd) as ResponseType
+                    proceed(data)
                 }}
             />
 
@@ -64,18 +66,18 @@ function CreateSnippetDialogInner({ show, proceed }: ConfirmDialogProps<Addition
                     <Field>
                         <FieldLabel htmlFor='prefix-field'>{$t('inputlabel-snippet-prefix')}</FieldLabel>
                         {/* 3. Vinculamos cada input al formulario usando el atributo 'form' */}
-                        <Input name="prefix" id="prefix-field" form="snippet-form" />
+                        <Input name="prefix" id="prefix-field" form={formId} />
                     </Field>
                     <Field>
                         <FieldLabel htmlFor='description-field'>{$t('inputlabel-snippet-description')}</FieldLabel>
                         {/* 3. Vinculamos también este input */}
-                        <Input name="description" id="description-field" form="snippet-form" />
+                        <Input name="description" id="description-field" form={formId} />
                     </Field>
                 </div>
 
                 <DialogFooter>
                     {/* 4. Vinculamos el botón de submit al ID del formulario */}
-                    <Button type='submit' form="snippet-form">{$t('action-addsnippet')}</Button>
+                    <Button type='submit' form={formId}>{$t('action-addsnippet')}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
