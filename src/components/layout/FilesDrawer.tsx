@@ -2,14 +2,18 @@ import { invoke } from "@tauri-apps/api/core";
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
+import { useI18nProviderContext } from '@/I18nProvider';
 import { FaFolder } from 'react-icons/fa'
 import { extensionSnippetFiles, localstoragekeys } from "@/vars";
+import { Button } from '../ui/button';
+import createFile from '@/dialogs/CreateFile';
 
 type FilesDrawerProps = {
 };
 
 export default function FilesDrawer({ }: FilesDrawerProps) {
-    const { pathFolder, setPathFolder, setSelectedSnippet } = useAppProviderContext()
+    const { $t } = useI18nProviderContext()
+    const { pathFolder, setPathFolder, setSelectedSnippet, setJsonSnippets, setActiveFile } = useAppProviderContext()
     const [files, setFiles] = useState<string[]>([])
 
     const openFolder = (folder: string) => invoke<any>('get_snippet_files', { folder }).then((r) => {
@@ -23,7 +27,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
     }, [])
 
     return (
-        <aside className={cn('py-2',
+        <aside className={cn('py-2 flex flex-col',
             'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) left-0',
             'bg-gray-200 dark:bg-gray-800'
         )}>
@@ -42,8 +46,23 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
                 </span>
             </div>
             <hr className="mb-4" />
-            <div>
-                {files.map((item) => <FileItem item={item} />)}
+            <div className="flex-1 overflow-auto px-2">
+                {files.map((item) => <FileItem key={item} item={item} />)}
+            </div>
+            <div className='px-2 pt-2'>
+                <Button className='w-full' onClick={async () => {
+                    if (!pathFolder) return
+                    const result = await createFile({})
+                    if (!result?.filename) return
+                    const filename = result.filename.endsWith(extensionSnippetFiles)
+                        ? result.filename
+                        : `${result.filename}${extensionSnippetFiles}`
+                    await invoke('write_file', { folder: pathFolder, filename, content: '{}' })
+                    setActiveFile(filename)
+                    setJsonSnippets('{}')
+                    setSelectedSnippet({})
+                    setFiles((prev) => [...prev, filename])
+                }}>{$t('action-addfile')}</Button>
             </div>
         </aside>
     );
