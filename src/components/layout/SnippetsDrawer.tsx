@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { useEffect, useMemo } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
 import { VsCodeSnippet } from '@/lib/validations';
+import { Button } from '../ui/button';
 
 type SnippetsDrawerProps = {
 };
@@ -16,7 +17,7 @@ type SnippetItem = {
 }
 
 export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
-    const {jsonSnippets, selectedSnippet, setSaved, setSelectedSnippet, dualEditorRef} = useAppProviderContext()
+    const { jsonSnippets, selectedSnippet, setSaved, setSelectedSnippet, dualEditorRef } = useAppProviderContext()
 
     const snippetsList = useMemo<SnippetItem[]>(() => {
         if (jsonSnippets.length == 0) return []
@@ -40,17 +41,22 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
     }, [snippetsList])
 
     return (
-        <aside className={cn('py-2',
+        <aside className={cn('py-2 flex flex-col',
             'fixed bottom-0 top-(--height-appbar) w-(--drawer-width) right-0',
             'bg-gray-200 dark:bg-gray-800'
         )}>
-            <div>
-                {snippetsList.map((item) => <SnippetItem selectedSnippet={selectedSnippet.key!} item={item}
-                    onSelect={(e) => {
-                        setSelectedSnippet(e)
-                        setSaved(true)
-                    }}
-                />)}
+            <div className='h-full overflow-auto'>
+                <div>
+                    {snippetsList.map((item) => <SnippetItem selectedSnippet={selectedSnippet.key!} item={item}
+                        onSelect={(e) => {
+                            setSelectedSnippet(e)
+                            setSaved(true)
+                        }}
+                    />)}
+                </div>
+            </div>
+            <div className='px-2 pt-2'>
+                <Button className={'w-full'}>Añadir snippet</Button>
             </div>
         </aside>
     );
@@ -62,11 +68,11 @@ type SnippetItemProps = {
     onSelect: (e: VsCodeSnippet) => void
 }
 
-function SnippetItem({item, onSelect, selectedSnippet}: SnippetItemProps) {
+function SnippetItem({ item, onSelect, selectedSnippet }: SnippetItemProps) {
     return (
         <div className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
-            {'bg-primary text-white': selectedSnippet == item.key}
+            { 'bg-primary text-white': selectedSnippet == item.key }
         )} onClick={() => onSelect(item)}>
             <h3 className='font-bold text-lg'>{item.prefix}</h3>
             <p>{item.description}</p>
