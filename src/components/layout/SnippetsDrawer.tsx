@@ -4,6 +4,7 @@ import { useAppProviderContext } from '../providers/AppProvider';
 import { VsCodeSnippet } from '@/lib/validations';
 import { Button } from '../ui/button';
 import { useI18nProviderContext } from '@/I18nProvider';
+import createSnippet from '@/dialogs/CreateSnippet';
 
 type SnippetsDrawerProps = {
 };
@@ -58,7 +59,12 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                 </div>
             </div>
             {activeFile.length > 0 && <div className='px-2 pt-2'>
-                <Button className={'w-full'}>{$t('action-addsnippet')}</Button>
+                <Button className={'w-full'} onClick={async () => {
+                    const snippet = await createSnippet({
+
+                    })
+                    console.log(snippet)
+                }}>{$t('action-addsnippet')}</Button>
             </div>}
         </aside>
     );
