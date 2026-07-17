@@ -1,9 +1,10 @@
 mod fsfunctions;
 
-use fsfunctions::open_folder; // <--- AGREGA ESTA LÍNEA
-use fsfunctions::get_snippet_files; // <--- AGREGA ESTA LÍNEA
-use fsfunctions::select_directory; // <--- AGREGA ESTA LÍNEA
-use fsfunctions::read_file; // <--- AGREGA ESTA LÍNEA
+use fsfunctions::open_folder;
+use fsfunctions::get_snippet_files;
+use fsfunctions::get_snippets_folder;
+use fsfunctions::select_directory;
+use fsfunctions::read_file;
 use fsfunctions::write_file;
 use fsfunctions::delete_file;
 
@@ -20,6 +21,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             greet,
             get_snippet_files,
+            get_snippets_folder,
             select_directory,
             read_file,
             open_folder,

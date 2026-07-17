@@ -6,6 +6,14 @@ import { useI18nProviderContext } from '@/I18nProvider';
 import { FaFolder, FaTrash } from 'react-icons/fa'
 import { extensionSnippetFiles, localstoragekeys } from "@/vars";
 import { Button } from '../ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '../ui/dialog';
 import createFile from '@/dialogs/CreateFile';
 import confirmDialog from '@/dialogs/Confirm';
 import promptDialog from "@/dialogs/PromptDialog";
@@ -17,11 +25,37 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
     const { $t } = useI18nProviderContext()
     const { pathFolder, setPathFolder, setSelectedSnippet, setJsonSnippets, selectedSnippet, setActiveFile, activeFile } = useAppProviderContext()
     const [files, setFiles] = useState<string[]>([])
+    const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false)
 
-    const openFolder = (folder: string) => invoke<any>('get_snippet_files', { folder }).then((r) => {
+    const openFolder = async (folder: string) => {
+        const r = await invoke<any>('get_snippet_files', { folder })
         setPathFolder(r.path)
         setFiles(r.files)
-    })
+    }
+
+    const handleSelectDirectory = async () => {
+        try {
+            const folder = await invoke<string>('select_directory')
+            if (!folder) return
+            localStorage.setItem(localstoragekeys.last_opened, folder)
+            await openFolder(folder)
+            setIsFolderDialogOpen(false)
+        } catch (error) {
+            console.error('Error selecting directory', error)
+        }
+    }
+
+    const handleOpenVsCodeSnippets = async () => {
+        try {
+            const folder = await invoke<string>('get_snippets_folder')
+            if (!folder) return
+            localStorage.setItem(localstoragekeys.last_opened, folder)
+            await openFolder(folder)
+            setIsFolderDialogOpen(false)
+        } catch (error) {
+            console.error('Error opening VS Code snippets folder', error)
+        }
+    }
 
     const handleDrop = async (event: React.DragEvent, item: string) => {
         // 1. CAPTURAR EL PAYLOAD INMEDIATAMENTE (Antes de cualquier await)
@@ -124,7 +158,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
 
     useEffect(() => {
         const lastOpened = localStorage.getItem(localstoragekeys.last_opened) ?? ''
-        openFolder(lastOpened)
+        void openFolder(lastOpened)
     }, [])
 
     return (
@@ -134,11 +168,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
         )}>
             <div className="flex gap-2 items-center px-2">
                 <div className="text-2xl dark:text-white">
-                    <FaFolder onClick={async () => {
-                        const folder = await invoke<string>('select_directory')
-                        localStorage.setItem(localstoragekeys.last_opened, folder)
-                        openFolder(folder)
-                    }} />
+                    <FaFolder className="cursor-pointer" onClick={() => setIsFolderDialogOpen(true)} />
                 </div>
                 <span className="cursor-pointer dark:text-white overflow-hidden text-wrap wrap-break-word" onClick={() => {
                     invoke('open_folder', { path: pathFolder })
@@ -146,6 +176,23 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
                     {pathFolder}
                 </span>
             </div>
+            <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>{$t('title-open-folder')}</DialogTitle>
+                        <DialogDescription>{$t('description-open-folder')}</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-2">
+                        <Button onClick={() => void handleSelectDirectory()}>{$t('button-choose-folder')}</Button>
+                        <Button variant="outline" onClick={() => void handleOpenVsCodeSnippets()}>
+                            {$t('button-open-vscode-snippets')}
+                        </Button>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsFolderDialogOpen(false)}>{$t('button-cancel')}</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             <hr className="mb-4" />
             <div className="overflow-auto px-2">
                 {files.map((item) => <FileItem onDrop={(e, i) => void handleDrop(e, i)} key={item} item={item} onRemove={removeFile} />)}

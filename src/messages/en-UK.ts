@@ -47,5 +47,9 @@ export const messagesEnUk = {
     'response-no': 'No',
     'model-prefered': 'Model prefered',
     'message-nosnippetopened': 'No snippet opened',
-    'inputlabel-response': 'Response'
+    'inputlabel-response': 'Response',
+    'title-open-folder': 'Open folder',
+    'description-open-folder': 'Choose how you want to open the snippets folder.',
+    'button-choose-folder': 'Choose folder',
+    'button-open-vscode-snippets': 'Open VS Code snippets folder'
 };

@@ -47,5 +47,9 @@ export const messagesEsEs = {
     'response-no': 'No',
     'model-prefered': 'Modelo preferido',
     'message-nosnippetopened': 'No hay ningún snippet abierto',
-    'inputlabel-response': 'Respuesta'
+    'inputlabel-response': 'Respuesta',
+    'title-open-folder': 'Abrir carpeta',
+    'description-open-folder': 'Elige cómo quieres abrir la carpeta de snippets.',
+    'button-choose-folder': 'Elegir carpeta',
+    'button-open-vscode-snippets': 'Abrir carpeta de snippets de VS Code'
 }
