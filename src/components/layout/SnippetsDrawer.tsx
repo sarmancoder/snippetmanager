@@ -113,13 +113,28 @@ type SnippetItemProps = {
 }
 
 function SnippetItem({ item, onSelect, onRemove, selectedSnippet }: SnippetItemProps) {
+    const { activeFile } = useAppProviderContext()
+
+    const handleDragStart = (event: React.DragEvent) => {
+        try {
+            console.log('arrastrando')
+            const payload = JSON.stringify({ key: item.key, sourceFile: activeFile })
+            event.dataTransfer.setData('application/x-snippet', payload)
+            // Fallback for environments that only allow text/plain
+            event.dataTransfer.setData('text/plain', payload)
+            event.dataTransfer.effectAllowed = 'move'
+        } catch (error) {
+            console.error('Error preparing drag data', error)
+        }
+    }
+
     return (
-        <div className={cn(
+        <div draggable={true} onDragStart={handleDragStart} onDragEnd={() => {}} className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
             { 'bg-primary text-white': selectedSnippet == item.key },
             'flex items-center item_list'
         )} onClick={() => onSelect(item)}>
-            <div>
+            <div className="pointer-events-none select-none">
                 <h3 className='font-bold text-lg'>{item.prefix}</h3>
                 <p className='line-clamp-2'>{item.description}</p>
             </div>

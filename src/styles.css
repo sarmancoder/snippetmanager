@@ -16,3 +16,8 @@
 .item_list:hover .item_list-remove:hover {
     opacity: 1;
 }
+
+.item_list {
+    user-select: none;
+    -webkit-user-drag: element;
+}
