@@ -46,5 +46,6 @@ export const messagesEsEs = {
     'response-yes': 'Si',
     'response-no': 'No',
     'model-prefered': 'Modelo preferido',
-    'message-nosnippetopened': 'No hay ningún snippet abierto'
+    'message-nosnippetopened': 'No hay ningún snippet abierto',
+    'inputlabel-response': 'Respuesta'
 }

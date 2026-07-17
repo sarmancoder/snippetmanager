@@ -8,19 +8,103 @@ import { extensionSnippetFiles, localstoragekeys } from "@/vars";
 import { Button } from '../ui/button';
 import createFile from '@/dialogs/CreateFile';
 import confirmDialog from '@/dialogs/Confirm';
+import promptDialog from "@/dialogs/PromptDialog";
 
 type FilesDrawerProps = {
 };
 
 export default function FilesDrawer({ }: FilesDrawerProps) {
     const { $t } = useI18nProviderContext()
-    const { pathFolder, setPathFolder, setSelectedSnippet, setJsonSnippets, setActiveFile, activeFile } = useAppProviderContext()
+    const { pathFolder, setPathFolder, setSelectedSnippet, setJsonSnippets, selectedSnippet, setActiveFile, activeFile } = useAppProviderContext()
     const [files, setFiles] = useState<string[]>([])
 
     const openFolder = (folder: string) => invoke<any>('get_snippet_files', { folder }).then((r) => {
         setPathFolder(r.path)
         setFiles(r.files)
     })
+
+    const handleDrop = async (event: React.DragEvent, item: string) => {
+        // 1. CAPTURAR EL PAYLOAD INMEDIATAMENTE (Antes de cualquier await)
+        let payload = event.dataTransfer.getData('application/x-snippet');
+        if (!payload) payload = event.dataTransfer.getData('text/plain');
+
+        // Evitamos propagación del drag de inmediato
+        event.preventDefault();
+
+        if (!payload) return;
+
+        let newFile = false;
+        try {
+            // 2. AHORA SÍ podemos usar procesos asíncronos con seguridad
+            if (!item) {
+                const dialogResult = await promptDialog({
+                    question: 'Nombre del archivo nuevo'
+                });
+                item = (dialogResult ?? { response: '' }).response;
+                newFile = true;
+            }
+
+            // Si cancela el prompt o no pone nombre, salimos en silencio
+            if (!item || item.trim() === '') return;
+
+            // Normalizar la extensión
+            if (!item.endsWith(extensionSnippetFiles)) {
+                item = item + extensionSnippetFiles;
+            }
+
+            const data = JSON.parse(payload);
+            const { key, sourceFile } = data as { key: string, sourceFile: string };
+
+            // Si se suelta sobre el mismo archivo de origen, cancelamos la acción
+            if (item === sourceFile) return;
+
+            if (!pathFolder || !sourceFile) return;
+
+            // Leer contenido del origen
+            const sourceContents = await invoke<string>('read_file', { path: pathFolder, filename: sourceFile });
+            const sourceObj = sourceContents ? JSON.parse(sourceContents) : {};
+
+            if (!(key in sourceObj)) return;
+
+            // Intentar leer el destino (si es nuevo, controlamos que empiece vacío)
+            let targetObj: Record<string, any> = {};
+            if (!newFile) {
+                try {
+                    const targetContents = await invoke<string>('read_file', { path: pathFolder, filename: item });
+                    targetObj = targetContents ? JSON.parse(targetContents) : {};
+                } catch (e) {
+                    // Si da error al leer porque no existía físicamente, empieza como objeto vacío
+                    targetObj = {};
+                }
+            }
+
+            // Mover el snippet
+            const moved = sourceObj[key];
+            delete sourceObj[key];
+            targetObj[key] = moved;
+
+            // Guardar ambos archivos en el disco duro mediante Tauri
+            await invoke('write_file', { folder: pathFolder, filename: sourceFile, content: JSON.stringify(sourceObj, null, 2) });
+            await invoke('write_file', { folder: pathFolder, filename: item, content: JSON.stringify(targetObj, null, 2) });
+
+            // Actualizar la interfaz si el origen era el archivo visualizado actualmente
+            if (sourceFile === activeFile) {
+                setJsonSnippets(JSON.stringify(sourceObj, null, 2));
+                if (selectedSnippet?.key === key) setSelectedSnippet({});
+            }
+
+            // Si creamos un archivo nuevo con éxito, actualizamos la lista lateral de archivos
+            if (newFile) {
+                setFiles((prevFiles) => [...prevFiles, item]);
+                // Tip extra: Podrías abrir el archivo nuevo automáticamente si quieres
+                // setActiveFile(item);
+            }
+
+        } catch (error) {
+            // En lugar de alert, lo registramos en consola para debuggear
+            console.error('Error handling drop:', error);
+        }
+    }
 
     const removeFile = async (filename: string) => {
         if (!pathFolder) return
@@ -63,9 +147,10 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
                 </span>
             </div>
             <hr className="mb-4" />
-            <div className="flex-1 overflow-auto px-2">
-                {files.map((item) => <FileItem key={item} item={item} onRemove={removeFile} />)}
+            <div className="overflow-auto px-2">
+                {files.map((item) => <FileItem onDrop={(e, i) => void handleDrop(e, i)} key={item} item={item} onRemove={removeFile} />)}
             </div>
+            <DropEmptyZone onDrop={handleDrop} />
             <div className='px-2 pt-2'>
                 <Button className='w-full' onClick={async () => {
                     if (!pathFolder) return
@@ -85,20 +170,52 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
     );
 }
 
-type FileItemProps = {
-    item: string
-    onRemove: (item: string) => void
+type DropEmptyZoneProps = {
+    onDrop: (event: React.DragEvent, item: string) => void
 }
 
-function FileItem({ item, onRemove }: FileItemProps) {
-    const { pathFolder, activeFile, setJsonSnippets, setSelectedSnippet, setActiveFile, selectedSnippet } = useAppProviderContext()
+function DropEmptyZone({ onDrop }: DropEmptyZoneProps) {
     const [isDragOver, setIsDragOver] = useState(false)
-
     const handleDragOver = (event: React.DragEvent) => {
-        console.log('dragging over', item)
+        console.log('dragging over', '')
         event.preventDefault()
         event.dataTransfer.dropEffect = 'move'
     }
+
+    const handleDragEnter = (event: React.DragEvent) => {
+        console.log('drag enter', '')
+        event.preventDefault()
+        setIsDragOver(true)
+    }
+
+    const handleDragLeave = () => {
+        console.log('drag leave', '')
+        setIsDragOver(false)
+    }
+    return (
+        <div
+            onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
+            onDrop={(e) => {
+                e.preventDefault()
+                setIsDragOver(false)
+                onDrop(e, '')
+            }}
+            className={cn(
+                "min-h-20 flex-1",
+                { 'bg-gray-400/70': isDragOver }
+            )}></div>
+    )
+}
+
+type FileItemProps = {
+    item: string
+    onRemove: (item: string) => void
+    onDrop: (event: React.DragEvent, item: string) => void
+}
+
+function FileItem({ item, onRemove, onDrop }: FileItemProps) {
+    const { pathFolder, activeFile, setJsonSnippets, setSelectedSnippet, setActiveFile } = useAppProviderContext()
+    const [isDragOver, setIsDragOver] = useState(false)
 
     // Pon esto justo dentro de tu componente FileItem para probar:
     useEffect(() => {
@@ -108,6 +225,12 @@ function FileItem({ item, onRemove }: FileItemProps) {
         document.addEventListener('dragover', handleGlobalDragOver);
         return () => document.removeEventListener('dragover', handleGlobalDragOver);
     }, []);
+
+    const handleDragOver = (event: React.DragEvent) => {
+        console.log('dragging over', item)
+        event.preventDefault()
+        event.dataTransfer.dropEffect = 'move'
+    }
 
     const handleDragEnter = (event: React.DragEvent) => {
         console.log('drag enter', item)
@@ -119,53 +242,12 @@ function FileItem({ item, onRemove }: FileItemProps) {
         console.log('drag leave', item)
         setIsDragOver(false)
     }
-
-    const handleDrop = async (event: React.DragEvent) => {
-        event.preventDefault()
-        setIsDragOver(false)
-        try {
-            let payload = event.dataTransfer.getData('application/x-snippet')
-            if (!payload) payload = event.dataTransfer.getData('text/plain')
-            if (!payload) return
-            const data = JSON.parse(payload)
-            const { key, sourceFile } = data as { key: string, sourceFile: string }
-
-            // If dropping onto the currently opened file, do nothing
-            if (item === activeFile) return
-
-            if (!pathFolder || !sourceFile) return
-
-            // Read source and target files
-            const sourceContents = await invoke<string>('read_file', { path: pathFolder, filename: sourceFile })
-            const targetContents = await invoke<string>('read_file', { path: pathFolder, filename: item })
-
-            const sourceObj = sourceContents ? JSON.parse(sourceContents) : {}
-            const targetObj = targetContents ? JSON.parse(targetContents) : {}
-
-            if (!(key in sourceObj)) return
-
-            // Move snippet
-            const moved = sourceObj[key]
-            delete sourceObj[key]
-            targetObj[key] = moved
-
-            // Write back files
-            await invoke('write_file', { folder: pathFolder, filename: sourceFile, content: JSON.stringify(sourceObj) })
-            await invoke('write_file', { folder: pathFolder, filename: item, content: JSON.stringify(targetObj) })
-
-            // Update UI if source was active
-            if (sourceFile === activeFile) {
-                setJsonSnippets(JSON.stringify(sourceObj))
-                if (selectedSnippet?.key === key) setSelectedSnippet({})
-            }
-
-        } catch (error) {
-            console.error('Error handling drop', error)
-        }
-    }
-
     return (
-        <div onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={cn(
+        <div onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={(e) => {
+            e.preventDefault()
+            setIsDragOver(false)
+            onDrop(e, item)
+        }} className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
             { 'bg-primary text-white': activeFile == item, 'drag-over': isDragOver },
             'flex items-center item_list'
