@@ -21,3 +21,7 @@
     user-select: none;
     -webkit-user-drag: element;
 }
+
+.item_list.drag-over {
+    background-color: rgba(172, 172, 172, 0.75);
+}

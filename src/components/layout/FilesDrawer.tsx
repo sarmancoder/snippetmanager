@@ -92,6 +92,7 @@ type FileItemProps = {
 
 function FileItem({ item, onRemove }: FileItemProps) {
     const { pathFolder, activeFile, setJsonSnippets, setSelectedSnippet, setActiveFile, selectedSnippet } = useAppProviderContext()
+    const [isDragOver, setIsDragOver] = useState(false)
 
     const handleDragOver = (event: React.DragEvent) => {
         console.log('dragging over', item)
@@ -101,7 +102,7 @@ function FileItem({ item, onRemove }: FileItemProps) {
 
     // Pon esto justo dentro de tu componente FileItem para probar:
     useEffect(() => {
-        const handleGlobalDragOver = (e: DragEvent) => {
+        const handleGlobalDragOver = () => {
             console.log("Drag global detectado en el documento");
         };
         document.addEventListener('dragover', handleGlobalDragOver);
@@ -111,14 +112,17 @@ function FileItem({ item, onRemove }: FileItemProps) {
     const handleDragEnter = (event: React.DragEvent) => {
         console.log('drag enter', item)
         event.preventDefault()
+        setIsDragOver(true)
     }
 
     const handleDragLeave = () => {
         console.log('drag leave', item)
+        setIsDragOver(false)
     }
 
     const handleDrop = async (event: React.DragEvent) => {
         event.preventDefault()
+        setIsDragOver(false)
         try {
             let payload = event.dataTransfer.getData('application/x-snippet')
             if (!payload) payload = event.dataTransfer.getData('text/plain')
@@ -163,7 +167,7 @@ function FileItem({ item, onRemove }: FileItemProps) {
     return (
         <div onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={cn(
             'hover:bg-primary px-2 hover:text-white cursor-pointer',
-            { 'bg-primary text-white': activeFile == item },
+            { 'bg-primary text-white': activeFile == item, 'drag-over': isDragOver },
             'flex items-center item_list'
         )} onClick={async () => {
             setActiveFile(item)
