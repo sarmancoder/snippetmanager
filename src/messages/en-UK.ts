@@ -51,5 +51,13 @@ export const messagesEnUk = {
     'title-open-folder': 'Open folder',
     'description-open-folder': 'Choose how you want to open the snippets folder.',
     'button-choose-folder': 'Choose folder',
-    'button-open-vscode-snippets': 'Open VS Code snippets folder'
+    'button-open-vscode-snippets': 'Open VS Code snippets folder',
+    'button-open-fab': 'Open AI assistant',
+    'title-fab-card': 'AI assistant prompt',
+    'inputlabel-textarea': 'Prompt',
+    'label-model-source': 'Model source',
+    'option-ollama': 'Ollama',
+    'option-openrouter': 'OpenRouter',
+    'button-replace': 'Replace',
+    'button-modify': 'Modify'
 };

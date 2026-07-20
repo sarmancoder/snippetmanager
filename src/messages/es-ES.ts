@@ -51,5 +51,13 @@ export const messagesEsEs = {
     'title-open-folder': 'Abrir carpeta',
     'description-open-folder': 'Elige cómo quieres abrir la carpeta de snippets.',
     'button-choose-folder': 'Elegir carpeta',
-    'button-open-vscode-snippets': 'Abrir carpeta de snippets de VS Code'
+    'button-open-vscode-snippets': 'Abrir carpeta de snippets de VS Code',
+    'button-open-fab': 'Abrir asistente IA',
+    'title-fab-card': 'Solicitud al asistente IA',
+    'inputlabel-textarea': 'Prompt',
+    'label-model-source': 'Fuente del modelo',
+    'option-ollama': 'Ollama',
+    'option-openrouter': 'OpenRouter',
+    'button-replace': 'Reemplazar',
+    'button-modify': 'Modificar'
 }
