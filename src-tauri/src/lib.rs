@@ -1,4 +1,5 @@
 mod fsfunctions;
+mod ai;
 
 use fsfunctions::open_folder;
 use fsfunctions::get_snippet_files;
@@ -7,6 +8,7 @@ use fsfunctions::select_directory;
 use fsfunctions::read_file;
 use fsfunctions::write_file;
 use fsfunctions::delete_file;
+use ai::stream_ollama_prompt;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -26,7 +28,8 @@ pub fn run() {
             read_file,
             open_folder,
             write_file,
-            delete_file
+            delete_file,
+            stream_ollama_prompt
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
