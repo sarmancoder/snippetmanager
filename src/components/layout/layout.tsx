@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
 import { FaSave } from 'react-icons/fa';
 import { MdWrapText } from 'react-icons/md';
 import ModeToggle from '../ModeToggle';
@@ -39,6 +40,21 @@ function AdjustButton() {
 
 function SaveButton() {
     const { saved, save } = useAppProviderContext()
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const isSaveShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's';
+
+            if (!isSaveShortcut) return;
+
+            event.preventDefault();
+            if (!saved) save();
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [save, saved]);
+
     return (
         <FaSave onClick={() => {
             if (saved) return
