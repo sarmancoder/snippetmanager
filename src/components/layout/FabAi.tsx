@@ -1,3 +1,4 @@
+import { useAppProviderContext } from "../providers/AppProvider";
 import { useI18nProviderContext } from "@/I18nProvider";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
@@ -14,6 +15,7 @@ const MODEL_OPTIONS: Array<{ value: ProviderOption; labelKey: string }> = [
 
 export default function FabAi() {
     const { $t } = useI18nProviderContext();
+    const { dualEditorRef } = useAppProviderContext();
     const [prompt, setPrompt] = useState("");
     const [provider, setProvider] = useState<ProviderOption>("ollama");
     const [open, setOpen] = useState(false);
@@ -50,12 +52,25 @@ export default function FabAi() {
 
         try {
             setUnable(true)
+            const currentSnippet = dualEditorRef.current?.getCurrentContent()
+            console.log(currentSnippet)
+            const promptToSend = action === 'modify' && currentSnippet
+                ? `tengo el siguiente snippet:
+${JSON.stringify(currentSnippet)}
+Quiero que lo modifiques para: ${data.prompt}`
+                : data.prompt
+            console.log({promptToSend, strsnipp: JSON.stringify(currentSnippet)})
             const dataAiString = await invoke('stream_ollama_prompt', {
-                prompt: data.prompt,
+                prompt: promptToSend,
                 model: 'llama3'
             })
             const dataAi = JSON.parse(dataAiString as string)
             console.log(dataAi)
+            const formattedResult = typeof dataAi === 'string'
+                ? dataAi
+                : JSON.stringify(dataAi, null, 4)
+            console.log(formattedResult)
+            dualEditorRef.current?.setContent(formattedResult)
         } catch (error) {
             console.log(error)
         } finally {
@@ -123,10 +138,10 @@ export default function FabAi() {
                             </CardContent>
 
                             <CardFooter className="justify-end gap-2 bg-transparent border-none p-0">
-                                <Button disabled={unable} variant="outline" onClick={() => process('replace')}>
+                                <Button type="button" disabled={unable} variant="outline" onClick={() => process('modify')}>{$t("button-modify")}</Button>
+                                <Button type="button" disabled={unable} onClick={() => process('replace')}>
                                     {$t("button-replace")}
                                 </Button>
-                                <Button disabled={unable} onClick={() => process('modify')}>{$t("button-modify")}</Button>
                             </CardFooter>
                         </Card>
                     </form>

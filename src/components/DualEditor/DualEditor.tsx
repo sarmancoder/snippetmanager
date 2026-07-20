@@ -43,6 +43,7 @@ export default function DualEditor({ ref, adjust = false, onChange }: DualEditor
                 editorRef.current.changeContent(data.body.join('\n'))
             } catch (error) {
                 toast('Snippet no válido')
+                console.log(content, error)
             }
         }
     }))
