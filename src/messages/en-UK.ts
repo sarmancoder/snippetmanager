@@ -31,6 +31,7 @@ export const messagesEnUk = {
 
     'button-cancel': 'Cancel',
     'button-create': 'Create',
+    'button-save': 'Save',
 
     'error-invalid-json-file': 'Invalid JSON file',
 
@@ -41,6 +42,11 @@ export const messagesEnUk = {
     'tab-general': 'General',
     'tab-ollama': 'Ollama',
     'tab-openrouter': 'Open Router',
+    'dialog-settings-description': 'Adjust the general application settings and AI provider configuration.',
+    'field-ollama-url': 'Ollama URL',
+    'field-ollama-model': 'Ollama model',
+    'field-openrouter-api-key': 'OpenRouter API key',
+    'field-openrouter-model': 'OpenRouter model',
 
     'text-language': 'language',
     'response-yes': 'Yes',

@@ -31,6 +31,7 @@ export const messagesEsEs = {
 
     'button-cancel': 'Cancelar',
     'button-create': 'Crear',
+    'button-save': 'Guardar',
 
     'error-invalid-json-file': 'Archivo JSON no válido',
 
@@ -41,6 +42,11 @@ export const messagesEsEs = {
     'tab-general': 'General',
     'tab-ollama': 'Ollama',
     'tab-openrouter': 'Open Router',
+    'dialog-settings-description': 'Ajusta la configuración general de la aplicación y del proveedor de IA.',
+    'field-ollama-url': 'URL de Ollama',
+    'field-ollama-model': 'Modelo de Ollama',
+    'field-openrouter-api-key': 'API key de OpenRouter',
+    'field-openrouter-model': 'Modelo de OpenRouter',
 
     'text-language': 'Idioma',
     'response-yes': 'Si',
