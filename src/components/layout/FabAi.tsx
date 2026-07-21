@@ -3,6 +3,7 @@ import { useI18nProviderContext } from "@/I18nProvider";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
 import { FaBrain } from "react-icons/fa";
+import { useLocalStorage } from "@uidotdev/usehooks";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 
@@ -17,7 +18,10 @@ export default function FabAi() {
     const { $t } = useI18nProviderContext();
     const { dualEditorRef } = useAppProviderContext();
     const [prompt, setPrompt] = useState("");
-    const [provider, setProvider] = useState<ProviderOption>("ollama");
+    const [provider, setProvider] = useLocalStorage<ProviderOption>('settings-model-source', 'ollama');
+    const [selectedModel, setSelectedModel] = useLocalStorage('settings-ollama-model', 'llama3.2');
+    const [openRouterModel] = useLocalStorage('settings-openrouter-model', 'openai/gpt-4o-mini');
+    const [openRouterApiKey] = useLocalStorage('settings-openrouter-api-key', '');
     const [open, setOpen] = useState(false);
     const popoverRef = useRef<HTMLFormElement | null>(null);
     const [unable, setUnable] = useState(false)
@@ -60,9 +64,11 @@ ${JSON.stringify(currentSnippet)}
 Quiero que lo modifiques para: ${data.prompt}`
                 : data.prompt
             console.log({promptToSend, strsnipp: JSON.stringify(currentSnippet)})
-            const dataAiString = await invoke('stream_ollama_prompt', {
+            const activeModel = provider === 'ollama' ? selectedModel : openRouterModel;
+            const dataAiString = await invoke(provider === 'ollama' ? 'stream_ollama_prompt' : 'stream_openrouter_prompt', {
                 prompt: promptToSend,
-                model: 'llama3'
+                model: activeModel,
+                apiKey: openRouterApiKey
             })
             const dataAi = JSON.parse(dataAiString as string)
             console.log(dataAi)
@@ -79,7 +85,7 @@ Quiero que lo modifiques para: ${data.prompt}`
     }
 
     return (
-        <div className="fixed bottom-6 right-[calc(var(--drawer-width)_+_20px)] z-50">
+        <div className="fixed bottom-6 right-[calc(var(--drawer-width)+20px)] z-50">
             <div className="relative">
                 <Button
                     aria-label={$t("button-open-fab")}
@@ -133,6 +139,11 @@ Quiero que lo modifiques para: ${data.prompt}`
                                                 <span>{$t(option.labelKey as any)}</span>
                                             </label>
                                         ))}
+                                    </div>
+
+                                    <div className="rounded-lg border border-dashed border-input/70 bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                                        <span className="font-medium text-foreground">{$t("label-active-model")}: </span>
+                                        {provider === 'ollama' ? selectedModel : openRouterModel}
                                     </div>
                                 </fieldset>
                             </CardContent>

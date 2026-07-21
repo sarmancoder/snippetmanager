@@ -8,7 +8,7 @@ use fsfunctions::select_directory;
 use fsfunctions::read_file;
 use fsfunctions::write_file;
 use fsfunctions::delete_file;
-use ai::stream_ollama_prompt;
+use ai::{list_ollama_models, stream_ollama_prompt, stream_openrouter_prompt};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -29,6 +29,8 @@ pub fn run() {
             open_folder,
             write_file,
             delete_file,
+            list_ollama_models,
+            stream_openrouter_prompt,
             stream_ollama_prompt
         ])
         .run(tauri::generate_context!())

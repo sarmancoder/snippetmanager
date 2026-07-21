@@ -15,6 +15,8 @@ export const messagesEnUk = {
     'button-create-file': 'Create file',
 
     'status-processing': 'Processing...',
+    'status-loading-models': 'Loading models...',
+    'message-no-models-found': 'No models found',
 
     'prompt-openrouter-apikey': 'OpenRouter API key is required',
 
@@ -62,6 +64,7 @@ export const messagesEnUk = {
     'title-fab-card': 'AI assistant prompt',
     'inputlabel-textarea': 'Prompt',
     'label-model-source': 'Model source',
+    'label-active-model': 'Active model',
     'option-ollama': 'Ollama',
     'option-openrouter': 'OpenRouter',
     'button-replace': 'Replace',

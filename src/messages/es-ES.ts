@@ -14,6 +14,8 @@ export const messagesEsEs = {
     'button-create-file': 'Crear archivo',
 
     'status-processing': 'Procesando...',
+    'status-loading-models': 'Cargando modelos...',
+    'message-no-models-found': 'No se encontraron modelos',
 
     'prompt-openrouter-apikey': 'Es necesaria la API Key de OpenRouter',
 
@@ -62,6 +64,7 @@ export const messagesEsEs = {
     'title-fab-card': 'Solicitud al asistente IA',
     'inputlabel-textarea': 'Prompt',
     'label-model-source': 'Fuente del modelo',
+    'label-active-model': 'Modelo activo',
     'option-ollama': 'Ollama',
     'option-openrouter': 'OpenRouter',
     'button-replace': 'Reemplazar',
