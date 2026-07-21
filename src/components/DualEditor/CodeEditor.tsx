@@ -21,7 +21,7 @@ export default function CodeEditor({ ref, value, theme = 'vs-dark', onMounted, a
             editor.current.setValue(content);
         },
         isFocused() {
-            const estaEnFocus = editor.current.hasWidgetFocus();
+            const estaEnFocus = editor.current?.hasWidgetFocus();
             return estaEnFocus
         }
     }))
