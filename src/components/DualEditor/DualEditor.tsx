@@ -10,6 +10,7 @@ import languageScopes, { type LanguageScopeValue } from './languages';
 import { toast } from 'sonner';
 import { vsCodeSnippetSchema } from '@/lib/validations';
 import {play} from 'cuelume'
+import { SnippetsReplacements } from './SnippetsReplacements';
 
 type DualEditorProps = {
     ref: React.Ref<any>
@@ -144,7 +145,7 @@ export default function DualEditor({ ref, adjust = false, onChange }: DualEditor
                     <Card className='w-full h-full'>
                         <CardHeader className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                             <CardTitle>Editor</CardTitle>
-                            <div className='w-full sm:w-[320px]'>
+                            <div className='w-full sm:w-xs'>
                                 <Label htmlFor='language-scope-select' className='text-sm'>Lenguajes</Label>
                                 <Select
                                     inputId='language-scope-select'
@@ -162,20 +163,29 @@ export default function DualEditor({ ref, adjust = false, onChange }: DualEditor
                                 />
                             </div>
                         </CardHeader>
-                        <CardContent ref={editorRef} className='h-full'>
-                            <CodeEditor adjust={adjust} id="snippeteditor" ref={editorRef} defaultLanguage='javascript' language={activeLanguage} onChange={(content) => {
-                                const body = content.split('\n').map((e) => e.replace('\r', ''))
-                                updateSnippetState({ body })
-                            }} onMounted={(_, monaco) => {
-                                monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-                                    noSemanticValidation: true,
-                                    noSyntaxValidation: true,
-                                })
-                                monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-                                    noSemanticValidation: true,
-                                    noSyntaxValidation: true,
-                                })
-                            }} />
+                        <CardContent className='h-full'>
+                            <div className='flex h-full flex-col gap-2'>
+                                <div className='min-h-0 flex-1'>
+                                    <CodeEditor adjust={adjust} id="snippeteditor" ref={editorRef} defaultLanguage='javascript' language={activeLanguage} onChange={(content) => {
+                                        const body = content.split('\n').map((e) => e.replace('\r', ''))
+                                        updateSnippetState({ body })
+                                    }} onMounted={(_, monaco) => {
+                                        monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+                                            noSemanticValidation: true,
+                                            noSyntaxValidation: true,
+                                        })
+                                        monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+                                            noSemanticValidation: true,
+                                            noSyntaxValidation: true,
+                                        })
+                                    }} />
+                                </div>
+                                <div className='flex justify-end'>
+                                    <SnippetsReplacements onReplace={(value) => {
+                                        editorRef.current?.insertText?.(value)
+                                    }} />
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
