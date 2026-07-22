@@ -52,7 +52,14 @@ export default function DualEditor({ ref, adjust = false, onChange }: DualEditor
 
     const selectedOptions = languageScopes.filter((option) => selectedScopes.includes(option.value));
 
-    const activeLanguage = selectedScopes[0] ?? 'javascript';
+    const resolveEditorLanguage = (scopeValue: string) => {
+        const normalizedScope = scopeValue.toLowerCase();
+        if (normalizedScope === 'javascriptreact' || normalizedScope === 'jsx') return 'javascript';
+        if (normalizedScope === 'typescriptreact' || normalizedScope === 'tsx') return 'typescript';
+        return normalizedScope || 'javascript';
+    };
+
+    const activeLanguage = resolveEditorLanguage(selectedScopes[0] ?? 'javascript');
 
     const resultref = useRef<any>(null);
     const editorRef = useRef<any>(null)
