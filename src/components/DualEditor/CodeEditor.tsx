@@ -4,11 +4,12 @@ import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 type CodeEditorProps = {
     ref: React.RefObject<any>,
     defaultLanguage: EditorProps['language'],
+    language?: EditorProps['language'],
     theme?: EditorProps['theme'],
     onChange?: (value: string) => void,
-    value?: string
-    id: string
-    onMounted?: (e: any, m: any) => void
+    value?: string,
+    id: string,
+    onMounted?: (e: any, m: any) => void,
     adjust?: boolean
 }
 

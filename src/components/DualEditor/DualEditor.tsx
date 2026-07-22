@@ -5,6 +5,8 @@ import { Field, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import CodeEditor from './CodeEditor';
+import Select, { type MultiValue } from 'react-select';
+import languageScopes, { type LanguageScopeValue } from './languages';
 import { toast } from 'sonner';
 import { vsCodeSnippetSchema } from '@/lib/validations';
 import {play} from 'cuelume'
@@ -18,6 +20,7 @@ type DualEditorProps = {
 type SnippetState = {
     prefix: string
     description: string
+    scope: string
     isFileTemplate: boolean
     body: string[]
 }
@@ -25,6 +28,7 @@ type SnippetState = {
 const normalizeSnippetState = (value: Partial<SnippetState> = {}): SnippetState => ({
     prefix: typeof value.prefix === 'string' ? value.prefix : '',
     description: typeof value.description === 'string' ? value.description : '',
+    scope: typeof value.scope === 'string' ? value.scope : '',
     isFileTemplate: Boolean(value.isFileTemplate),
     body: Array.isArray(value.body) ? value.body : [],
 })
@@ -34,11 +38,21 @@ export default function DualEditor({ ref, adjust = false, onChange }: DualEditor
     const [snippetState, setSnippetState] = useState<SnippetState>({
         prefix: '',
         description: '',
+        scope: '',
         isFileTemplate: false,
         body: [],
     })
 
-    const { prefix, description, isFileTemplate } = snippetState
+    const { prefix, description, scope, isFileTemplate } = snippetState
+
+    const selectedScopes = scope
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean) as LanguageScopeValue[];
+
+    const selectedOptions = languageScopes.filter((option) => selectedScopes.includes(option.value));
+
+    const activeLanguage = selectedScopes[0] ?? 'javascript';
 
     const resultref = useRef<any>(null);
     const editorRef = useRef<any>(null)
@@ -121,11 +135,28 @@ export default function DualEditor({ ref, adjust = false, onChange }: DualEditor
                         <Label htmlFor="template-field">Es una plantilla</Label>
                     </Field>
                     <Card className='w-full h-full'>
-                        <CardHeader>
+                        <CardHeader className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                             <CardTitle>Editor</CardTitle>
+                            <div className='w-full sm:w-[320px]'>
+                                <Label htmlFor='language-scope-select' className='text-sm'>Lenguajes</Label>
+                                <Select
+                                    inputId='language-scope-select'
+                                    isMulti
+                                    options={languageScopes}
+                                    value={selectedOptions}
+                                    onChange={(value: MultiValue<typeof languageScopes[number]>) => {
+                                        const selectedValues = (value ?? []).map((option) => option.value)
+                                        updateSnippetState({ scope: selectedValues.join(',') })
+                                    }}
+                                    className='min-w-[220px] max-w-full text-sm'
+                                    classNamePrefix='react-select'
+                                    closeMenuOnSelect={false}
+                                    hideSelectedOptions={false}
+                                />
+                            </div>
                         </CardHeader>
                         <CardContent ref={editorRef} className='h-full'>
-                            <CodeEditor adjust={adjust} id="snippeteditor" ref={editorRef} defaultLanguage='javascript' onChange={(content) => {
+                            <CodeEditor adjust={adjust} id="snippeteditor" ref={editorRef} defaultLanguage='javascript' language={activeLanguage} onChange={(content) => {
                                 const body = content.split('\n').map((e) => e.replace('\r', ''))
                                 updateSnippetState({ body })
                             }} onMounted={(_, monaco) => {
