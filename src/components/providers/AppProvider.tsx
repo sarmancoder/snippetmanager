@@ -51,13 +51,18 @@ function useAppProviderContextData() {
 
     function areEqual() {
         if (!selectedSnippet.key) return true
-        const currentSnippet = dualEditorRef.current.getCurrentContent()
-        const { key, scope, ...snippet } = selectedSnippet
+
+        const currentSnippet = dualEditorRef.current?.getCurrentContent?.()
+        if (!currentSnippet) return true
+
+        const { key, ...snippet } = selectedSnippet
         const equal = deepEqual(currentSnippet, snippet)
+
         if (!equal) {
             console.log('are equal', { currentSnippet, snippet, equal })
         }
-        return deepEqual(currentSnippet, snippet)
+
+        return equal
     }
 
     return {
