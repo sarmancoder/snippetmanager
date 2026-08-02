@@ -19,7 +19,7 @@ export default function FabAi() {
     const { dualEditorRef } = useAppProviderContext();
     const [prompt, setPrompt] = useState("");
     const [provider, setProvider] = useLocalStorage<ProviderOption>('settings-model-source', 'ollama');
-    const [selectedModel, setSelectedModel] = useLocalStorage('settings-ollama-model', 'llama3.2');
+    const [selectedModel] = useLocalStorage('settings-ollama-model', 'llama3.2');
     const [openRouterModel] = useLocalStorage('settings-openrouter-model', 'openai/gpt-4o-mini');
     const [openRouterApiKey] = useLocalStorage('settings-openrouter-api-key', '');
     const [open, setOpen] = useState(false);

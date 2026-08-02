@@ -1,18 +1,16 @@
-import { confirmable, createConfirmation, type ConfirmDialogProps } from 'react-confirm';
-import I18nProviderContextProvider, { useI18nProviderContext } from '../I18nProvider';
-import { type VsCodeSnippet as SnippetType } from '@/lib/validations';
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+    DialogTitle
+} from "@/components/ui/dialog";
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { type VsCodeSnippet as SnippetType } from '@/lib/validations';
+import { confirmable, createConfirmation, type ConfirmDialogProps } from 'react-confirm';
+import I18nProviderContextProvider, { useI18nProviderContext } from '../I18nProvider';
 
 // 1. Definimos qué datos EXTRAS le pasaremos nosotros (solo el mensaje)
 interface AdditionalProps { }

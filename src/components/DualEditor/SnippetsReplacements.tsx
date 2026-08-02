@@ -1,7 +1,6 @@
 import React from 'react';
 // Importamos el icono desde react-icons (FiChevronDown de Feather Icons)
-import { FiChevronDown } from 'react-icons/fi';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { FiChevronDown } from 'react-icons/fi';
 
 interface Props {
   onReplace: (value: string) => void;
