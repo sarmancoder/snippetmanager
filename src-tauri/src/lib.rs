@@ -1,13 +1,5 @@
-mod fsfunctions;
 mod ai;
 
-use fsfunctions::open_folder;
-use fsfunctions::get_snippet_files;
-use fsfunctions::get_snippets_folder;
-use fsfunctions::select_directory;
-use fsfunctions::read_file;
-use fsfunctions::write_file;
-use fsfunctions::delete_file;
 use ai::{list_ollama_models, stream_ollama_prompt, stream_openrouter_prompt};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -20,15 +12,11 @@ fn greet(name: &str) -> String {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_os::init())
         .invoke_handler(tauri::generate_handler![
             greet,
-            get_snippet_files,
-            get_snippets_folder,
-            select_directory,
-            read_file,
-            open_folder,
-            write_file,
-            delete_file,
             list_ollama_models,
             stream_openrouter_prompt,
             stream_ollama_prompt

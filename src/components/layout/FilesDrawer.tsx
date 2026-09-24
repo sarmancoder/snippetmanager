@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { getSnippetFiles, getSnippetsFolder, selectDirectory, openFolder as openFolderInSystem, readFile, writeFile, deleteFile } from '@/lib/filesystem';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useAppProviderContext } from '../providers/AppProvider';
@@ -17,6 +17,7 @@ import {
 import createFile from '@/dialogs/CreateFile';
 import confirmDialog from '@/dialogs/Confirm';
 import promptDialog from "@/dialogs/PromptDialog";
+import { parseJsonc } from '@/lib/jsonc';
 
 type FilesDrawerProps = {
 };
@@ -28,14 +29,14 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
     const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false)
 
     const openFolder = async (folder: string) => {
-        const r = await invoke<any>('get_snippet_files', { folder })
+        const r = await getSnippetFiles(folder)
         setPathFolder(r.path)
         setFiles(r.files)
     }
 
     const handleSelectDirectory = async () => {
         try {
-            const folder = await invoke<string>('select_directory')
+            const folder = await selectDirectory()
             if (!folder) return
             localStorage.setItem(localstoragekeys.last_opened, folder)
             await openFolder(folder)
@@ -47,7 +48,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
 
     const handleOpenVsCodeSnippets = async () => {
         try {
-            const folder = await invoke<string>('get_snippets_folder')
+            const folder = await getSnippetsFolder()
             if (!folder) return
             localStorage.setItem(localstoragekeys.last_opened, folder)
             await openFolder(folder)
@@ -95,8 +96,8 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
             if (!pathFolder || !sourceFile) return;
 
             // Leer contenido del origen
-            const sourceContents = await invoke<string>('read_file', { path: pathFolder, filename: sourceFile });
-            const sourceObj = sourceContents ? JSON.parse(sourceContents) : {};
+            const sourceContents = await readFile(pathFolder, sourceFile);
+            const sourceObj = sourceContents ? parseJsonc(sourceContents) : {};
 
             if (!(key in sourceObj)) return;
 
@@ -104,8 +105,8 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
             let targetObj: Record<string, any> = {};
             if (!newFile) {
                 try {
-                    const targetContents = await invoke<string>('read_file', { path: pathFolder, filename: item });
-                    targetObj = targetContents ? JSON.parse(targetContents) : {};
+                    const targetContents = await readFile(pathFolder, item);
+                    targetObj = targetContents ? parseJsonc(targetContents) : {};
                 } catch (e) {
                     // Si da error al leer porque no existía físicamente, empieza como objeto vacío
                     targetObj = {};
@@ -118,8 +119,8 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
             targetObj[key] = moved;
 
             // Guardar ambos archivos en el disco duro mediante Tauri
-            await invoke('write_file', { folder: pathFolder, filename: sourceFile, content: JSON.stringify(sourceObj, null, 2) });
-            await invoke('write_file', { folder: pathFolder, filename: item, content: JSON.stringify(targetObj, null, 2) });
+            await writeFile(pathFolder, sourceFile, JSON.stringify(sourceObj, null, 2));
+            await writeFile(pathFolder, item, JSON.stringify(targetObj, null, 2));
 
             // Actualizar la interfaz si el origen era el archivo visualizado actualmente
             if (sourceFile === activeFile) {
@@ -147,7 +148,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
             description: $t('confirm-delete-file')
         })
         if (response !== true) return
-        await invoke('delete_file', { folder: pathFolder, filename })
+        await deleteFile(pathFolder, filename)
         setFiles((prev) => prev.filter((item) => item !== filename))
         if (filename === activeFile) {
             setActiveFile('')
@@ -171,7 +172,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
                     <FaFolder className="cursor-pointer" onClick={() => setIsFolderDialogOpen(true)} />
                 </div>
                 <span className="cursor-pointer dark:text-white overflow-hidden text-wrap wrap-break-word" onClick={() => {
-                    invoke('open_folder', { path: pathFolder })
+                    void openFolderInSystem(pathFolder)
                 }}>
                     {pathFolder}
                 </span>
@@ -206,7 +207,7 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
                     const filename = result.filename.endsWith(extensionSnippetFiles)
                         ? result.filename
                         : `${result.filename}${extensionSnippetFiles}`
-                    await invoke('write_file', { folder: pathFolder, filename, content: '{}' })
+                    await writeFile(pathFolder, filename, '{}')
                     setActiveFile(filename)
                     setJsonSnippets('{}')
                     setSelectedSnippet({})
@@ -300,7 +301,7 @@ function FileItem({ item, onRemove, onDrop }: FileItemProps) {
             'flex items-center item_list'
         )} onClick={async () => {
             setActiveFile(item)
-            const contents = await invoke<string>('read_file', { path: pathFolder, filename: item })
+            const contents = await readFile(pathFolder, item)
             setJsonSnippets(contents)
             setSelectedSnippet({})
         }}>

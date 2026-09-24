@@ -1,10 +1,11 @@
 
 import deepEqual from '@/lib/deepEqual';
 import { VsCodeSnippet } from '@/lib/validations';
-import { invoke } from '@tauri-apps/api/core';
+import { writeFile } from '@/lib/filesystem';
 import { useLocalStorage } from '@uidotdev/usehooks';
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { parseJsonc } from '@/lib/jsonc';
 
 const AppProviderContext = createContext<any>(null);
 
@@ -27,16 +28,12 @@ function useAppProviderContextData() {
     }, [selectedSnippet])
 
     async function writeInFile(datastr: string) {
-        await invoke('write_file', {
-            folder: pathFolder,
-            filename: activeFile,
-            content: datastr
-        })
+        await writeFile(pathFolder, activeFile, datastr)
     }
 
     async function save() {
         toast('Guardando datos')
-        const dataSnippets: VsCodeSnippet[] = JSON.parse(jsonSnippets)
+        const dataSnippets: Record<string, any> = parseJsonc(jsonSnippets)
         const dataCurrent = dualEditorRef.current.getCurrentContent()
         dataSnippets[selectedSnippet.key as any] = dataCurrent
         const datastr = JSON.stringify(dataSnippets, null, 4)

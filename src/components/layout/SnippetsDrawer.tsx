@@ -7,6 +7,7 @@ import { useI18nProviderContext } from '@/I18nProvider';
 import createSnippet from '@/dialogs/CreateSnippet';
 import {FaTrash} from 'react-icons/fa'
 import confirmDialog from '@/dialogs/Confirm';
+import { parseJsonc } from '@/lib/jsonc';
 
 type SnippetsDrawerProps = {
 };
@@ -27,13 +28,11 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
     const snippetsList = useMemo<SnippetItem[]>(() => {
         if (jsonSnippets.length == 0) return []
         try {
-            const dataSnippets = JSON.parse(jsonSnippets)
-            return Object.keys(dataSnippets).map((a) => {
-                return {
-                    key: a,
-                    ...dataSnippets[a]
-                }
-            })
+            const dataSnippets = parseJsonc(jsonSnippets)
+            return Object.keys(dataSnippets).map((a) => ({
+                key: a,
+                ...dataSnippets[a]
+            }))
         } catch (error) {
             console.log('Hubo un error:', error)
             console.log(jsonSnippets)
@@ -64,7 +63,7 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                                     description: '¿Realmente quieres eliminar el snippet? Esta acción no se puede deshacer'
                                 })
                                 if (response !== true) return
-                                const parsedSnippets = JSON.parse(jsonSnippets || '{}')
+                                const parsedSnippets = parseJsonc(jsonSnippets || '{}')
                                 if (parsedSnippets && typeof parsedSnippets === 'object' && e.key! in parsedSnippets) {
                                     delete parsedSnippets[e.key!]
                                     const filestr = JSON.stringify(parsedSnippets)
@@ -94,7 +93,7 @@ export default function SnippetsDrawer({ }: SnippetsDrawerProps) {
                         isFileTemplate: false
                     }
                     const filestr = JSON.stringify({
-                        ...JSON.parse(jsonSnippets),
+                        ...parseJsonc(jsonSnippets),
                         [keySnippet]: newSnippet
                     })
                     setJsonSnippets(filestr)
