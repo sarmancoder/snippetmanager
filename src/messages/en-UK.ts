@@ -7,6 +7,8 @@ export const messagesEnUk = {
 
     'inputlabel-namefile': 'File name',
     'inputlabel-ai-content': 'Request AI content',
+    'inputlabel-ai-prefix': 'Desired prefix',
+    'error-ai-generation': 'Could not generate content with AI',
 
     'error-model-not-selected': 'No model selected',
     'error-file-name-required': 'File name is required',
@@ -19,6 +21,7 @@ export const messagesEnUk = {
     'message-no-models-found': 'No models found',
 
     'prompt-openrouter-apikey': 'OpenRouter API key is required',
+    'prompt-google-apikey': 'Google API key is required',
 
     'error-file-exists': 'The file already exists',
     'prompt-ask-filename': 'What name do you want to give to the file?',
@@ -44,11 +47,14 @@ export const messagesEnUk = {
     'tab-general': 'General',
     'tab-ollama': 'Ollama',
     'tab-openrouter': 'Open Router',
+    'tab-google': 'Google',
     'dialog-settings-description': 'Adjust the general application settings and AI provider configuration.',
     'field-ollama-url': 'Ollama URL',
     'field-ollama-model': 'Ollama model',
     'field-openrouter-api-key': 'OpenRouter API key',
     'field-openrouter-model': 'OpenRouter model',
+    'field-google-api-key': 'Google API key',
+    'field-google-model': 'Google model',
 
     'text-language': 'language',
     'response-yes': 'Yes',
@@ -67,6 +73,7 @@ export const messagesEnUk = {
     'label-active-model': 'Active model',
     'option-ollama': 'Ollama',
     'option-openrouter': 'OpenRouter',
+    'option-google': 'Google',
     'button-replace': 'Replace',
     'button-modify': 'Modify'
 };

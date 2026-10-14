@@ -207,9 +207,10 @@ export default function FilesDrawer({ }: FilesDrawerProps) {
                     const filename = result.filename.endsWith(extensionSnippetFiles)
                         ? result.filename
                         : `${result.filename}${extensionSnippetFiles}`
-                    await writeFile(pathFolder, filename, '{}')
+                    const content = result.content ?? '{}'
+                    await writeFile(pathFolder, filename, content)
                     setActiveFile(filename)
-                    setJsonSnippets('{}')
+                    setJsonSnippets(content)
                     setSelectedSnippet({})
                     setFiles((prev) => [...prev, filename])
                 }}>{$t('action-addfile')}</Button>

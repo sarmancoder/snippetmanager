@@ -4,14 +4,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
 import { FaBrain } from "react-icons/fa";
 import { useLocalStorage } from "@uidotdev/usehooks";
+import { generateGoogleSnippet } from "@/lib/ai/google";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 
-type ProviderOption = "ollama" | "openrouter";
+type ProviderOption = "ollama" | "openrouter" | "google";
 
 const MODEL_OPTIONS: Array<{ value: ProviderOption; labelKey: string }> = [
     { value: "ollama", labelKey: "option-ollama" },
     { value: "openrouter", labelKey: "option-openrouter" },
+    { value: "google", labelKey: "option-google" },
 ];
 
 export default function FabAi() {
@@ -22,6 +25,7 @@ export default function FabAi() {
     const [selectedModel] = useLocalStorage('settings-ollama-model', 'llama3.2');
     const [openRouterModel] = useLocalStorage('settings-openrouter-model', 'openai/gpt-4o-mini');
     const [openRouterApiKey] = useLocalStorage('settings-openrouter-api-key', '');
+    const [googleModel] = useLocalStorage('settings-google-model', 'gemini-2.0-flash');
     const [open, setOpen] = useState(false);
     const popoverRef = useRef<HTMLFormElement | null>(null);
     const [unable, setUnable] = useState(false)
@@ -64,12 +68,27 @@ ${JSON.stringify(currentSnippet)}
 Quiero que lo modifiques para: ${data.prompt}`
                 : data.prompt
             console.log({promptToSend, strsnipp: JSON.stringify(currentSnippet)})
-            const activeModel = provider === 'ollama' ? selectedModel : openRouterModel;
-            const dataAiString = await invoke(provider === 'ollama' ? 'stream_ollama_prompt' : 'stream_openrouter_prompt', {
-                prompt: promptToSend,
-                model: activeModel,
-                apiKey: openRouterApiKey
-            })
+            const activeModel = provider === 'ollama'
+                ? selectedModel
+                : provider === 'openrouter'
+                    ? openRouterModel
+                    : googleModel;
+
+            let dataAiString: string;
+            if (provider === 'google') {
+                const googleApiKey = await invoke<string | null>('get_google_api_key');
+                if (!googleApiKey) {
+                    toast.error($t('prompt-google-apikey'));
+                    return;
+                }
+                dataAiString = await generateGoogleSnippet(String(promptToSend), activeModel, googleApiKey);
+            } else {
+                dataAiString = await invoke(provider === 'ollama' ? 'stream_ollama_prompt' : 'stream_openrouter_prompt', {
+                    prompt: promptToSend,
+                    model: activeModel,
+                    apiKey: openRouterApiKey
+                });
+            }
             const dataAi = JSON.parse(dataAiString as string)
             console.log(dataAi)
             const formattedResult = typeof dataAi === 'string'
@@ -143,7 +162,7 @@ Quiero que lo modifiques para: ${data.prompt}`
 
                                     <div className="rounded-lg border border-dashed border-input/70 bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
                                         <span className="font-medium text-foreground">{$t("label-active-model")}: </span>
-                                        {provider === 'ollama' ? selectedModel : openRouterModel}
+                                        {provider === 'ollama' ? selectedModel : provider === 'openrouter' ? openRouterModel : googleModel}
                                     </div>
                                 </fieldset>
                             </CardContent>

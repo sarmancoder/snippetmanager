@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { useI18nProviderContext } from '@/I18nProvider';
 import GeneralTab from './GeneralTab';
+import GoogleTab from './GoogleTab';
 import OllamaTab from './OllamaTab';
 import OpenRouterTab from './OpenRouterTab';
 
@@ -18,12 +19,13 @@ type SettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type SettingsTab = 'general' | 'ollama' | 'openrouter';
+type SettingsTab = 'general' | 'ollama' | 'openrouter' | 'google';
 
 const tabs: Array<{ key: SettingsTab; labelKey: string }> = [
   { key: 'general', labelKey: 'tab-general' },
   { key: 'ollama', labelKey: 'tab-ollama' },
   { key: 'openrouter', labelKey: 'tab-openrouter' },
+  { key: 'google', labelKey: 'tab-google' },
 ];
 
 export default function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
@@ -55,6 +57,7 @@ export default function SettingsDialog({ open, onOpenChange }: SettingsDialogPro
           {activeTab === 'general' && <GeneralTab />}
           {activeTab === 'ollama' && <OllamaTab />}
           {activeTab === 'openrouter' && <OpenRouterTab />}
+          {activeTab === 'google' && <GoogleTab />}
         </div>
 
         <DialogFooter>

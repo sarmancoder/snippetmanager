@@ -6,6 +6,8 @@ export const messagesEsEs = {
 
     'inputlabel-namefile': 'Nombre del archivo',
     'inputlabel-ai-content': 'Pedir contenido a la IA',
+    'inputlabel-ai-prefix': 'Prefijo deseado',
+    'error-ai-generation': 'No se pudo generar el contenido con la IA',
 
     'error-model-not-selected': 'No has seleccionado el modelo',
     'error-file-name-required': 'Es obligatorio el nombre del archivo',
@@ -18,6 +20,7 @@ export const messagesEsEs = {
     'message-no-models-found': 'No se encontraron modelos',
 
     'prompt-openrouter-apikey': 'Es necesaria la API Key de OpenRouter',
+    'prompt-google-apikey': 'Es necesaria la API Key de Google',
 
     'error-file-exists': 'El fichero existe',
     'prompt-ask-filename': 'Que nombre le quieres poner al archivo',
@@ -44,11 +47,14 @@ export const messagesEsEs = {
     'tab-general': 'General',
     'tab-ollama': 'Ollama',
     'tab-openrouter': 'Open Router',
+    'tab-google': 'Google',
     'dialog-settings-description': 'Ajusta la configuración general de la aplicación y del proveedor de IA.',
     'field-ollama-url': 'URL de Ollama',
     'field-ollama-model': 'Modelo de Ollama',
     'field-openrouter-api-key': 'API key de OpenRouter',
     'field-openrouter-model': 'Modelo de OpenRouter',
+    'field-google-api-key': 'API key de Google',
+    'field-google-model': 'Modelo de Google',
 
     'text-language': 'Idioma',
     'response-yes': 'Si',
@@ -67,6 +73,7 @@ export const messagesEsEs = {
     'label-active-model': 'Modelo activo',
     'option-ollama': 'Ollama',
     'option-openrouter': 'OpenRouter',
+    'option-google': 'Google',
     'button-replace': 'Reemplazar',
     'button-modify': 'Modificar'
 }
