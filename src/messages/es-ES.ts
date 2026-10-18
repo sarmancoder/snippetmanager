@@ -75,5 +75,12 @@ export const messagesEsEs = {
     'option-openrouter': 'OpenRouter',
     'option-google': 'Google',
     'button-replace': 'Reemplazar',
-    'button-modify': 'Modificar'
+    'button-modify': 'Modificar',
+
+    'title-snippets-browser': 'Explorador de snippets',
+    'description-snippets-browser': 'Busca y filtra tus snippets por lenguaje.',
+    'search-snippets-placeholder': 'Buscar snippets...',
+    'chip-all-languages': 'Todos',
+    'status-loading-snippets': 'Cargando snippets...',
+    'message-no-snippets-found': 'No se encontraron snippets'
 }

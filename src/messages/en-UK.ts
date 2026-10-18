@@ -75,5 +75,12 @@ export const messagesEnUk = {
     'option-openrouter': 'OpenRouter',
     'option-google': 'Google',
     'button-replace': 'Replace',
-    'button-modify': 'Modify'
+    'button-modify': 'Modify',
+
+    'title-snippets-browser': 'Snippet explorer',
+    'description-snippets-browser': 'Search and filter your snippets by language.',
+    'search-snippets-placeholder': 'Search snippets...',
+    'chip-all-languages': 'All',
+    'status-loading-snippets': 'Loading snippets...',
+    'message-no-snippets-found': 'No snippets found'
 };

@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { FaSave } from 'react-icons/fa';
-import { MdSettings, MdWrapText } from 'react-icons/md';
+import { MdCode, MdSettings, MdWrapText } from 'react-icons/md';
 import SettingsDialog from '../../dialogs/SettingsDialog';
+import SnippetsBrowser from '../../dialogs/SnippetsBrowser';
 import ModeToggle from '../ModeToggle';
 import { useAppProviderContext } from '../providers/AppProvider';
 import FilesDrawer from './FilesDrawer';
@@ -14,12 +15,14 @@ type LayoutProps = {
 
 export default function LayoutApp({ }: LayoutProps) {
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [snippetsBrowserOpen, setSnippetsBrowserOpen] = useState(false);
 
     return (
         <div>
             <header className='bg-primary h-(--height-appbar) fixed w-screen flex justify-between items-center px-2'>
                 <h1 className='text-xl text-white'>Snippets app</h1>
                 <div className="flex flex-row gap-2">
+                    <SnippetsBrowserButton onOpenChange={setSnippetsBrowserOpen} />
                     <SettingsButton onOpenChange={setSettingsOpen} />
                     <AdjustButton />
                     <SaveButton />
@@ -30,7 +33,21 @@ export default function LayoutApp({ }: LayoutProps) {
             <SnippetsDrawer />
             <MainContent />
             <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+            <SnippetsBrowser open={snippetsBrowserOpen} onOpenChange={setSnippetsBrowserOpen} />
         </div>
+    );
+}
+
+function SnippetsBrowserButton({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+    return (
+        <button
+            type="button"
+            onClick={() => onOpenChange(true)}
+            className="rounded-md p-1 text-white transition hover:bg-white/10"
+            aria-label="Open snippets explorer"
+        >
+            <MdCode className="text-2xl" />
+        </button>
     );
 }
 
